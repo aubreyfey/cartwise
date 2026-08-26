@@ -2,6 +2,11 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Local secrets. .env.example is committed; real values never are.
+.env
+.env.*
+!.env.example
 .DS_Store
 .vite
 
