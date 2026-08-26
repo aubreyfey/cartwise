@@ -671,124 +671,150 @@ button {
 
 /* ---------- tour ---------- */
 
+/* The App Store panels, played as a story. The images carry their own
+   background and type, so this file only has to position them and animate
+   between them. */
 .tour {
   position: fixed;
   inset: 0;
   z-index: 90;
   display: flex;
   flex-direction: column;
-  padding: 1.25rem;
-  transition: background 260ms ease;
-  overflow-y: auto;
+  gap: 0.6rem;
+  padding: 0.6rem 0.6rem 1rem;
+  background: #17141f;
 }
 
-/* Tints, not photographs. Each panel gets its own so paging feels like
-   movement even though the layout does not change. */
-.tour--violet { background: linear-gradient(165deg, #f1ecfa, #e6e0f5); }
-.tour--green  { background: linear-gradient(165deg, #eef6ec, #e2f0e2); }
-.tour--mint   { background: linear-gradient(165deg, #eaf5f2, #ddefe9); }
-.tour--rose   { background: linear-gradient(165deg, #fdf0ee, #f8e6ec); }
-.tour--blue   { background: linear-gradient(165deg, #eef3fa, #e2ecf7); }
-.tour--amber  { background: linear-gradient(165deg, #fef5e6, #fcecd4); }
-.tour--slate  { background: linear-gradient(165deg, #f3f2f7, #e9e8f0); }
+/* Story progress bars. */
+.tour__bars {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 0.15rem;
+  flex-shrink: 0;
+}
 
-@media (prefers-color-scheme: dark) {
-  .tour--violet { background: linear-gradient(165deg, #241d33, #191527); }
-  .tour--green  { background: linear-gradient(165deg, #1a2a1c, #141f16); }
-  .tour--mint   { background: linear-gradient(165deg, #162b28, #10201e); }
-  .tour--rose   { background: linear-gradient(165deg, #2e1d22, #221419); }
-  .tour--blue   { background: linear-gradient(165deg, #182333, #121a26); }
-  .tour--amber  { background: linear-gradient(165deg, #2e2415, #221a0f); }
-  .tour--slate  { background: linear-gradient(165deg, #1d1c24, #16151c); }
+.tour__bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.25);
+  overflow: hidden;
+}
+
+.tour__bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.tour__bar-fill--done {
+  width: 100%;
+}
+
+/* Driven by animation-duration set inline, so the bar and the auto-advance
+   timer are always the same length. */
+.tour__bar-fill--live {
+  animation: tour-progress linear forwards;
+}
+
+@keyframes tour-progress {
+  from { width: 0; }
+  to { width: 100%; }
 }
 
 .tour__stage {
+  position: relative;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 0.5rem;
-  max-width: 30rem;
+  min-height: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #17141f;
+}
+
+.tour__slide {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  margin: 0 auto;
-  padding: 1.5rem 0.5rem;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transform: translateX(6%) scale(1.02);
+  transition: opacity 420ms ease, transform 620ms cubic-bezier(0.22, 0.8, 0.3, 1);
+  pointer-events: none;
+  user-select: none;
 }
 
-.tour__stickers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
-  margin-bottom: 1.25rem;
-  min-height: 5rem;
+.tour__slide--on {
+  opacity: 1;
+  transform: none;
+  /* A slow drift, so a still image does not sit dead on the screen. */
+  animation: tour-drift 6s ease-in-out infinite alternate;
 }
 
-.tour__title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 9vw, 2.9rem);
-  font-weight: 400;
-  line-height: 1.1;
-  margin: 0;
-  color: var(--text);
+.tour__slide--past {
+  transform: translateX(-6%) scale(0.99);
 }
 
-.tour__title:focus {
-  outline: none;
+@keyframes tour-drift {
+  from { transform: scale(1); }
+  to { transform: scale(1.035); }
 }
 
-.tour__body {
-  margin: 0.4rem 0 0;
-  font-size: clamp(0.95rem, 4vw, 1.08rem);
-  line-height: 1.55;
-  color: var(--text-muted);
-  max-width: 26rem;
-}
-
-.tour__nav {
-  width: 100%;
-  max-width: 30rem;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding-bottom: 0.5rem;
-}
-
-.tour__dots {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
-.tour__dot {
-  width: 0.55rem;
-  height: 0.55rem;
-  padding: 0;
+/* Half-screen tap targets, the way a story works. */
+.tour__half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
   border: none;
-  border-radius: 999px;
-  background: var(--border);
-  transition: width 200ms ease, background 200ms ease;
+  background: none;
+  cursor: pointer;
+  z-index: 3;
 }
 
-.tour__dot--on {
-  width: 1.5rem;
-  background: var(--primary);
+.tour__half--left { left: 0; }
+.tour__half--right { right: 0; width: 60%; }
+.tour__half:disabled { cursor: default; }
+
+/* The slide text lives inside the image, so it is repeated here for screen
+   readers and kept off screen visually. */
+.tour__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 .tour__buttons {
   display: flex;
   gap: 0.5rem;
+  max-width: 30rem;
+  width: 100%;
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .tour__buttons .btn {
   flex: 1;
   padding: 0.7rem 1rem;
   border-radius: 14px;
+}
+
+.tour__buttons .btn--ghost {
+  color: rgb(255 255 255 / 0.8);
+  border-color: rgb(255 255 255 / 0.28);
+}
+
+.tour__buttons .btn--ghost:hover {
+  background: rgb(255 255 255 / 0.1);
+  color: #fff;
 }
 
 .tour__open {
@@ -810,461 +836,21 @@ button {
   color: var(--primary);
 }
 
-/* ---------- tour demos ---------- */
-
-/* The demos sit inside a phone, the way the store panels show them. The
-   bezel is a gradient rather than flat black so it reads as a device rather
-   than a rectangle, and the notch is a pseudo-element so there is no extra
-   markup to keep in sync. */
-.demo__frame {
-  position: relative;
-  width: 100%;
-  max-width: 17.5rem;
-  margin-bottom: 1.3rem;
-  padding: 0.55rem;
-  border-radius: 2.6rem;
-  background: linear-gradient(155deg, #4a4a56 0%, #23232c 42%, #14141a 100%);
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.08) inset,
-    0 18px 40px rgb(25 12 50 / 0.35);
-}
-
-.demo__screen {
-  position: relative;
-  border-radius: 2.1rem;
-  background: var(--surface);
-  padding: 1.7rem 0.7rem 0.9rem;
-  overflow: hidden;
-  /* Tall enough to read as a handset, short enough that a four-row demo does
-     not leave half a screen of blank white. */
-  aspect-ratio: 9 / 13.5;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Dynamic island. */
-.demo__screen::before {
-  content: '';
-  position: absolute;
-  top: 0.45rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4.2rem;
-  height: 1.05rem;
-  border-radius: 999px;
-  background: #14141a;
-  z-index: 4;
-}
-
-.demo {
-  position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  text-align: left;
-  font-size: 0.74rem;
-}
-
-/* The pretend fingertip. */
-.demo__finger {
-  position: absolute;
-  width: 1.5rem;
-  height: 1.5rem;
-  margin: -0.75rem 0 0 -0.75rem;
-  border-radius: 50%;
-  background: rgb(60 40 90 / 0.28);
-  border: 2px solid rgb(255 255 255 / 0.9);
-  box-shadow: 0 2px 8px rgb(30 15 60 / 0.3);
-  transition: left 520ms cubic-bezier(0.4, 0, 0.2, 1),
-    top 520ms cubic-bezier(0.4, 0, 0.2, 1),
-    transform 180ms ease, opacity 260ms ease;
-  pointer-events: none;
-  z-index: 5;
-}
-
-.demo__finger--tap {
-  transform: scale(0.7);
-  background: rgb(123 94 167 / 0.55);
-}
-
-.demo__finger--hidden {
-  opacity: 0;
-}
-
-.demo__row {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.3rem 0.35rem;
-  border-radius: 9px;
-  background: var(--surface-2);
-  transition: opacity 320ms ease, transform 320ms ease;
-}
-
-.demo__row--in { opacity: 1; transform: none; }
-.demo__row--out { opacity: 0; transform: translateY(6px); }
-.demo__row--drop { animation: demo-drop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2); }
-
-@keyframes demo-drop {
-  from { opacity: 0; transform: translateY(-12px) scale(0.96); }
-  to { opacity: 1; transform: none; }
-}
-
-.demo__name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-.demo__amount {
-  font-variant-numeric: tabular-nums;
-  font-weight: 800;
-}
-
-.demo__amount--best { color: var(--money); }
-.demo__good { color: var(--money); }
-
-.demo__input {
-  display: flex;
-  align-items: center;
-  gap: 0.1rem;
-  padding: 0.45rem 0.6rem;
-  border-radius: 10px;
-  background: var(--surface-2);
-  border: 1px solid transparent;
-  font-weight: 600;
-  min-height: 2rem;
-}
-
-.demo__input--active { border-color: var(--primary); background: var(--surface); }
-.demo__ph { color: var(--text-faint); font-weight: 400; }
-
-.demo__caret {
-  display: inline-block;
-  width: 1.5px;
-  height: 0.9rem;
-  background: var(--primary);
-  animation: demo-blink 900ms steps(2, start) infinite;
-}
-
-@keyframes demo-blink { 50% { opacity: 0; } }
-
-.demo__group { display: flex; flex-direction: column; gap: 0.25rem; }
-
-.demo__pill {
-  align-self: flex-start;
-  padding: 0.1rem 0.45rem;
-  border-radius: 999px;
-  background: var(--primary-soft);
-  color: var(--primary);
-  font-size: 0.62rem;
-  font-weight: 800;
-}
-
-/* budget */
-.demo__labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.62rem;
-  color: var(--text-faint);
-}
-
-.demo__track {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-.demo__fill {
-  height: 1.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 0.45rem;
-  border-radius: 999px;
-  background: var(--money);
-  transition: width 700ms cubic-bezier(0.3, 0.8, 0.3, 1);
-  flex-shrink: 0;
-}
-
-.demo__spent {
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.68rem;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.demo__cap { font-weight: 800; font-variant-numeric: tabular-nums; }
-.demo__rows { display: flex; flex-direction: column; gap: 0.25rem; }
-
-/* vault */
-.demo__suggest {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.5rem;
-  border-radius: 10px;
-  background: var(--primary-soft);
-  animation: demo-drop 300ms ease;
-}
-
-.demo__price { color: var(--money); font-weight: 800; }
-.demo__from {
-  font-size: 0.56rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-faint);
-  font-weight: 800;
-}
-
-.demo__filled { display: flex; gap: 0.35rem; }
-
-.demo__chip {
-  flex: 1;
-  padding: 0.35rem 0.45rem;
-  border-radius: 9px;
-  background: var(--surface-2);
-  display: flex;
-  flex-direction: column;
-  animation: demo-drop 320ms ease;
-}
-
-.demo__chip--money { background: var(--money-soft); }
-.demo__chip-label {
-  font-size: 0.55rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-  font-weight: 800;
-}
-
-/* compare */
-.demo__stores { display: flex; gap: 0.35rem; }
-
-.demo__store {
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  font-size: 0.68rem;
-  font-weight: 700;
-  transition: background 240ms ease, color 240ms ease, border-color 240ms ease;
-}
-
-.demo__store--on {
-  border-color: var(--money);
-  background: var(--money-soft);
-  color: var(--money);
-}
-
-.demo__bars { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.3rem; }
-
-.demo__bar-row {
-  display: grid;
-  grid-template-columns: 4.6rem 1fr auto;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.demo__bar-name { font-weight: 600; font-size: 0.68rem; }
-
-.demo__bar {
-  height: 7px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.demo__bar-fill {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--primary);
-  opacity: 0.45;
-  transition: width 600ms ease;
-}
-
-.demo__bar-fill--best { background: var(--money); opacity: 1; }
-
-.demo__note {
-  margin: 0.4rem 0 0;
-  font-size: 0.66rem;
-  line-height: 1.45;
-  color: var(--text-muted);
-}
-
-/* shopping */
-.demo__row--tall { padding: 0.45rem 0.35rem; }
-
-.demo__check {
-  width: 1.05rem;
-  height: 1.05rem;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  flex-shrink: 0;
-  transition: background 240ms ease, border-color 240ms ease;
-}
-
-.demo__check--on {
-  background: var(--money);
-  border-color: var(--money);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-6'/%3E%3C/svg%3E");
-  background-size: 78%;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.demo__row--done .demo__name { text-decoration: line-through; color: var(--text-faint); }
-
-.demo__basket {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin-top: 0.4rem;
-  padding: 0.35rem 0.35rem 0.35rem 0.5rem;
-  border-radius: 999px;
-  background: var(--primary);
-  color: #fff;
-  font-size: 0.68rem;
-}
-
-.demo__basket-count {
-  min-width: 1.2rem;
-  height: 1.2rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 0.25);
-  font-weight: 800;
-}
-
-.demo__basket-btn {
-  margin-left: auto;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  background: #fff;
-  color: var(--primary);
-  font-weight: 800;
-}
-
-/* scan */
-.demo__viewfinder {
-  position: relative;
-  display: grid;
-  place-items: center;
-  height: 6.5rem;
-  border-radius: 14px;
-  background: var(--surface-2);
-  color: var(--text-muted);
-  overflow: hidden;
-}
-
-.demo__viewfinder--live { color: var(--primary); }
-
-.demo__scanline {
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  height: 2px;
-  background: var(--danger);
-  box-shadow: 0 0 8px var(--danger);
-  animation: demo-scan 1.6s ease-in-out infinite;
-}
-
-@keyframes demo-scan {
-  0%, 100% { top: 24%; }
-  50% { top: 74%; }
-}
-
-.demo__found {
-  position: absolute;
-  bottom: 0.5rem;
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
-  background: var(--money-soft);
-  color: var(--money);
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  font-size: 0.66rem;
-  animation: demo-drop 300ms ease;
-}
-
-/* expiry */
-.demo__when { font-size: 0.62rem; font-weight: 800; white-space: nowrap; }
-.demo__when--bad { color: var(--danger); }
-.demo__when--warn { color: var(--amber); }
-.demo__when--ok { color: var(--text-faint); }
-
-/* trips */
-.demo--trips { justify-content: flex-end; overflow: hidden; }
-
-.demo__receipt {
-  padding: 0.7rem;
-  border-radius: 12px;
-  background: var(--surface-2);
-  transform: translateY(60%);
-  opacity: 0;
-  transition: transform 620ms cubic-bezier(0.2, 0.9, 0.3, 1.05), opacity 420ms ease;
-}
-
-.demo__receipt--up { transform: none; opacity: 1; }
-
-.demo__receipt-title {
-  margin: 0 0 0.5rem;
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  text-align: center;
-}
-
-.demo__figures {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  text-align: center;
-  padding: 0.4rem 0;
-  border-top: 1px dashed var(--border);
-  border-bottom: 1px dashed var(--border);
-}
-
-.demo__figures span {
-  display: block;
-  font-size: 0.55rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-  font-weight: 800;
-}
-
-.demo__figures strong { font-size: 0.72rem; font-variant-numeric: tabular-nums; }
-
-.demo__collage {
-  display: flex;
-  justify-content: center;
-  gap: 0.1rem;
-  margin-top: 0.5rem;
-}
-
-/* Someone who asked the OS for less movement gets the end state, still. */
+/* Someone who asked the OS for less movement gets the panels without the
+   drift or the auto-advance; the progress bar simply fills as they page. */
 @media (prefers-reduced-motion: reduce) {
-  .demo__finger,
-  .demo__row,
-  .demo__fill,
-  .demo__bar-fill,
-  .demo__receipt {
-    transition: none;
+  .tour__slide {
+    transition: opacity 120ms linear;
+    transform: none;
   }
-  .demo__caret,
-  .demo__scanline {
+  .tour__slide--on,
+  .tour__slide--past {
     animation: none;
+    transform: none;
   }
-  .demo__row--drop,
-  .demo__suggest,
-  .demo__chip,
-  .demo__found {
+  .tour__bar-fill--live {
     animation: none;
+    width: 100%;
   }
 }
 

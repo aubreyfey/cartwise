@@ -1,67 +1,95 @@
 // Run with: npm test
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
+import { existsSync } from 'node:fs'
 
-import { TOUR_PANELS, clampPanel } from './tour.js'
+import { SLIDE_MS, TOUR_PANELS, clampPanel, tourImage, windowAround } from './tour.js'
 import { STICKER_IDS, stickerFor } from './stickerCatalog.js'
 
 describe('tour content', () => {
-  it('has a complete panel for every step', () => {
+  it('has a complete panel for every slide', () => {
     assert.ok(TOUR_PANELS.length >= 6, 'enough to be worth paging through')
     for (const panel of TOUR_PANELS) {
       assert.ok(panel.id, 'has an id')
+      assert.ok(panel.image, `${panel.id} names an image`)
       assert.ok(panel.title?.length > 0, `${panel.id} has a title`)
       assert.ok(panel.body?.length > 0, `${panel.id} has body copy`)
-      assert.ok(Array.isArray(panel.stickers) && panel.stickers.length > 0, `${panel.id} has stickers`)
     }
   })
 
-  it('uses only stickers that actually exist', () => {
-    // A typo here renders the fallback basket on every panel and looks like a
-    // bug rather than a mistake in a data file.
+  it('points at images that are actually on disk', () => {
+    // The text is baked into these pictures, so a missing file is not a
+    // cosmetic gap — the whole slide is gone.
     for (const panel of TOUR_PANELS) {
-      for (const id of panel.stickers) {
-        assert.ok(STICKER_IDS.includes(id), `${panel.id} references unknown sticker "${id}"`)
-      }
+      const path = `public/tour/${panel.image}.webp`
+      assert.ok(existsSync(path), `${panel.id} expects ${path}; run npm run tour:images`)
     }
   })
 
-  it('uses only tones that have a stylesheet rule', () => {
-    const known = new Set(['violet', 'green', 'mint', 'rose', 'blue', 'amber', 'slate'])
-    for (const panel of TOUR_PANELS) {
-      assert.ok(known.has(panel.tone), `${panel.id} has unstyled tone "${panel.tone}"`)
-    }
-  })
-
-  it('only names demos that exist', () => {
-    // A typo here renders nothing where the animation should be, leaving a
-    // panel that looks like it failed to load.
-    const known = new Set([
-      'aisles', 'budget', 'vault', 'compare', 'shopping', 'scan', 'expiry', 'trips',
-    ])
-    for (const panel of TOUR_PANELS) {
-      if (panel.demo) {
-        assert.ok(known.has(panel.demo), `${panel.id} references unknown demo "${panel.demo}"`)
-      }
-    }
-  })
-
-  it('keeps stickers on every panel as the fallback when a demo is absent', () => {
-    for (const panel of TOUR_PANELS) {
-      assert.ok(panel.stickers.length > 0, `${panel.id} would render empty without a demo`)
-    }
-  })
-
-  it('has unique ids so React keys do not collide', () => {
+  it('has unique ids and images so nothing renders twice', () => {
     const ids = TOUR_PANELS.map((p) => p.id)
-    assert.equal(new Set(ids).size, ids.length)
+    const images = TOUR_PANELS.map((p) => p.image)
+    assert.equal(new Set(ids).size, ids.length, 'ids are unique')
+    assert.equal(new Set(images).size, images.length, 'images are unique')
   })
 
-  it('keeps copy short enough to read on a phone', () => {
+  it('keeps the alternative text short enough to hear', () => {
     for (const panel of TOUR_PANELS) {
-      assert.ok(panel.title.length <= 34, `${panel.id} title is ${panel.title.length} chars`)
-      assert.ok(panel.body.length <= 180, `${panel.id} body is ${panel.body.length} chars`)
+      assert.ok(panel.title.length <= 40, `${panel.id} title is ${panel.title.length} chars`)
+      assert.ok(panel.body.length <= 130, `${panel.id} body is ${panel.body.length} chars`)
     }
+  })
+
+  it('holds each slide long enough to read', () => {
+    assert.ok(SLIDE_MS >= 3000, 'not a flicker')
+    assert.ok(SLIDE_MS <= 8000, 'not a wait')
+  })
+})
+
+describe('tourImage', () => {
+  it('respects the base path so it works on a subpath host', () => {
+    const panel = TOUR_PANELS[0]
+    assert.equal(tourImage(panel, '/'), `/tour/${panel.image}.webp`)
+    assert.equal(tourImage(panel, '/cartwise/'), `/cartwise/tour/${panel.image}.webp`)
+  })
+
+  it('never produces a doubled slash', () => {
+    for (const base of ['/', '//', '/cartwise/']) {
+      assert.ok(!tourImage(TOUR_PANELS[0], base).includes('//'))
+    }
+  })
+})
+
+describe('windowAround', () => {
+  it('keeps the current slide and its neighbours', () => {
+    assert.deepEqual([...windowAround(3, 8)].sort((a, b) => a - b), [2, 3, 4])
+  })
+
+  it('does not run off either end', () => {
+    assert.deepEqual([...windowAround(0, 8)].sort((a, b) => a - b), [0, 1])
+    assert.deepEqual([...windowAround(7, 8)].sort((a, b) => a - b), [6, 7])
+  })
+
+  it('copes with a single slide', () => {
+    assert.deepEqual([...windowAround(0, 1)], [0])
+  })
+})
+
+describe('clampPanel', () => {
+  it('stays inside the tour', () => {
+    assert.equal(clampPanel(-5), 0)
+    assert.equal(clampPanel(0), 0)
+    assert.equal(clampPanel(999), TOUR_PANELS.length - 1)
+  })
+
+  it('survives nonsense rather than rendering undefined', () => {
+    assert.equal(clampPanel(NaN), 0)
+    assert.equal(clampPanel(undefined), 0)
+    assert.equal(clampPanel(2.7), 2)
+  })
+
+  it('copes with an empty tour', () => {
+    assert.equal(clampPanel(3, 0), 0)
   })
 })
 
@@ -83,23 +111,5 @@ describe('sticker matching', () => {
       const id = stickerFor(name ?? '', 'nonsense-aisle')
       assert.ok(STICKER_IDS.includes(id), `got "${id}"`)
     }
-  })
-})
-
-describe('clampPanel', () => {
-  it('stays inside the tour', () => {
-    assert.equal(clampPanel(-5), 0)
-    assert.equal(clampPanel(0), 0)
-    assert.equal(clampPanel(999), TOUR_PANELS.length - 1)
-  })
-
-  it('survives nonsense rather than rendering undefined', () => {
-    assert.equal(clampPanel(NaN), 0)
-    assert.equal(clampPanel(undefined), 0)
-    assert.equal(clampPanel(2.7), 2)
-  })
-
-  it('copes with an empty tour', () => {
-    assert.equal(clampPanel(3, 0), 0)
   })
 })
