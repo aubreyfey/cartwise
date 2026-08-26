@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Cartwise store panels</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { background: #222; }
+
+      /* App Store 6.7"/6.9" iPhone size. */
+      .panel {
+        width: 1290px;
+        height: 2796px;
+        position: relative;
+        overflow: hidden;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Nunito', system-ui, sans-serif;
+      }
+      .panel.on { display: flex; }
+
+      .head { padding: 150px 90px 0; text-align: center; z-index: 2; }
+      .title {
+        font-family: 'Patrick Hand', cursive;
+        font-size: 132px;
+        line-height: 1.02;
+      }
+      .sub {
+        margin: 34px auto 0;
+        font-size: 52px;
+        line-height: 1.35;
+        font-weight: 600;
+        color: #4a4458;
+        max-width: 940px;
+      }
+
+      .phone {
+        margin-top: 96px;
+        width: 900px;
+        border-radius: 74px;
+        padding: 16px;
+        background: linear-gradient(160deg, #3a3a44, #16161c);
+        box-shadow: 0 60px 120px rgba(30, 15, 60, 0.35);
+        position: relative;
+        z-index: 2;
+      }
+      .phone--tall { margin-top: 76px; }
+      .screen {
+        width: 100%;
+        border-radius: 60px;
+        overflow: hidden;
+        background: #f3f2f7;
+        display: block;
+      }
+      .screen img { width: 100%; display: block; }
+
+      .deco { position: absolute; z-index: 3; pointer-events: none; }
+      .deco svg { display: block; filter: drop-shadow(0 6px 10px rgba(30,20,50,.22)); }
+      .deco svg path, .deco svg circle, .deco svg ellipse {
+        paint-order: stroke; stroke: #fff; stroke-width: 2.4; stroke-linejoin: round;
+      }
+
+      .wordmark {
+        display: flex; align-items: center; justify-content: center; gap: 26px;
+        font-family: 'Patrick Hand', cursive;
+        font-size: 176px;
+        color: #fff;
+        text-shadow: 0 8px 0 rgba(70, 45, 120, .35);
+      }
+      .tagline {
+        margin-top: 40px; font-size: 58px; font-weight: 700; line-height: 1.3;
+        color: #fff; max-width: 1000px; text-align: center;
+      }
+      .badge {
+        margin-top: 46px; display: inline-flex; gap: 18px; align-items: center;
+        padding: 22px 44px; border-radius: 999px;
+        background: rgba(255,255,255,.92); font-size: 40px; font-weight: 800; color: #4a3d6b;
+      }
+
+      .p1 { background: linear-gradient(165deg, #7b5ea7 0%, #6a4f97 45%, #4f3a78 100%); }
+      .p2 { background: linear-gradient(165deg, #f4efe6, #e9f3ea); }
+      .p2 .title { color: #2f7d43; }
+      .p3 { background: linear-gradient(165deg, #f1ecfa, #e8e3f6); }
+      .p3 .title { color: #6242a0; }
+      .p4 { background: linear-gradient(165deg, #fdf0ee, #f7e9ef); }
+      .p4 .title { color: #c14a52; }
+      .p5 { background: linear-gradient(165deg, #eef3fa, #e6eef8); }
+      .p5 .title { color: #2f5f9e; }
+      .p6 { background: linear-gradient(165deg, #fef5e6, #fdf0da); }
+      .p6 .title { color: #b47410; }
+      .p7 { background: linear-gradient(165deg, #eaf5f2, #e2f0ec); }
+      .p7 .title { color: #1f7a68; }
+      .p8 { background: linear-gradient(165deg, #f3f2f7, #eceaf3); }
+      .p8 .title { color: #3c3550; }
+    </style>
+  </head>
+  <body>
+    <script>
+      // Same shapes as src/stickers.jsx, so the marketing and the app are
+      // drawn from one sticker set.
+      const ART = {
+        banana: '<path fill="#f7cf4a" d="M12 10c-2 12 4 26 20 28 8 1 8-4 3-5C22 31 18 21 19 11z"/><path fill="#e0ae2c" d="M32 38c8 1 8-4 3-5-4-1-7-2-9-4 3 5 6 8 6 9z"/><path fill="#8a6a2f" d="M11 8h4v5h-4z"/>',
+        broccoli: '<circle cx="18" cy="16" r="8" fill="#4f9c3f"/><circle cx="30" cy="15" r="8" fill="#5cae49"/><circle cx="24" cy="23" r="8" fill="#468c38"/><path fill="#9dc47f" d="M21 26h6l2 16h-10z"/>',
+        bread: '<path fill="#d9a35d" d="M8 22c0-8 7-12 16-12s16 4 16 12v14a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z"/><path fill="#c1874a" d="M14 16c2-2 5-3 10-3s8 1 10 3c-3-1-6-2-10-2s-7 1-10 2z"/>',
+        milk: '<path fill="#eef3f8" d="M17 18h14v20a4 4 0 0 1-4 4h-6a4 4 0 0 1-4-4z"/><path fill="#dbe6f0" d="M19 8h10v10H19z"/><path fill="#5b8fd6" d="M17 26h14v7H17z"/>',
+        bottle: '<path fill="#8ecbe8" d="M17 19h14v19a4 4 0 0 1-4 4h-6a4 4 0 0 1-4-4z"/><path fill="#b7e0f2" d="M20 7h8v12h-8z"/><path fill="#3f89aa" d="M19 6h10v3H19z"/>',
+        cookie: '<circle cx="24" cy="26" r="15" fill="#d2a05c"/><circle cx="19" cy="21" r="2.5" fill="#5e3a1c"/><circle cx="29" cy="24" r="2.5" fill="#5e3a1c"/><circle cx="22" cy="32" r="2.5" fill="#5e3a1c"/>',
+        can: '<ellipse cx="24" cy="13" rx="12" ry="4" fill="#c3ccd6"/><path fill="#aab6c2" d="M12 13h24v22c0 3-5 5-12 5s-12-2-12-5z"/><path fill="#dd6b5b" d="M12 20h24v10H12z"/>',
+        cheese: '<path fill="#f2c14e" d="M6 32 40 12v20a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z"/><circle cx="16" cy="29" r="3" fill="#dba52f"/><circle cx="28" cy="26" r="2.5" fill="#dba52f"/>',
+        egg: '<ellipse cx="24" cy="27" rx="13" ry="16" fill="#fdf6e6"/><ellipse cx="24" cy="30" rx="7" ry="6" fill="#f5c33b"/>',
+        basket: '<path fill="#8f7ac0" d="M6 18h36l-4 20a4 4 0 0 1-4 3H14a4 4 0 0 1-4-3z"/><path fill="#6d5aa0" d="M15 8h3v11h-3zm15 0h3v11h-3z"/>',
+        // Light variant: the purple basket disappears on the purple hero.
+        basketLight: '<path fill="#ffffff" d="M6 18h36l-4 20a4 4 0 0 1-4 3H14a4 4 0 0 1-4-3z"/><path fill="#d9cef0" d="M15 8h3v11h-3zm15 0h3v11h-3z"/>',
+      }
+      const sticker = (id, size, tilt) =>
+        `<svg width="${size}" height="${size}" viewBox="0 0 48 48" style="transform:rotate(${tilt}deg)">${ART[id]}</svg>`
+
+      const PANELS = [
+        {
+          hero: true,
+          shot: 'list',
+          deco: [
+            ['banana', 150, -16, { top: '86px', left: '76px' }],
+            ['bottle', 130, 14, { top: '150px', right: '92px' }],
+            ['broccoli', 140, -9, { bottom: '210px', left: '54px' }],
+            ['cheese', 128, 12, { bottom: '260px', right: '58px' }],
+          ],
+        },
+        {
+          cls: 'p2',
+          title: 'Know the total<br>before the till',
+          sub: 'Every price sits on the row, and the budget bar moves as you shop. Nothing is a surprise at the checkout.',
+          shot: 'budget',
+          deco: [
+            ['cheese', 130, -14, { top: '124px', right: '72px' }],
+            ['egg', 120, 10, { top: '900px', left: '50px' }],
+          ],
+        },
+        {
+          cls: 'p3',
+          title: 'It remembers<br>every price',
+          sub: 'Type a name you have bought before and the price, unit and aisle fill themselves in, from your own shopping.',
+          shot: 'shopping',
+          deco: [
+            ['can', 130, 13, { top: '116px', left: '72px' }],
+            ['milk', 125, -11, { top: '900px', right: '50px' }],
+          ],
+        },
+        {
+          cls: 'p4',
+          title: 'Which shop is<br>actually cheaper?',
+          sub: 'Compared only on what you have priced at both, and it says how much of the list that covers.',
+          shot: 'compare',
+          deco: [
+            ['basket', 140, -12, { top: '134px', right: '68px' }],
+            ['broccoli', 120, 9, { top: '900px', left: '50px' }],
+          ],
+        },
+        {
+          cls: 'p5',
+          title: 'Every trip,<br>remembered',
+          sub: 'Finish a shop and it keeps what you bought, what it cost, and how it landed against your budget.',
+          shot: 'receipt',
+          deco: [
+            ['bread', 135, 11, { top: '124px', left: '70px' }],
+            ['banana', 125, -13, { top: '900px', right: '50px' }],
+          ],
+        },
+        {
+          cls: 'p6',
+          title: 'Know what<br>to eat first',
+          sub: 'Track what is in the fridge and what is about to turn. Expired, today, this week, sorted for you.',
+          shot: 'expiry',
+          deco: [
+            ['milk', 130, -10, { top: '128px', right: '72px' }],
+            ['egg', 120, 12, { top: '900px', left: '50px' }],
+          ],
+        },
+        {
+          cls: 'p7',
+          title: 'See where<br>the money went',
+          sub: 'Spend by aisle and by shop, how often you land under budget, and what the impulse buys really cost.',
+          shot: 'insights',
+          deco: [
+            ['cookie', 130, 14, { top: '120px', left: '72px' }],
+            ['can', 120, -11, { top: '900px', right: '50px' }],
+          ],
+        },
+        {
+          cls: 'p8',
+          title: 'Stays on<br>your phone',
+          sub: 'No account, no sign-up, no analytics. Your lists and prices never leave the device, and it works offline.',
+          shot: 'home',
+          deco: [
+            ['basket', 135, -13, { top: '124px', right: '70px' }],
+            ['bread', 120, 10, { top: '900px', left: '50px' }],
+          ],
+        },
+      ]
+
+      const which = Number(new URLSearchParams(location.search).get('p') || 1)
+
+      const decoHtml = (list) =>
+        (list || [])
+          .map(([id, size, tilt, pos]) => {
+            const style = Object.entries(pos).map(([k, v]) => `${k}:${v}`).join(';')
+            return `<div class="deco" style="${style}">${sticker(id, size, tilt)}</div>`
+          })
+          .join('')
+
+      const panel = PANELS[which - 1]
+      const body = panel.hero
+        ? `<div class="head" style="padding-top:236px">
+             <div class="wordmark">${sticker('basketLight', 150, -8)} Cartwise</div>
+             <p class="tagline">the grocery list that remembers<br>what things cost</p>
+             <div class="badge">${sticker('broccoli', 46, 0)} Works offline &middot; No account</div>
+           </div>
+           <div class="phone phone--tall"><div class="screen"><img src="/marketing/shots/${panel.shot}.png" alt=""></div></div>`
+        : `<div class="head">
+             <h1 class="title">${panel.title}</h1>
+             <p class="sub">${panel.sub}</p>
+           </div>
+           <div class="phone"><div class="screen"><img src="/marketing/shots/${panel.shot}.png" alt=""></div></div>`
+
+      document.body.innerHTML =
+        `<div class="panel on ${panel.cls || 'p1'}">${body}${decoHtml(panel.deco)}</div>`
+    </script>
+  </body>
+</html>

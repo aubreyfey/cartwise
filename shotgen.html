@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8" /><title>shotgen</title></head>
+  <body style="margin:0;background:#f3f2f7">
+    <iframe id="f" style="width:430px;height:932px;border:0;display:block"></iframe>
+    <script>
+      const S = new URLSearchParams(location.search)
+      const day = 86400000
+      const iso = (n) => {
+        const d = new Date(); d.setDate(d.getDate() + n)
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+      }
+      const it = (id, name, cat, qty, price, unit, checked, impulse) =>
+        ({ id, name, category: cat, qty, price, unit, checked, impulse: !!impulse })
+      const v = (name, cat, unit, price, prices, previous, used) => ({
+        id: 'v-' + name.toLowerCase().replace(/\W+/g, '-'), name, category: cat, unit,
+        price, prices: prices || {}, previous: previous || {}, defaultQty: 1,
+        timesUsed: used || 1, updatedAt: Date.now(),
+      })
+
+      localStorage.setItem('cartwise.currency', JSON.stringify('PHP'))
+      localStorage.setItem('cartwise.stores', JSON.stringify([
+        { id: 's1', name: 'Savemore' }, { id: 's2', name: 'Public Market' },
+      ]))
+      localStorage.setItem('cartwise.carts', JSON.stringify([
+        { id: 'c1', name: 'Grocery Time', budget: 2000, storeId: 's1', createdAt: Date.now(),
+          items: [
+            it('a1', 'Bananas', 'produce', 8, 12, 'pc', true),
+            it('a2', 'Broccoli', 'produce', 0.51, 220, 'kg', true),
+            it('a3', 'Tomatoes', 'produce', 6, 18, 'pc', false),
+            it('a4', 'Whole Wheat Bread', 'bakery', 1, 74, 'pc', true),
+            it('a5', 'Baguette', 'bakery', 1, 80, 'pc', false),
+            it('a6', 'Chicken Thighs', 'meat', 1.2, 260, 'kg', false),
+            it('a7', 'Corned Beef', 'meat', 3, 86, 'can', true),
+            it('a8', 'Greek Yogurt', 'dairy', 2, null, 'tub', false),
+            it('a9', 'Fresh Milk', 'dairy', 2, 89, 'bottle', true),
+            it('a10', 'Cheddar Slices', 'dairy', 1, 165, 'pack', false),
+            it('a11', 'Spaghetti', 'pantry', 3, 62, 'box', false),
+            it('a12', 'Coconut Oil', 'pantry', 1, 478, 'bottle', false),
+            it('a13', 'Drinking Water', 'drinks', 6, 19, 'bottle', true),
+            it('a14', 'Dish Soap', 'household', 1, 145, 'pouch', false),
+          ] },
+        { id: 'c2', name: 'Cafe Restock', budget: 10000, storeId: null, createdAt: Date.now(),
+          items: [
+            it('b1', 'Coffee Beans', 'drinks', 2, 890, 'bag', false),
+            it('b2', 'Paper Cups', 'household', 4, 320, 'pack', false),
+          ] },
+        { id: 'c3', name: 'School Supplies', budget: 5000, storeId: null, createdAt: Date.now(), items: [] },
+      ]))
+      localStorage.setItem('cartwise.activeCart', JSON.stringify('c1'))
+      localStorage.setItem('cartwise.vault', JSON.stringify([
+        v('Bananas', 'produce', 'pc', 12, { s1: 12, s2: 10 }, {}, 22),
+        v('Broccoli', 'produce', 'kg', 220, { s1: 220, s2: 195 }, {}, 9),
+        v('Tomatoes', 'produce', 'pc', 18, { s1: 18, s2: 14 }, {}, 15),
+        v('Whole Wheat Bread', 'bakery', 'pc', 74, { s1: 74 }, { s1: 68 }, 18),
+        v('Baguette', 'bakery', 'pc', 80, { s1: 80 }, {}, 6),
+        v('Chicken Thighs', 'meat', 'kg', 260, { s1: 260, s2: 240 }, {}, 12),
+        v('Corned Beef', 'meat', 'can', 86, { s1: 86, s2: 88 }, { s1: 82 }, 27),
+        v('Greek Yogurt', 'dairy', 'tub', null, {}, {}, 4),
+        v('Fresh Milk', 'dairy', 'bottle', 89, { s1: 89 }, { s1: 84 }, 31),
+        v('Cheddar Slices', 'dairy', 'pack', 165, { s1: 165 }, {}, 7),
+        v('Spaghetti', 'pantry', 'box', 62, { s1: 62, s2: 55 }, {}, 14),
+        v('Coconut Oil', 'pantry', 'bottle', 478, { s1: 478 }, {}, 3),
+        v('Drinking Water', 'drinks', 'bottle', 19, { s1: 19 }, {}, 40),
+        v('Dish Soap', 'household', 'pouch', 145, { s1: 145 }, {}, 5),
+        v('Instant Noodles', 'pantry', 'pack', 34, { s1: 34 }, {}, 19),
+        v('Eggs', 'dairy', 'tray', 245, { s1: 245 }, {}, 16),
+      ]))
+      const trip = (id, name, store, ago, budget, total, items, imp, impTotal) => ({
+        id, cartName: name, storeId: 's1', storeName: store,
+        completedAt: Date.now() - day * ago, budget, total, unpriced: 0,
+        impulseCount: imp, impulseTotal: impTotal, plannedBought: items.length - imp, items,
+      })
+      localStorage.setItem('cartwise.trips', JSON.stringify([
+        trip('t1', 'Grocery Time', 'Savemore', 24, 2000, 1736.25, [
+          { name: 'Corned Beef', category: 'meat', qty: 6, price: 82, unit: 'can' },
+          { name: 'Fresh Milk', category: 'dairy', qty: 4, price: 84, unit: 'bottle' },
+          { name: 'Bananas', category: 'produce', qty: 12, price: 12, unit: 'pc' },
+          { name: 'Spaghetti', category: 'pantry', qty: 6, price: 62, unit: 'box' },
+          { name: 'Coconut Oil', category: 'pantry', qty: 1, price: 478, unit: 'bottle' },
+          { name: 'Eggs', category: 'dairy', qty: 1, price: 245, unit: 'tray' },
+        ], 1, 245),
+        trip('t2', 'Grocery Time', 'Public Market', 11, 2000, 1458.25, [
+          { name: 'Chicken Thighs', category: 'meat', qty: 2, price: 240, unit: 'kg' },
+          { name: 'Tomatoes', category: 'produce', qty: 10, price: 14, unit: 'pc' },
+          { name: 'Broccoli', category: 'produce', qty: 1.2, price: 195, unit: 'kg' },
+          { name: 'Whole Wheat Bread', category: 'bakery', qty: 2, price: 68, unit: 'pc' },
+          { name: 'Instant Noodles', category: 'pantry', qty: 12, price: 34, unit: 'pack' },
+        ], 1, 408),
+        trip('t3', 'Cafe Restock', 'Savemore', 3, 10000, 8420, [
+          { name: 'Coffee Beans', category: 'drinks', qty: 8, price: 890, unit: 'bag' },
+          { name: 'Paper Cups', category: 'household', qty: 4, price: 320, unit: 'pack' },
+        ], 0, 0),
+      ]))
+      localStorage.setItem('cartwise.pantry', JSON.stringify([
+        { id: 'q1', name: 'Fresh Milk', category: 'dairy', qty: 1, unit: 'bottle', expiresAt: iso(-1), addedAt: Date.now() },
+        { id: 'q2', name: 'Whole Wheat Bread', category: 'bakery', qty: 1, unit: 'pc', expiresAt: iso(0), addedAt: Date.now() },
+        { id: 'q3', name: 'Greek Yogurt', category: 'dairy', qty: 2, unit: 'tub', expiresAt: iso(2), addedAt: Date.now() },
+        { id: 'q4', name: 'Chicken Thighs', category: 'meat', qty: 1.2, unit: 'kg', expiresAt: iso(4), addedAt: Date.now() },
+        { id: 'q5', name: 'Cheddar Slices', category: 'dairy', qty: 1, unit: 'pack', expiresAt: iso(19), addedAt: Date.now() },
+      ]))
+      localStorage.setItem('cartwise.photos', JSON.stringify({}))
+      localStorage.setItem('cartwise.sort', JSON.stringify('aisle'))
+
+      const clicks = (S.get('click') || '').split('|').filter(Boolean)
+      const scroll = Number(S.get('scroll') || 0)
+      const f = document.getElementById('f')
+      f.addEventListener('load', () => {
+        let delay = 800
+        clicks.forEach((label) => {
+          setTimeout(() => {
+            const d = f.contentDocument
+            const btn = [...d.querySelectorAll('button')].find((b) => {
+              const t = (b.textContent || '').replace(/\s+/g, ' ').trim()
+              const a = b.getAttribute('aria-label') || ''
+              return t.includes(label) || a.includes(label)
+            })
+            if (btn) btn.click()
+          }, delay)
+          delay += 700
+        })
+        if (scroll) {
+          setTimeout(() => { f.contentWindow.scrollTo(0, scroll) }, delay + 400)
+        }
+      })
+      f.src = '/'
+    </script>
+  </body>
+</html>
