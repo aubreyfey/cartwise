@@ -10,6 +10,7 @@ import HomeScreen from './components/HomeScreen.jsx'
 import Insights from './components/Insights.jsx'
 import ItemSheet from './components/ItemSheet.jsx'
 import PhotoCapture from './components/PhotoCapture.jsx'
+import TourScreen from './components/TourScreen.jsx'
 import StoreBar from './components/StoreBar.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import TripReceipt from './components/TripReceipt.jsx'
@@ -48,6 +49,7 @@ import {
 } from './vault.js'
 import { getCurrency, setCurrency } from './currency.js'
 import { loadPhotos, photoKey, writePhotos } from './photos.js'
+import { TOUR_SEEN_KEY } from './tour.js'
 
 const ALL = { id: 'all', label: 'All items', icon: '🧺' }
 
@@ -75,6 +77,9 @@ export default function App() {
   const [photoTarget, setPhotoTarget] = useState(null)
   // The full item editor: a draft for a new item, or an existing row.
   const [sheetItem, setSheetItem] = useState(null)
+  // The tour opens itself once, for someone who has never used the app.
+  const [tourSeen, setTourSeen] = useLocalStorage(TOUR_SEEN_KEY, false)
+  const [showTour, setShowTour] = useState(false)
 
   function savePhoto(dataUrl) {
     const key = photoKey(photoTarget.name)
@@ -111,6 +116,23 @@ export default function App() {
     removeStored('cartwise.budget')
     removeStored('cartwise.activeStore')
   }, [])
+
+  // Show the tour once, and only to someone with nothing in the app yet —
+  // anyone with lists already has worked it out without our help.
+  useEffect(() => {
+    if (!tourSeen) {
+      const untouched = carts.every((c) => c.items.length === 0) && trips.length === 0
+      if (untouched) setShowTour(true)
+      else setTourSeen(true)
+    }
+    // Runs once on mount; later state changes must not reopen it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function closeTour() {
+    setShowTour(false)
+    setTourSeen(true)
+  }
 
   // A stored id can point at a cart that's since been deleted.
   const activeCart = findCart(carts, activeCartId) ?? carts[0]
@@ -431,6 +453,10 @@ export default function App() {
     )
   }
 
+  if (showTour) {
+    return <TourScreen onDone={closeTour} />
+  }
+
   if (view === 'home') {
     return (
       <div className="app">
@@ -450,6 +476,9 @@ export default function App() {
           onOpenExpiry={() => setView('expiry')}
           onDeleteTrip={deleteTrip}
         />
+        <button className="tour__open" type="button" onClick={() => setShowTour(true)}>
+          <span aria-hidden="true">✨</span> What Cartwise does
+        </button>
         <AccountPanel />
         <DataPanel onRestore={restoreBackup} />
       </div>

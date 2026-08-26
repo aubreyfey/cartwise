@@ -179,57 +179,10 @@ const P = {
   ),
 }
 
-// name keyword -> sticker. Checked before the category fallback, so
-// "olive oil" gets the bottle rather than a generic can.
-const KEYWORDS = [
-  [/banana/, 'banana'],
-  [/apple/, 'apple'],
-  [/broccoli|cauliflower|cabbage/, 'broccoli'],
-  [/carrot|parsnip/, 'carrot'],
-  [/tomato/, 'tomato'],
-  [/lettuce|spinach|kale|salad|greens|herb|basil/, 'leaf'],
-  [/baguette|sourdough|roll|bun/, 'baguette'],
-  [/bread|loaf|toast|bagel|muffin/, 'bread'],
-  [/chicken|turkey|drumstick|wing|thigh/, 'drumstick'],
-  [/fish|salmon|tuna|cod|prawn|shrimp/, 'fish'],
-  [/milk|cream/, 'milk'],
-  [/egg/, 'egg'],
-  [/cheese|cheddar|mozzarella|parmesan|feta/, 'cheese'],
-  [/yogurt|yoghurt|kefir/, 'yogurt'],
-  [/frozen|ice/, 'ice'],
-  [/pasta|spaghetti|linguine|noodle|macaroni/, 'pasta'],
-  [/oil|vinegar/, 'oil'],
-  [/jam|honey|peanut butter|spread|sauce/, 'jar'],
-  [/chip|crisp|pretzel|popcorn|snack/, 'chips'],
-  [/cookie|biscuit|chocolate|candy|sweet/, 'cookie'],
-  [/coffee|tea|latte/, 'cup'],
-  [/water|juice|soda|cola|beer|wine|drink|seltzer/, 'bottle'],
-  [/paper|towel|tissue|toilet|napkin/, 'paper'],
-  [/soap|detergent|cleaner|bleach|shampoo|spray/, 'spray'],
-]
-
-const BY_CATEGORY = {
-  produce: 'leaf',
-  bakery: 'bread',
-  meat: 'drumstick',
-  dairy: 'milk',
-  frozen: 'ice',
-  pantry: 'can',
-  snacks: 'chips',
-  drinks: 'bottle',
-  household: 'paper',
-  other: 'basket',
-}
-
-export function stickerFor(name = '', category = 'other') {
-  const lower = name.toLowerCase()
-  for (const [pattern, id] of KEYWORDS) {
-    if (pattern.test(lower)) return id
-  }
-  return BY_CATEGORY[category] ?? 'basket'
-}
-
-export const STICKER_IDS = Object.keys(P)
+// Names and matching live in stickerCatalog.js, which is plain JavaScript
+// so the tests can import it. Re-exported here so existing imports of
+// stickerFor from './stickers.jsx' keep working.
+export { STICKER_IDS, stickerFor } from './stickerCatalog.js'
 
 export default function Sticker({ id, size = 28, tilt = 0, className = '' }) {
   const art = P[id] ?? P.basket
