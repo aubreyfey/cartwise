@@ -915,6 +915,35 @@ button {
   background: color-mix(in srgb, var(--amber) 10%, var(--surface));
 }
 
+/* Interface icons sit on the text baseline rather than floating above it. */
+.icon {
+  display: inline-block;
+  vertical-align: -0.18em;
+  flex-shrink: 0;
+}
+
+.section__icon,
+.chip__icon {
+  flex-shrink: 0;
+}
+
+.greeting__wave {
+  color: var(--amber);
+  vertical-align: -0.22em;
+}
+
+.expiry-card__icon .icon {
+  color: var(--primary);
+}
+
+.expiry-card--alert .expiry-card__icon .icon {
+  color: var(--amber);
+}
+
+.capture__placeholder .icon {
+  color: var(--text-faint);
+}
+
 .expiry-card__icon {
   font-size: 1.3rem;
 }

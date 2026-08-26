@@ -1,6 +1,7 @@
 import ItemRow from './ItemRow.jsx'
 import { formatMoney, sumLines } from '../money.js'
 import { photoKey } from '../photos.js'
+import Sticker from '../stickers.jsx'
 
 export default function CategorySection({
   category,
@@ -27,9 +28,7 @@ export default function CategorySection({
     <section className="section">
       <header className="section__header">
         <span className="section__tag">
-          <span className="section__icon" aria-hidden="true">
-            {category.icon}
-          </span>
+          <Sticker id={category.sticker} size={15} className="section__icon" />
           {category.label}
         </span>
         <span className="section__meta">

@@ -6,6 +6,7 @@ import {
   validateBackup,
 } from '../backup.js'
 import { readStored } from '../useLocalStorage.js'
+import Icon from '../icons.jsx'
 
 export default function DataPanel({ onRestore }) {
   const [open, setOpen] = useState(false)
@@ -68,7 +69,7 @@ export default function DataPanel({ onRestore }) {
         aria-expanded={open}
       >
         <span className="datapanel__label">
-          <span aria-hidden="true">💾</span> Backup
+          <Icon name="save" size={16} /> Backup
         </span>
         <span className={`insights__chevron ${open ? 'insights__chevron--open' : ''}`} aria-hidden="true">
           ▾

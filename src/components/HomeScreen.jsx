@@ -4,6 +4,7 @@ import { byRecent, insights } from '../trips.js'
 import { needsAttention } from '../pantry.js'
 import { CURRENCIES, currencySymbol } from '../currency.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
+import Icon from '../icons.jsx'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {
   month: 'short',
@@ -42,7 +43,7 @@ export default function HomeScreen({
         </div>
 
         <h1 className="greeting__hi">
-          Hey <span aria-hidden="true">👋</span>
+          Hey <Icon name="wave" size={26} className="greeting__wave" />
         </h1>
 
         {stats ? (
@@ -79,7 +80,7 @@ export default function HomeScreen({
         onClick={onOpenExpiry}
       >
         <span className="expiry-card__icon" aria-hidden="true">
-          🗓️
+          <Icon name="calendar" size={22} />
         </span>
         <span className="expiry-card__text">
           {attention > 0 ? (

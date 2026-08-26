@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { CATEGORY_BY_ID } from '../categories.js'
 import { formatMoney } from '../money.js'
 import { byPopularity, priceFor } from '../vault.js'
+import Sticker from '../stickers.jsx'
+import Icon from '../icons.jsx'
 
 export default function VaultPanel({
   vault,
@@ -29,7 +31,7 @@ export default function VaultPanel({
         aria-expanded={open}
       >
         <span className="vault__toggle-label">
-          <span aria-hidden="true">🗄️</span> Vault
+          <Icon name="vault" size={16} /> Vault
           <span className="vault__count">{vault.length}</span>
         </span>
         <span className={`vault__chevron ${open ? 'vault__chevron--open' : ''}`} aria-hidden="true">
@@ -62,9 +64,11 @@ export default function VaultPanel({
                           : `Add ${item.name}`
                       }
                     >
-                      <span className="chip__icon" aria-hidden="true">
-                        {(CATEGORY_BY_ID[item.category] ?? CATEGORY_BY_ID.other).icon}
-                      </span>
+                      <Sticker
+                        id={(CATEGORY_BY_ID[item.category] ?? CATEGORY_BY_ID.other).sticker}
+                        size={15}
+                        className="chip__icon"
+                      />
                       <span className="chip__name">{item.name}</span>
                       {price > 0 && (
                         <span className="chip__price">{formatMoney(price)}</span>

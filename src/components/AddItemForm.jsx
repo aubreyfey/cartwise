@@ -6,6 +6,7 @@ import { DEFAULT_UNIT, UNITS, normalizeQty } from '../units.js'
 import { lookupBarcode } from '../lookup.js'
 import BarcodeScanner, { scannerSupported } from './BarcodeScanner.jsx'
 import Sticker, { stickerFor } from '../stickers.jsx'
+import Icon from '../icons.jsx'
 
 const EMPTY = { name: '', qty: '1', price: '', unit: DEFAULT_UNIT }
 
@@ -303,7 +304,7 @@ export default function AddItemForm({ onAdd, onOpenSheet, vault, activeStoreId, 
           >
             {CATEGORIES.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.icon} {c.label}
+                {c.label}
               </option>
             ))}
           </select>
@@ -316,7 +317,7 @@ export default function AddItemForm({ onAdd, onOpenSheet, vault, activeStoreId, 
             onClick={() => setScanning(true)}
             title="Scan a barcode"
           >
-            <span aria-hidden="true">▊▍▊</span> Scan
+            <Icon name="barcode" size={16} /> Scan
           </button>
         )}
 

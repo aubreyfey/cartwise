@@ -11,6 +11,7 @@ import {
   redeemInvite,
 } from '../sync/households.js'
 import { inviteTimeLeft } from '../sync/invites.js'
+import Icon from '../icons.jsx'
 
 export default function AccountPanel() {
   const [open, setOpen] = useState(false)
@@ -99,7 +100,7 @@ export default function AccountPanel() {
         aria-expanded={open}
       >
         <span className="account__label">
-          <span aria-hidden="true">👨‍👩‍👧</span> Sharing
+          <Icon name="users" size={16} /> Sharing
         </span>
         <span className="account__who">
           {!ready ? '' : session ? session.user?.email : 'Not signed in'}

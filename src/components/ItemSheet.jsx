@@ -210,7 +210,7 @@ export default function ItemSheet({
               >
                 {CATEGORIES.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.icon} {c.label}
+                    {c.label}
                   </option>
                 ))}
               </select>

@@ -50,8 +50,9 @@ import {
 import { getCurrency, setCurrency } from './currency.js'
 import { loadPhotos, photoKey, writePhotos } from './photos.js'
 import { TOUR_SEEN_KEY } from './tour.js'
+import Icon from './icons.jsx'
 
-const ALL = { id: 'all', label: 'All items', icon: '🧺' }
+const ALL = { id: 'all', label: 'All items', sticker: 'basket' }
 
 export default function App() {
   // Carts hold the lists; the Vault, stores and trip history are shared
@@ -462,7 +463,7 @@ export default function App() {
       <div className="app">
         <header className="app__header">
           <span className="app__brand">
-            <span aria-hidden="true">🛒</span> Cartwise
+            <Icon name="cart" size={22} strokeWidth={1.9} /> Cartwise
           </span>
         </header>
         <HomeScreen
@@ -477,7 +478,7 @@ export default function App() {
           onDeleteTrip={deleteTrip}
         />
         <button className="tour__open" type="button" onClick={() => setShowTour(true)}>
-          <span aria-hidden="true">✨</span> What Cartwise does
+          <Icon name="sparkle" size={17} /> What Cartwise does
         </button>
         <AccountPanel />
         <DataPanel onRestore={restoreBackup} />
@@ -555,7 +556,7 @@ export default function App() {
             aria-pressed={sortMode === 'aisle'}
             title="Group by aisle"
           >
-            🧺
+            <Icon name="basket" size={16} />
           </button>
           <button
             type="button"

@@ -5,6 +5,7 @@ import {
   removeBackground,
   trimHalo,
 } from '../cutout.js'
+import Icon from '../icons.jsx'
 
 // Output is a square sticker at this size. Big enough to look sharp on a
 // retina row thumbnail, small enough that a hundred of them fit in
@@ -142,7 +143,7 @@ export default function PhotoCapture({ name, existing, onSave, onRemove, onCance
             <img className="capture__preview sticker-photo" src={existing} alt="" />
           ) : (
             <div className="capture__placeholder">
-              <span aria-hidden="true">📷</span>
+              <Icon name="camera" size={40} strokeWidth={1.4} />
               <span>Photograph the product on a plain surface</span>
             </div>
           )}

@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { CATEGORY_BY_ID } from '../categories.js'
 import { formatMoney } from '../money.js'
 import { byRecent, insights } from '../trips.js'
+import Sticker from '../stickers.jsx'
+import Icon from '../icons.jsx'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {
   month: 'short',
@@ -26,7 +28,7 @@ export default function Insights({ trips, onDeleteTrip }) {
         aria-expanded={open}
       >
         <span className="insights__toggle-label">
-          <span aria-hidden="true">📈</span> Trips
+          <Icon name="chart" size={16} /> Trips
           <span className="insights__count">{stats.tripCount}</span>
         </span>
         <span className="insights__headline">
@@ -106,7 +108,7 @@ export default function Insights({ trips, onDeleteTrip }) {
                   return (
                     <li key={id} className="breakdown__row">
                       <span className="breakdown__label">
-                        <span aria-hidden="true">{category.icon}</span>{' '}
+                        <Sticker id={category.sticker} size={14} />{' '}
                         {category.label}
                       </span>
                       <span className="breakdown__bar" aria-hidden="true">

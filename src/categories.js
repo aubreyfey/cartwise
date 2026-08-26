@@ -1,16 +1,20 @@
 // Categories are listed in the order you'd typically walk a store, so the
 // grouped list doubles as a route through the aisles.
+//
+// `sticker` names a drawing from the sticker set rather than an emoji: emoji
+// are rendered by the operating system, so the same character looks different
+// on every platform, and Apple's set cannot legally be shipped with a web app.
 export const CATEGORIES = [
-  { id: 'produce', label: 'Produce', icon: '🥬' },
-  { id: 'bakery', label: 'Bakery', icon: '🍞' },
-  { id: 'meat', label: 'Meat & Seafood', icon: '🥩' },
-  { id: 'dairy', label: 'Dairy & Eggs', icon: '🥛' },
-  { id: 'frozen', label: 'Frozen', icon: '🧊' },
-  { id: 'pantry', label: 'Pantry', icon: '🥫' },
-  { id: 'snacks', label: 'Snacks', icon: '🍪' },
-  { id: 'drinks', label: 'Drinks', icon: '🥤' },
-  { id: 'household', label: 'Household', icon: '🧻' },
-  { id: 'other', label: 'Other', icon: '🛒' },
+  { id: 'produce', label: 'Produce', sticker: 'leaf' },
+  { id: 'bakery', label: 'Bakery', sticker: 'bread' },
+  { id: 'meat', label: 'Meat & Seafood', sticker: 'drumstick' },
+  { id: 'dairy', label: 'Dairy & Eggs', sticker: 'milk' },
+  { id: 'frozen', label: 'Frozen', sticker: 'ice' },
+  { id: 'pantry', label: 'Pantry', sticker: 'can' },
+  { id: 'snacks', label: 'Snacks', sticker: 'chips' },
+  { id: 'drinks', label: 'Drinks', sticker: 'bottle' },
+  { id: 'household', label: 'Household', sticker: 'paper' },
+  { id: 'other', label: 'Other', sticker: 'basket' },
 ]
 
 export const CATEGORY_BY_ID = Object.fromEntries(
@@ -44,7 +48,7 @@ const KEYWORDS = {
     'paper towels toilet tissue napkins soap detergent dish laundry sponge sponges trash bags foil wrap cleaner bleach shampoo conditioner toothpaste deodorant razors batteries lightbulb diapers wipes',
 }
 
-// name -> category id, built once at module load.
+// name -> category, built once at module load.
 const LOOKUP = new Map()
 for (const [category, words] of Object.entries(KEYWORDS)) {
   for (const word of words.split(' ')) {
