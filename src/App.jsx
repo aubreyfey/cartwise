@@ -11,6 +11,7 @@ import HomeScreen from './components/HomeScreen.jsx'
 import Insights from './components/Insights.jsx'
 import ItemSheet from './components/ItemSheet.jsx'
 import NavBar from './components/NavBar.jsx'
+import Onboarding from './components/Onboarding.jsx'
 import SettingsScreen from './components/SettingsScreen.jsx'
 import PhotoCapture from './components/PhotoCapture.jsx'
 import TourScreen from './components/TourScreen.jsx'
@@ -91,6 +92,7 @@ export default function App() {
   // The tour opens itself once, for someone who has never used the app.
   const [tourSeen, setTourSeen] = useLocalStorage(TOUR_SEEN_KEY, false)
   const [showTour, setShowTour] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   function savePhoto(dataUrl) {
     const key = photoKey(photoTarget.name)
@@ -128,17 +130,43 @@ export default function App() {
     removeStored('cartwise.activeStore')
   }, [])
 
-  // Show the tour once, and only to someone with nothing in the app yet —
-  // anyone with lists already has worked it out without our help.
+  // Onboard once, and only someone with nothing in the app yet — anyone with
+  // lists already has worked it out without our help.
   useEffect(() => {
     if (!tourSeen) {
       const untouched = carts.every((c) => c.items.length === 0) && trips.length === 0
-      if (untouched) setShowTour(true)
+      if (untouched) setShowOnboarding(true)
       else setTourSeen(true)
     }
     // Runs once on mount; later state changes must not reopen it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  /**
+   * Turn the two answers into real data, so the app is already useful rather
+   * than empty. Skipping either is fine — both are optional.
+   */
+  function finishOnboarding({ store, sticker }) {
+    if (store) setStores((prev) => addStore(prev, store))
+
+    if (sticker) {
+      const next = { ...photos, [photoKey(sticker.name)]: sticker.dataUrl }
+      if (writePhotos(next).ok) setPhotos(next)
+      // Remembering it means the sticker shows the moment they add it to a list.
+      setVault((prev) =>
+        rememberItem(prev, {
+          name: sticker.name,
+          category: guessCategory(sticker.name),
+          price: null,
+          qty: 1,
+          unit: DEFAULT_UNIT,
+        }),
+      )
+    }
+
+    setShowOnboarding(false)
+    setTourSeen(true)
+  }
 
   function closeTour() {
     setShowTour(false)
@@ -473,6 +501,11 @@ export default function App() {
   // --- render --------------------------------------------------------------
 
   const activeStore = stores.find((s) => s.id === activeStoreId) ?? null
+
+  // First run, before anything else on screen.
+  if (showOnboarding) {
+    return <Onboarding base={import.meta.env.BASE_URL ?? '/'} onFinish={finishOnboarding} />
+  }
 
   // The tour covers everything, including the nav.
   if (showTour) {

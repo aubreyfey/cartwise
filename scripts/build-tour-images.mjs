@@ -57,6 +57,20 @@ async function main() {
   console.log(
     `\n${files.length} panels: ${Math.round(before / 1024)} KB -> ${Math.round(after / 1024)} KB (${pct}% smaller)`,
   )
+
+  // The tall capture the welcome screen scrolls through its phone.
+  const scrollSrc = join('marketing', 'shots', 'scroll-src.png')
+  try {
+    await stat(scrollSrc)
+    const scrollOut = join(OUT, 'scroll.webp')
+    await sharp(scrollSrc)
+      .resize({ width: 560, withoutEnlargement: true })
+      .webp({ quality: 78, effort: 6 })
+      .toFile(scrollOut)
+    console.log(`scroll-src.png -> ${scrollOut}  ${Math.round((await stat(scrollOut)).size / 1024)} KB`)
+  } catch {
+    console.log('No marketing/shots/scroll-src.png; skipping the welcome scroll image.')
+  }
 }
 
 main().catch((error) => {

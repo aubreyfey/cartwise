@@ -5,6 +5,9 @@
     <iframe id="f" style="width:430px;height:932px;border:0;display:block"></iframe>
     <script>
       const S = new URLSearchParams(location.search)
+      // A taller iframe for full-page captures; otherwise everything below
+      // 932px in the screenshot is blank harness, not app.
+      document.getElementById('f').style.height = (S.get('h') || 932) + 'px'
       const day = 86400000
       const iso = (n) => {
         const d = new Date(); d.setDate(d.getDate() + n)
