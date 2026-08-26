@@ -17,12 +17,14 @@ export const TOUR_PANELS = [
   {
     id: 'aisles',
     tone: 'green',
+    demo: 'aisles',
     stickers: ['broccoli', 'carrot', 'apple'],
     title: 'Sorted by aisle',
     body: 'Type "bananas" and it lands in Produce. Sections follow the order you walk a shop, so you stop doubling back.',
   },
   {
     id: 'budget',
+    demo: 'budget',
     tone: 'mint',
     stickers: ['cheese', 'egg'],
     title: 'Know the total before the till',
@@ -30,6 +32,7 @@ export const TOUR_PANELS = [
   },
   {
     id: 'vault',
+    demo: 'vault',
     tone: 'violet',
     stickers: ['milk', 'can', 'jar'],
     title: 'It remembers every price',
@@ -37,6 +40,7 @@ export const TOUR_PANELS = [
   },
   {
     id: 'compare',
+    demo: 'compare',
     tone: 'rose',
     stickers: ['basket', 'pasta'],
     title: 'Which shop is cheaper',
@@ -44,6 +48,7 @@ export const TOUR_PANELS = [
   },
   {
     id: 'shopping',
+    demo: 'shopping',
     tone: 'blue',
     stickers: ['drumstick', 'fish', 'bread'],
     title: 'Shopping mode',
@@ -51,6 +56,7 @@ export const TOUR_PANELS = [
   },
   {
     id: 'scan',
+    demo: 'scan',
     tone: 'violet',
     stickers: ['chips', 'bottle', 'cookie'],
     title: 'Scan it, or snap it',
@@ -58,6 +64,7 @@ export const TOUR_PANELS = [
   },
   {
     id: 'trips',
+    demo: 'trips',
     tone: 'rose',
     stickers: ['cheese', 'oil', 'yogurt'],
     title: 'Every trip, remembered',
@@ -65,6 +72,7 @@ export const TOUR_PANELS = [
   },
   {
     id: 'expiry',
+    demo: 'expiry',
     tone: 'amber',
     stickers: ['yogurt', 'milk', 'fish'],
     title: 'Eat it before it turns',

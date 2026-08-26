@@ -33,6 +33,25 @@ describe('tour content', () => {
     }
   })
 
+  it('only names demos that exist', () => {
+    // A typo here renders nothing where the animation should be, leaving a
+    // panel that looks like it failed to load.
+    const known = new Set([
+      'aisles', 'budget', 'vault', 'compare', 'shopping', 'scan', 'expiry', 'trips',
+    ])
+    for (const panel of TOUR_PANELS) {
+      if (panel.demo) {
+        assert.ok(known.has(panel.demo), `${panel.id} references unknown demo "${panel.demo}"`)
+      }
+    }
+  })
+
+  it('keeps stickers on every panel as the fallback when a demo is absent', () => {
+    for (const panel of TOUR_PANELS) {
+      assert.ok(panel.stickers.length > 0, `${panel.id} would render empty without a demo`)
+    }
+  })
+
   it('has unique ids so React keys do not collide', () => {
     const ids = TOUR_PANELS.map((p) => p.id)
     assert.equal(new Set(ids).size, ids.length)

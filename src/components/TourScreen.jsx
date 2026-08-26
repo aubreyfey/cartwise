@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Sticker from '../stickers.jsx'
 import { TOUR_PANELS, clampPanel } from '../tour.js'
+import TourDemo from './TourDemos.jsx'
 
 const TILTS = [-11, 8, -6]
 
@@ -49,11 +50,17 @@ export default function TourScreen({ onDone }) {
         }}
         onTouchEnd={onTouchEnd}
       >
-        <div className="tour__stickers" aria-hidden="true">
-          {panel.stickers.map((id, i) => (
-            <Sticker key={`${panel.id}-${id}-${i}`} id={id} size={72} tilt={TILTS[i % TILTS.length]} />
-          ))}
-        </div>
+        {/* Panels that have a demo show the app working; the rest fall back
+            to stickers, so a panel without one never looks broken. */}
+        {panel.demo ? (
+          <TourDemo key={panel.id} name={panel.demo} />
+        ) : (
+          <div className="tour__stickers" aria-hidden="true">
+            {panel.stickers.map((id, i) => (
+              <Sticker key={`${panel.id}-${id}-${i}`} id={id} size={72} tilt={TILTS[i % TILTS.length]} />
+            ))}
+          </div>
+        )}
 
         <h1 className="tour__title" tabIndex={-1} ref={headingRef}>
           {panel.title}
