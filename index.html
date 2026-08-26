@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#7b5ea7" />
     <meta name="description" content="A grocery list that groups by aisle, remembers what things cost you, and keeps a running total against a budget." />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
+    <!-- %BASE_URL% is substituted by Vite, so these keep working whether the
+         app is served from the root or from a /repo-name/ subpath. -->
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%icon.svg" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icon.svg" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Cartwise" />
     <title>Cartwise</title>

@@ -11,7 +11,12 @@
 const VERSION = 'cartwise-v1'
 const SHELL = `${VERSION}-shell`
 
-const OFFLINE_FALLBACK = '/index.html'
+// Derived from the worker's own scope rather than hard-coded, so the same
+// file works at the root and under a /repo-name/ subpath on GitHub Pages.
+const BASE = new URL(self.registration?.scope ?? '/', self.location.origin).pathname
+const at = (path) => `${BASE}${path}`.replace(/\/{2,}/g, '/')
+
+const OFFLINE_FALLBACK = at('index.html')
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -22,7 +27,7 @@ self.addEventListener('install', (event) => {
         // so one 404 would abort the whole install and leave no offline support
         // at all.
         Promise.all(
-          [OFFLINE_FALLBACK, '/manifest.webmanifest', '/icon.svg'].map((url) =>
+          [OFFLINE_FALLBACK, at('manifest.webmanifest'), at('icon.svg')].map((url) =>
             cache.add(url).catch(() => {}),
           ),
         ),
@@ -44,7 +49,7 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-const isHashedAsset = (url) => url.pathname.startsWith('/assets/')
+const isHashedAsset = (url) => url.pathname.startsWith(at('assets/'))
 
 self.addEventListener('fetch', (event) => {
   const { request } = event

@@ -1,0 +1,60 @@
+name: GitHub Pages
+
+# Publishes to https://<user>.github.io/cartwise/
+#
+# Only useful on a public repo (Pages from a private repo needs a paid plan),
+# and only once Pages is switched on with "GitHub Actions" as the source.
+# Manual trigger by default so it never fights another host for the same push.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Build for the /cartwise/ subpath
+        run: npm run build
+        env:
+          # Pages serves a project site from /<repo>/, so the bundle, the
+          # manifest and the service worker all need that prefix.
+          BASE_PATH: /cartwise/
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      # Pages runs Jekyll unless told not to, and Jekyll ignores files and
+      # folders beginning with an underscore.
+      - run: touch dist/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
