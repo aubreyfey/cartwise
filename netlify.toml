@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# Single-page app: every path serves index.html. Kept at the end so the real
+# files in dist win first.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Header rules live in public/_headers so they apply on Cloudflare Pages too,
+# not just Netlify.

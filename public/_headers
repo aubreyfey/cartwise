@@ -1,0 +1,23 @@
+# Netlify / Cloudflare Pages header rules.
+
+# Never cache the service worker. It's the file that decides how everything
+# else is cached, so a stale copy pins users to an old build indefinitely.
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=3600
+
+# Build output is content-hashed: a changed file gets a changed name, so these
+# are safe to cache forever.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  # The camera is needed for barcode scanning and photo stickers. Geolocation,
+  # microphone and payment are not, so they're switched off.
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=()
