@@ -2,6 +2,7 @@ import AccountPanel from './AccountPanel.jsx'
 import DataPanel from './DataPanel.jsx'
 import Icon from '../icons.jsx'
 import { CURRENCIES, currencySymbol } from '../currency.js'
+import { ACCENTS, TEXTURES } from '../theme.js'
 
 /**
  * Everything that is configuration rather than shopping. Moving these off the
@@ -13,6 +14,10 @@ export default function SettingsScreen({
   onNameChange,
   currency,
   onCurrencyChange,
+  accent,
+  onAccentChange,
+  texture,
+  onTextureChange,
   onRestore,
   onShowTour,
 }) {
@@ -50,6 +55,49 @@ export default function SettingsScreen({
           ))}
         </select>
       </label>
+
+      <section className="setting">
+        <span className="setting__label">Accent</span>
+        <ul className="accents">
+          {ACCENTS.map((a) => (
+            <li key={a.id}>
+              <button
+                type="button"
+                className={`accent ${a.id === accent ? 'accent--on' : ''}`}
+                style={{ '--swatch': a.color }}
+                onClick={() => onAccentChange(a.id)}
+                aria-pressed={a.id === accent}
+                title={a.label}
+              >
+                <span className="accent__dot" />
+                <span className="accent__label">{a.label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="setting">
+        <span className="setting__label">Texture</span>
+        <span className="setting__hint">
+          A pattern behind everything. Drawn with gradients, so it costs no
+          download.
+        </span>
+        <ul className="textures">
+          {TEXTURES.map((t) => (
+            <li key={t.id}>
+              <button
+                type="button"
+                className={`texture texture--${t.id} ${t.id === texture ? 'texture--on' : ''}`}
+                onClick={() => onTextureChange(t.id)}
+                aria-pressed={t.id === texture}
+              >
+                <span className="texture__label">{t.label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <button className="tour__open" type="button" onClick={onShowTour}>
         <Icon name="sparkle" size={17} /> What Cartwise does

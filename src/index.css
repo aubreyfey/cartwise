@@ -1483,6 +1483,276 @@ button {
   min-width: 0;
 }
 
+/* ---------- appearance ---------- */
+
+/* Textures are gradients painted behind the whole app: no image to download,
+   no tile to cache, and they scale to any screen. */
+:root[data-texture='dots'] body {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 18px 18px;
+  color: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+:root[data-texture='grid'] body {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+:root[data-texture='paper'] body {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--text) 4%, transparent) 0 1px,
+      transparent 1px 4px
+    );
+}
+
+:root[data-texture='weave'] body {
+  background-image:
+    repeating-linear-gradient(45deg, color-mix(in srgb, var(--text) 4%, transparent) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--text) 4%, transparent) 0 2px, transparent 2px 7px);
+}
+
+:root[data-texture='stripe'] body {
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--text) 4%, transparent) 0 6px,
+      transparent 6px 16px
+    );
+}
+
+.accents,
+.textures {
+  list-style: none;
+  margin: 0.15rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem 0.3rem 0.45rem;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.accent__dot {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  background: var(--swatch);
+  flex-shrink: 0;
+}
+
+.accent--on {
+  border-color: var(--swatch);
+  color: var(--swatch);
+  background: var(--surface);
+}
+
+.texture {
+  width: 5.4rem;
+  height: 3rem;
+  display: grid;
+  place-items: end center;
+  padding: 0.25rem;
+  border: 1.5px solid var(--border);
+  border-radius: 11px;
+  background-color: var(--surface-2);
+  color: color-mix(in srgb, var(--text) 22%, transparent);
+}
+
+.texture--on {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.texture__label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* Each swatch previews its own pattern. */
+.texture--dots {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 9px 9px;
+}
+.texture--grid {
+  background-image:
+    linear-gradient(currentColor 1px, transparent 1px),
+    linear-gradient(90deg, currentColor 1px, transparent 1px);
+  background-size: 11px 11px;
+}
+.texture--paper {
+  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 4px);
+}
+.texture--weave {
+  background-image:
+    repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(-45deg, currentColor 0 1px, transparent 1px 6px);
+}
+.texture--stripe {
+  background-image: repeating-linear-gradient(-45deg, currentColor 0 3px, transparent 3px 9px);
+}
+
+/* ---------- recipes ---------- */
+
+.recipes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.recipes__intro {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.recipe {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.recipe__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+.recipe__stickers {
+  display: flex;
+  align-items: center;
+  gap: 0.05rem;
+  min-width: 2rem;
+  color: var(--text-faint);
+}
+
+.recipe__names {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.recipe__name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+.recipe__meta {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.recipe__body {
+  padding: 0 0.85rem 0.9rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.recipe__serves {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.7rem;
+}
+
+.recipe__scaled {
+  font-size: 0.7rem;
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.recipe__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.recipe__row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.32rem 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 0.84rem;
+}
+
+.recipe__row:last-child {
+  border-bottom: none;
+}
+
+.recipe__qty {
+  min-width: 4rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.recipe__ing {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recipe__add {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.recipe__add .field__input:first-child {
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+
+.recipe__send {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.recipe__carts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.recipe__delete {
+  align-self: flex-start;
+  font-size: 0.74rem;
+  padding: 0.28rem 0.7rem;
+}
+
 /* ---------- settings ---------- */
 
 .settings,

@@ -4,6 +4,7 @@ import Icon from '../icons.jsx'
 // the page, and the active one slides proud of the rest.
 const TABS = [
   { id: 'home', label: 'Home', icon: 'house' },
+  { id: 'recipes', label: 'Recipes', icon: 'book' },
   { id: 'expiry', label: 'Expiry', icon: 'calendar' },
   { id: 'trips', label: 'Trips', icon: 'chart' },
   { id: 'settings', label: 'Settings', icon: 'gear' },

@@ -12,6 +12,9 @@ import Insights from './components/Insights.jsx'
 import ItemSheet from './components/ItemSheet.jsx'
 import NavBar from './components/NavBar.jsx'
 import Onboarding from './components/Onboarding.jsx'
+import RecipesScreen from './components/RecipesScreen.jsx'
+import { addRecipe, removeRecipe, updateRecipe } from './recipes.js'
+import { applyTheme, loadAccent, loadTexture, saveAccent, saveTexture } from './theme.js'
 import SettingsScreen from './components/SettingsScreen.jsx'
 import PhotoCapture from './components/PhotoCapture.jsx'
 import TourScreen from './components/TourScreen.jsx'
@@ -74,6 +77,14 @@ export default function App() {
   const [stores, setStores] = useLocalStorage('cartwise.stores', [])
   const [trips, setTrips] = useLocalStorage('cartwise.trips', [])
   const [pantry, setPantry] = useLocalStorage('cartwise.pantry', [])
+  const [recipes, setRecipes] = useLocalStorage('cartwise.recipes', [])
+  const [accent, setAccent] = useState(loadAccent)
+  const [texture, setTexture] = useState(loadTexture)
+
+  // Applied to the root element, so changing it repaints without re-rendering.
+  useEffect(() => {
+    applyTheme(accent, texture)
+  }, [accent, texture])
   const [sortMode, setSortMode] = useLocalStorage('cartwise.sort', 'aisle')
   const [mode, setMode] = useState('planning')
   // 'home' | 'list' | 'expiry' | 'trips' | 'settings'
@@ -404,6 +415,40 @@ export default function App() {
     setSheetItem(null)
   }
 
+  /**
+   * Put a recipe's ingredients on a list. An ingredient already there gets
+   * more of it rather than a duplicate row — two recipes both wanting onions
+   * should mean more onions.
+   */
+  function addIngredientsToCart(cartId, ingredients) {
+    setCarts((prev) =>
+      updateCart(prev, cartId, (cart) => {
+        const next = [...cart.items]
+        for (const ing of ingredients) {
+          const key = ing.name.trim().toLowerCase()
+          const existing = next.find((i) => i.name.trim().toLowerCase() === key && !i.checked)
+          if (existing) {
+            next[next.indexOf(existing)] = { ...existing, qty: existing.qty + ing.qty }
+          } else {
+            next.push({
+              id: newId(),
+              name: ing.name,
+              qty: ing.qty,
+              unit: ing.unit,
+              price: priceFor(findVaultItem(vault, ing.name), activeStoreId),
+              category: ing.category,
+              brand: null,
+              packageSize: null,
+              checked: false,
+              impulse: false,
+            })
+          }
+        }
+        return { items: next }
+      }),
+    )
+  }
+
   const removeItem = (id) => setItems((prev) => prev.filter((i) => i.id !== id))
 
   const clearChecked = () => setItems((prev) => prev.filter((i) => !i.checked))
@@ -542,6 +587,19 @@ export default function App() {
     )
   }
 
+  if (view === 'recipes') {
+    return chrome(
+      <RecipesScreen
+        recipes={recipes}
+        carts={carts}
+        onCreate={(name) => setRecipes((prev) => addRecipe(prev, name))}
+        onUpdate={(id, patch) => setRecipes((prev) => updateRecipe(prev, id, patch))}
+        onRemove={(id) => setRecipes((prev) => removeRecipe(prev, id))}
+        onAddToList={addIngredientsToCart}
+      />,
+    )
+  }
+
   if (view === 'trips') {
     return chrome(
       <div className="tripsview">
@@ -560,6 +618,10 @@ export default function App() {
         onNameChange={setDisplayName}
         currency={currency}
         onCurrencyChange={changeCurrency}
+        accent={accent}
+        onAccentChange={(id) => setAccent(saveAccent(id))}
+        texture={texture}
+        onTextureChange={(id) => setTexture(saveTexture(id))}
         onRestore={restoreBackup}
         onShowTour={() => setShowTour(true)}
       />,
