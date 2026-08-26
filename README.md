@@ -149,8 +149,21 @@ red with how far over you are. Three numbers stay visible: the list total, the
 "in cart" total of checked items, and a per-aisle subtotal in each section
 header.
 
-**Almost nothing leaves the device.** State lives in `localStorage` — no
-account, no analytics, no sync, no telemetry.
+**Household sharing (optional).** Sign in with an emailed link and you can
+share one list with the people you live with. Create a household, hand out a
+six-character invite code, and everyone shops from the same list.
+
+Only the shared list syncs. Your Vault prices, trip history, photo stickers
+and expiry stay on the device — they are personal, they are the bulk of the
+data, and sharing them was never the point.
+
+It is entirely opt-in. With no `VITE_SUPABASE_*` set, the sign-in UI does not
+render, the Supabase client is never downloaded, and the app behaves exactly
+as it did before any of this existed. See `.env.example` and
+`supabase/schema.sql`.
+
+**Almost nothing leaves the device.** Without an account, state lives in
+`localStorage` — no analytics, no sync, no telemetry.
 
 There is exactly one outbound request in the whole app, and you have to press
 a button for it: looking up a barcode you've never scanned before. It sends

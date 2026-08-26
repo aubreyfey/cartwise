@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import AddItemForm from './components/AddItemForm.jsx'
 import BudgetBar from './components/BudgetBar.jsx'
 import CartTabs from './components/CartTabs.jsx'
+import AccountPanel from './components/AccountPanel.jsx'
 import CategorySection from './components/CategorySection.jsx'
 import DataPanel from './components/DataPanel.jsx'
 import ExpiryScreen from './components/ExpiryScreen.jsx'
@@ -410,6 +411,7 @@ export default function App() {
           onOpenExpiry={() => setView('expiry')}
           onDeleteTrip={deleteTrip}
         />
+        <AccountPanel />
         <DataPanel onRestore={restoreBackup} />
       </div>
     )

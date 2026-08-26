@@ -1096,6 +1096,193 @@ button.card:hover {
   color: var(--text-faint);
 }
 
+/* ---------- account / sharing ---------- */
+
+.account {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.account__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  background: none;
+  border: none;
+}
+
+.account__label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.account__who {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  font-size: 0.74rem;
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account__body {
+  padding: 0.9rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.account__hint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.account__fineprint {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+.account__form {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.account__form .add-form__name {
+  flex: 1 1 11rem;
+  min-width: 0;
+}
+
+.account__row {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.account__row .field__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.account__signout {
+  align-self: flex-start;
+  font-size: 0.76rem;
+  padding: 0.3rem 0.75rem;
+}
+
+.account__status {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.account__status--good {
+  color: var(--money);
+}
+
+.account__status--bad {
+  color: var(--danger);
+}
+
+.household-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.household {
+  padding: 0.65rem 0.7rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.household__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.household__name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+.household__role {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
+.household__members {
+  margin: 0.1rem 0 0;
+  font-size: 0.73rem;
+  color: var(--text-faint);
+}
+
+.household__invites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.invite-code {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  background: var(--primary-soft);
+  border-radius: 999px;
+}
+
+.invite-code code {
+  font-family: ui-monospace, 'Cascadia Mono', Menlo, monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--primary);
+}
+
+.invite-code__ttl {
+  font-size: 0.66rem;
+  color: var(--text-faint);
+}
+
+.household__actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.household__actions .btn {
+  font-size: 0.74rem;
+  padding: 0.28rem 0.7rem;
+}
+
 /* ---------- currency ---------- */
 
 .currency {
