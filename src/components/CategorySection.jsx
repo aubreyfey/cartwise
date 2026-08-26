@@ -9,6 +9,7 @@ export default function CategorySection({
   shopping,
   photos,
   onPhoto,
+  onEdit,
   onToggle,
   onUpdate,
   onRemove,
@@ -47,6 +48,7 @@ export default function CategorySection({
             shopping={shopping}
             photo={photos?.[photoKey(item.name)]}
             onPhoto={onPhoto}
+            onEdit={onEdit}
             onToggle={onToggle}
             onUpdate={onUpdate}
             onRemove={onRemove}

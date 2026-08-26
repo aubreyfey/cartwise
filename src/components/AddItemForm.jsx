@@ -9,7 +9,7 @@ import Sticker, { stickerFor } from '../stickers.jsx'
 
 const EMPTY = { name: '', qty: '1', price: '', unit: DEFAULT_UNIT }
 
-export default function AddItemForm({ onAdd, vault, activeStoreId, onVaultPick }) {
+export default function AddItemForm({ onAdd, onOpenSheet, vault, activeStoreId, onVaultPick }) {
   const [fields, setFields] = useState(EMPTY)
   const [category, setCategory] = useState('other')
   // Once the user picks a category by hand, stop re-guessing under them.
@@ -319,6 +319,17 @@ export default function AddItemForm({ onAdd, vault, activeStoreId, onVaultPick }
             <span aria-hidden="true">▊▍▊</span> Scan
           </button>
         )}
+
+        {/* Everything the one-liner can't hold: brand, which shop the price
+            is from, and what's printed on the packet. */}
+        <button
+          className="btn btn--scan"
+          type="button"
+          onClick={() => onOpenSheet({ name: fields.name.trim(), category })}
+          title="Add with full details"
+        >
+          Details…
+        </button>
 
         <button className="btn btn--primary" type="submit" disabled={!fields.name.trim()}>
           Add

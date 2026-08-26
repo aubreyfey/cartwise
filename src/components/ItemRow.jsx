@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatMoney, lineTotal, parsePrice } from '../money.js'
-import { DEFAULT_UNIT, UNITS, formatQty, normalizeQty, stepFor, unitLabel } from '../units.js'
+import {
+  DEFAULT_UNIT,
+  UNITS,
+  formatPackageSize,
+  formatQty,
+  normalizeQty,
+  stepFor,
+  unitLabel,
+} from '../units.js'
 import Thumb from './Thumb.jsx'
 
 export default function ItemRow({
@@ -9,6 +17,7 @@ export default function ItemRow({
   shopping,
   photo,
   onPhoto,
+  onEdit,
   onToggle,
   onUpdate,
   onRemove,
@@ -27,6 +36,7 @@ export default function ItemRow({
   const unit = item.unit ?? DEFAULT_UNIT
   const step = stepFor(unit)
   const total = lineTotal(item)
+  const size = formatPackageSize(item.packageSize)
 
   function startEditing() {
     setDraft(item.price == null ? '' : String(item.price))
@@ -73,18 +83,18 @@ export default function ItemRow({
 
       <div className="item__main">
         {/* While shopping the name is the tap target, so you can grab a whole
-            row without aiming at the little circle. */}
-        {shopping ? (
-          <button
-            className="item__name item__name--tap"
-            type="button"
-            onClick={() => onToggle(item.id)}
-          >
-            {item.name}
-          </button>
-        ) : (
-          <p className="item__name">{item.name}</p>
-        )}
+            row without aiming at the little circle. Planning, it opens the
+            editor. */}
+        <button
+          className="item__name item__name--tap"
+          type="button"
+          onClick={() => (shopping ? onToggle(item.id) : onEdit?.(item))}
+          title={shopping ? undefined : 'Edit details'}
+        >
+          {item.name}
+          {size && <span className="item__size"> ({size})</span>}
+          {item.brand && <span className="item__brand">{item.brand}</span>}
+        </button>
 
         <div className="item__sub">
           <span className="qty">

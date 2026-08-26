@@ -83,7 +83,10 @@ export function previousPriceFor(vaultItem, storeId) {
  * unknown one, so adding an item with the price box empty keeps what we
  * already learned.
  */
-export function rememberItem(vault, { name, category, price, qty, unit, storeId }) {
+export function rememberItem(
+  vault,
+  { name, category, price, qty, unit, storeId, brand, packageSize },
+) {
   const existing = findVaultItem(vault, name)
   const known = isKnownPrice(price)
 
@@ -95,6 +98,8 @@ export function rememberItem(vault, { name, category, price, qty, unit, storeId 
         name: name.trim(),
         category,
         unit: unit ?? DEFAULT_UNIT,
+        brand: brand ?? null,
+        packageSize: packageSize ?? null,
         price: known ? price : null,
         prices: known && storeId ? { [storeId]: price } : {},
         previous: {},
@@ -114,6 +119,9 @@ export function rememberItem(vault, { name, category, price, qty, unit, storeId 
       ...v,
       category,
       unit: unit ?? v.unit ?? DEFAULT_UNIT,
+      // Blank fields don't erase what we already know.
+      brand: brand ?? v.brand ?? null,
+      packageSize: packageSize ?? v.packageSize ?? null,
       price: known ? price : v.price,
       prices: known && storeId ? { ...v.prices, [storeId]: price } : (v.prices ?? {}),
       previous: changed ? { ...v.previous, [storeId]: before } : (v.previous ?? {}),

@@ -44,6 +44,29 @@ export function formatQty(qty) {
   return Number.parseFloat(qty.toFixed(3)).toString()
 }
 
+// What's printed on the packet: "400 g", "1.5 L", "12 pc". Separate from the
+// sold-by unit — you buy one *bag* that contains 400 *g*.
+export const PACKAGE_UNITS = ['g', 'kg', 'mL', 'L', 'pc']
+
+/**
+ * "400 g", or null when there's nothing worth showing. Returns null rather
+ * than an empty string so callers can test it directly.
+ */
+export function formatPackageSize(size) {
+  if (!size) return null
+  const value = Number(size.value)
+  if (!Number.isFinite(value) || value <= 0) return null
+  const unit = PACKAGE_UNITS.includes(size.unit) ? size.unit : 'g'
+  return `${Number.parseFloat(value.toFixed(3))} ${unit}`
+}
+
+/** Parse the two package-size fields, or null if the value is blank/invalid. */
+export function parsePackageSize(value, unit) {
+  const n = Number.parseFloat(value)
+  if (!Number.isFinite(n) || n <= 0) return null
+  return { value: Number.parseFloat(n.toFixed(3)), unit: PACKAGE_UNITS.includes(unit) ? unit : 'g' }
+}
+
 /** Clamp a quantity to something sane for its unit. */
 export function normalizeQty(qty, unitId) {
   const n = Number.parseFloat(qty)

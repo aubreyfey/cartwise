@@ -1690,6 +1690,225 @@ button.card:hover {
   color: var(--danger);
 }
 
+/* ---------- item sheet ---------- */
+
+.itemsheet {
+  width: min(24rem, 100%);
+  text-align: left;
+}
+
+.itemsheet__title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0 0 0.2rem;
+}
+
+.itemsheet__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.6rem 0 0.85rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.85rem;
+}
+
+.itemsheet__thumb {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  flex-shrink: 0;
+  padding: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.itemsheet__thumb:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.itemsheet__names {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.itemsheet__name,
+.itemsheet__brand {
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0.1rem 0;
+}
+
+.itemsheet__name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.itemsheet__brand {
+  font-size: 0.82rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.itemsheet__name:focus,
+.itemsheet__brand:focus {
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--primary);
+}
+
+.sheetrow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+
+.sheetfield {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1;
+  margin-bottom: 0.55rem;
+}
+
+.sheetrow .sheetfield {
+  margin-bottom: 0;
+}
+
+.sheetfield--grow {
+  flex: 1.6;
+}
+
+.sheetfield__label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
+.sheetfield__optional {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.sheetfield__control {
+  width: 100%;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.sheetfield__control:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Price gets the one tinted field, because it is the number this whole app
+   exists to keep track of. */
+.sheetfield__money {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding-left: 0.65rem;
+  background: var(--danger-soft);
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+
+.sheetfield__money:focus-within {
+  border-color: var(--primary);
+}
+
+.sheetfield__symbol {
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.sheetfield__control--money {
+  background: none;
+  border: none;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  padding-left: 0;
+}
+
+.packagesize {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.packagesize__value {
+  flex: 1;
+}
+
+.packagesize__unit {
+  width: 5rem;
+}
+
+.packagesize__clear {
+  width: 1.7rem;
+  height: 1.7rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text-faint);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.packagesize__clear:hover {
+  color: var(--danger);
+}
+
+.itemsheet__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border);
+}
+
+.itemsheet__actions .btn {
+  flex: 1;
+  border-radius: 14px;
+  padding: 0.65rem 1rem;
+}
+
+.btn--wide {
+  flex: 1.4;
+}
+
+/* Name and packet size on the row */
+.item__size {
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.item__brand {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
 /* ---------- receipt sheet ---------- */
 
 .sheet {

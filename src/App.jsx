@@ -8,6 +8,7 @@ import DataPanel from './components/DataPanel.jsx'
 import ExpiryScreen from './components/ExpiryScreen.jsx'
 import HomeScreen from './components/HomeScreen.jsx'
 import Insights from './components/Insights.jsx'
+import ItemSheet from './components/ItemSheet.jsx'
 import PhotoCapture from './components/PhotoCapture.jsx'
 import StoreBar from './components/StoreBar.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
@@ -72,6 +73,8 @@ export default function App() {
   // error message.
   const [photos, setPhotos] = useState(loadPhotos)
   const [photoTarget, setPhotoTarget] = useState(null)
+  // The full item editor: a draft for a new item, or an existing row.
+  const [sheetItem, setSheetItem] = useState(null)
 
   function savePhoto(dataUrl) {
     const key = photoKey(photoTarget.name)
@@ -202,9 +205,10 @@ export default function App() {
    * Add to the list and remember in the Vault. Adding something already on
    * the list bumps its quantity instead of creating a duplicate row.
    */
-  function addItem({ name, qty, price, unit, category, barcode }) {
+  function addItem({ name, qty, price, unit, category, barcode, brand, packageSize, storeId }) {
     const parsed = parsePrice(price)
     const itemUnit = unit ?? DEFAULT_UNIT
+    const priceStore = storeId ?? activeStoreId
 
     setItems((prev) => {
       const existing = prev.find(
@@ -227,6 +231,8 @@ export default function App() {
           price: parsed,
           unit: itemUnit,
           category,
+          brand: brand ?? null,
+          packageSize: packageSize ?? null,
           checked: false,
           // Added mid-shop rather than planned beforehand.
           impulse: mode === 'shopping',
@@ -241,7 +247,9 @@ export default function App() {
         price: parsed,
         qty,
         unit: itemUnit,
-        storeId: activeStoreId,
+        brand,
+        packageSize,
+        storeId: priceStore,
       })
       // Attach the scanned code after the item exists, so the next scan of
       // this product recognises it without any lookup.
@@ -277,6 +285,37 @@ export default function App() {
     if (patch.unit !== undefined) {
       setVault((prev) => rememberUnit(prev, item.name, patch.unit))
     }
+  }
+
+  /**
+   * Save from the full editor. An id means an edit in place; no id means a
+   * new item, which goes through addItem so the Vault learns from it too.
+   */
+  function saveFromSheet(draft) {
+    const { id, storeId, ...rest } = draft
+
+    if (id) {
+      updateItem(id, {
+        ...rest,
+        price: rest.price,
+        qty: rest.qty,
+      })
+      setVault((prev) =>
+        rememberItem(prev, {
+          name: rest.name,
+          category: rest.category,
+          price: rest.price,
+          qty: rest.qty,
+          unit: rest.unit,
+          brand: rest.brand,
+          packageSize: rest.packageSize,
+          storeId: storeId ?? activeStoreId,
+        }),
+      )
+    } else {
+      addItem({ ...rest, storeId: storeId ?? activeStoreId })
+    }
+    setSheetItem(null)
   }
 
   const removeItem = (id) => setItems((prev) => prev.filter((i) => i.id !== id))
@@ -503,7 +542,12 @@ export default function App() {
 
       {/* Available in both modes: forgetting something is exactly what happens
           mid-shop, and those additions are what impulse tracking measures. */}
-      <AddItemForm onAdd={addItem} vault={vault} activeStoreId={activeStoreId} />
+      <AddItemForm
+        onAdd={addItem}
+        onOpenSheet={(draft) => setSheetItem(draft)}
+        vault={vault}
+        activeStoreId={activeStoreId}
+      />
 
       {mode === 'planning' && (
         <>
@@ -548,6 +592,7 @@ export default function App() {
               shopping={mode === 'shopping'}
               photos={photos}
               onPhoto={(name, category) => setPhotoTarget({ name, category })}
+              onEdit={(row) => setSheetItem(row)}
               onToggle={toggleItem}
               onUpdate={updateItem}
               onRemove={removeItem}
@@ -584,6 +629,18 @@ export default function App() {
         onConfirm={logPendingTrip}
         onCancel={() => setPendingTrip(null)}
       />
+
+      {sheetItem && (
+        <ItemSheet
+          item={sheetItem}
+          stores={stores}
+          activeStoreId={activeStoreId}
+          photos={photos}
+          onSave={saveFromSheet}
+          onPhoto={(name, category) => setPhotoTarget({ name, category })}
+          onCancel={() => setSheetItem(null)}
+        />
+      )}
 
       {photoTarget && (
         <PhotoCapture
