@@ -115,7 +115,9 @@ function BudgetDemo() {
         <span>Budget</span>
       </div>
       <div className="demo__track">
-        <div className="demo__fill" style={{ width: `${Math.max(pct, 16)}%` }}>
+        {/* Floor the width so the amount inside always has room; a bar at 3%
+            would clip its own currency symbol. */}
+        <div className="demo__fill" style={{ width: `${Math.max(pct, 42)}%` }}>
           <span className="demo__spent">{peso(total)}</span>
         </div>
         <span className="demo__cap">{peso(CAP)}</span>
@@ -178,7 +180,8 @@ function VaultDemo() {
         </div>
       )}
 
-      <Finger x={48} y={38} tap={step === 3} hidden={step < 2 || step > 3} />
+      {/* Sits on the suggestion row itself, not below it. */}
+      <Finger x={46} y={21} tap={step === 3} hidden={step < 2 || step > 3} />
     </div>
   )
 }
@@ -393,7 +396,9 @@ export default function TourDemo({ name }) {
   if (!Component) return null
   return (
     <div className="demo__frame">
-      <Component />
+      <div className="demo__screen">
+        <Component />
+      </div>
     </div>
   )
 }
