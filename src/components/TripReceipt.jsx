@@ -3,12 +3,14 @@ import { formatMoney, lineTotal } from '../money.js'
 import { formatQty, unitLabel } from '../units.js'
 import { isPerishable } from '../pantry.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
+import Thumb from './Thumb.jsx'
+import { photoKey } from '../photos.js'
 
 // Fixed tilts so the collage looks hand-placed but doesn't reshuffle on
 // every render.
 const TILTS = [-12, 7, -5, 14, -9, 4, 11, -14, 6, -7, 9, -4]
 
-export default function TripReceipt({ trip, onConfirm, onCancel }) {
+export default function TripReceipt({ trip, photos, onConfirm, onCancel }) {
   const panelRef = useRef(null)
 
   // Perishables are offered for expiry tracking, ticked by default — those
@@ -73,8 +75,10 @@ export default function TripReceipt({ trip, onConfirm, onCancel }) {
           <div className="collage">
             {trip.items.slice(0, 12).map((item, i) => (
               <span className="collage__item" key={`${item.name}-${i}`}>
-                <Sticker
-                  id={stickerFor(item.name, item.category)}
+                <Thumb
+                  name={item.name}
+                  category={item.category}
+                  photo={photos?.[photoKey(item.name)]}
                   size={38}
                   tilt={TILTS[i % TILTS.length]}
                 />

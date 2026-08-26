@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatMoney, lineTotal, parsePrice } from '../money.js'
 import { DEFAULT_UNIT, UNITS, formatQty, normalizeQty, stepFor, unitLabel } from '../units.js'
-import Sticker, { stickerFor } from '../stickers.jsx'
+import Thumb from './Thumb.jsx'
 
 export default function ItemRow({
   item,
   priceDelta,
   shopping,
+  photo,
+  onPhoto,
   onToggle,
   onUpdate,
   onRemove,
@@ -52,9 +54,22 @@ export default function ItemRow({
         <span className="item__box" aria-hidden="true" />
       </label>
 
-      <span className="item__thumb">
-        <Sticker id={stickerFor(item.name, item.category)} size={shopping ? 34 : 30} />
-      </span>
+      {/* The picture doubles as the button for replacing it with a photo of
+          the real product. */}
+      <button
+        className="item__thumb item__thumb--button"
+        type="button"
+        onClick={() => onPhoto(item.name, item.category)}
+        aria-label={photo ? `Change the sticker for ${item.name}` : `Add a photo sticker for ${item.name}`}
+        title={photo ? 'Change sticker' : 'Make a sticker from a photo'}
+      >
+        <Thumb
+          name={item.name}
+          category={item.category}
+          photo={photo}
+          size={shopping ? 34 : 30}
+        />
+      </button>
 
       <div className="item__main">
         {/* While shopping the name is the tap target, so you can grab a whole

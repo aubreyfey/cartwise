@@ -14,6 +14,7 @@ const KEYS = [
   'cartwise.pantry',
   'cartwise.sort',
   'cartwise.currency',
+  'cartwise.photos',
 ]
 
 /** Everything worth keeping, as a plain object. */

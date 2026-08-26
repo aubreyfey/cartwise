@@ -7,6 +7,7 @@ import DataPanel from './components/DataPanel.jsx'
 import ExpiryScreen from './components/ExpiryScreen.jsx'
 import HomeScreen from './components/HomeScreen.jsx'
 import Insights from './components/Insights.jsx'
+import PhotoCapture from './components/PhotoCapture.jsx'
 import StoreBar from './components/StoreBar.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import TripReceipt from './components/TripReceipt.jsx'
@@ -44,6 +45,7 @@ import {
   removeVaultItem,
 } from './vault.js'
 import { getCurrency, setCurrency } from './currency.js'
+import { loadPhotos, photoKey, writePhotos } from './photos.js'
 
 const ALL = { id: 'all', label: 'All items', icon: '🧺' }
 
@@ -64,6 +66,34 @@ export default function App() {
   const [view, setView] = useState('home')
   // Mirrors the module-level currency so changing it re-renders every price.
   const [currency, setCurrencyState] = useState(getCurrency)
+  // Photo cut-outs live outside useLocalStorage: they're the one thing big
+  // enough to fail a write, and a silently dropped sticker is worse than an
+  // error message.
+  const [photos, setPhotos] = useState(loadPhotos)
+  const [photoTarget, setPhotoTarget] = useState(null)
+
+  function savePhoto(dataUrl) {
+    const key = photoKey(photoTarget.name)
+    const next = { ...photos, [key]: dataUrl }
+    const result = writePhotos(next)
+    if (!result.ok) {
+      window.alert(
+        result.reason === 'full'
+          ? "This device's storage is full, so the sticker wasn't saved. Remove a few photo stickers and try again."
+          : "This device blocked saving the sticker.",
+      )
+      return
+    }
+    setPhotos(next)
+    setPhotoTarget(null)
+  }
+
+  function deletePhoto() {
+    const { [photoKey(photoTarget.name)]: _gone, ...rest } = photos
+    writePhotos(rest)
+    setPhotos(rest)
+    setPhotoTarget(null)
+  }
 
   function changeCurrency(code) {
     setCurrencyState(setCurrency(code))
@@ -514,6 +544,8 @@ export default function App() {
               items={groupItems}
               deltas={deltas}
               shopping={mode === 'shopping'}
+              photos={photos}
+              onPhoto={(name, category) => setPhotoTarget({ name, category })}
               onToggle={toggleItem}
               onUpdate={updateItem}
               onRemove={removeItem}
@@ -546,9 +578,20 @@ export default function App() {
 
       <TripReceipt
         trip={pendingTrip}
+        photos={photos}
         onConfirm={logPendingTrip}
         onCancel={() => setPendingTrip(null)}
       />
+
+      {photoTarget && (
+        <PhotoCapture
+          name={photoTarget.name}
+          existing={photos[photoKey(photoTarget.name)] ?? null}
+          onSave={savePhoto}
+          onRemove={deletePhoto}
+          onCancel={() => setPhotoTarget(null)}
+        />
+      )}
 
       {items.length > 0 && mode === 'planning' && (
         <footer className="app__footer">

@@ -1,11 +1,14 @@
 import ItemRow from './ItemRow.jsx'
 import { formatMoney, sumLines } from '../money.js'
+import { photoKey } from '../photos.js'
 
 export default function CategorySection({
   category,
   items,
   deltas,
   shopping,
+  photos,
+  onPhoto,
   onToggle,
   onUpdate,
   onRemove,
@@ -42,6 +45,8 @@ export default function CategorySection({
             item={item}
             priceDelta={deltas?.get(item.id) ?? null}
             shopping={shopping}
+            photo={photos?.[photoKey(item.name)]}
+            onPhoto={onPhoto}
             onToggle={onToggle}
             onUpdate={onUpdate}
             onRemove={onRemove}
