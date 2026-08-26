@@ -31,11 +31,14 @@ import {
 import { formatMoney, isKnownPrice, parsePrice, sumLines } from './money.js'
 import {
   addPantryItem,
+  dueItems,
   needsAttention,
   removePantryItem,
+  reminderMessage,
   suggestedExpiry,
   updatePantryItem,
 } from './pantry.js'
+import { askForNotifications, notificationPermission, showReminder } from './notify.js'
 import { backgroundOf, backgroundStyle } from './backgrounds.js'
 import { addStore, compareStores, removeStore } from './stores.js'
 import { DEFAULT_UNIT } from './units.js'
@@ -141,6 +144,31 @@ export default function App() {
     setShowTour(false)
     setTourSeen(true)
   }
+
+  // --- expiry reminders ----------------------------------------------------
+
+  const [notifyState, setNotifyState] = useState(notificationPermission)
+
+  async function enableNotifications() {
+    setNotifyState(await askForNotifications())
+  }
+
+  /**
+   * Fire the daily reminder when the app opens. A web app cannot wake itself
+   * up, so this is the honest moment to tell you — and it happens to be the
+   * moment it is most useful, since you open the list before you shop.
+   */
+  useEffect(() => {
+    if (notifyState !== 'granted') return
+    const due = dueItems(pantry)
+    const body = reminderMessage(due)
+    if (!body) return
+    showReminder({
+      title: `${due.length} ${due.length === 1 ? 'item needs' : 'items need'} eating`,
+      body,
+      base: import.meta.env.BASE_URL ?? '/',
+    })
+  }, [notifyState, pantry])
 
   // A stored id can point at a cart that's since been deleted.
   const activeCart = findCart(carts, activeCartId) ?? carts[0]
@@ -470,10 +498,13 @@ export default function App() {
       <ExpiryScreen
         pantry={pantry}
         vault={vault}
+        photos={photos}
+        notifyState={notifyState}
+        onEnableNotifications={enableNotifications}
         onAdd={(item) => setPantry((prev) => addPantryItem(prev, item))}
         onRemove={(id) => setPantry((prev) => removePantryItem(prev, id))}
         onUpdate={(id, patch) => setPantry((prev) => updatePantryItem(prev, id, patch))}
-        onBack={() => setView('home')}
+        onPhoto={(name, category) => setPhotoTarget({ name, category })}
       />,
     )
   }

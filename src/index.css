@@ -939,6 +939,163 @@ button {
   }
 }
 
+/* ---------- expiry: places, quick sets, reminders ---------- */
+
+.quickset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.quickset__btn {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.quickset__btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.quickset__btn--on {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.quickset__btn--clear {
+  margin-left: auto;
+  border-style: dashed;
+}
+
+.places {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.places__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.places__btn--on {
+  background: var(--surface-2);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.item__place {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--text-faint);
+}
+
+/* A pantry row carries more than a list row — a date, a reminder and a place
+   — so it gets two rows of its own rather than being squeezed into the list
+   grid, where the name ended up wrapping onto three lines. */
+.item--pantry {
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    'thumb main when'
+    'thumb tools tools';
+  column-gap: 0.55rem;
+  row-gap: 0.3rem;
+  align-items: start;
+}
+
+.item--pantry .item__thumb {
+  grid-area: thumb;
+  align-self: center;
+}
+
+.item--pantry .item__main {
+  grid-area: main;
+}
+
+.item--pantry .item__right {
+  grid-area: when;
+}
+
+.item--pantry .item__tools {
+  grid-area: tools;
+  justify-content: flex-end;
+}
+
+.item__tools {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.item__remind {
+  padding: 0.15rem 0.25rem;
+  max-width: 6.5rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.item__remind:disabled {
+  opacity: 0.45;
+}
+
+.notifycard {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  background: var(--primary-soft);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border));
+  border-radius: var(--radius);
+  color: var(--primary);
+}
+
+.notifycard--quiet {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+.notifycard__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 0.84rem;
+}
+
+.notifycard__sub {
+  font-size: 0.73rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.item__remind {
+  max-width: 7.5rem;
+}
+
 /* ---------- list backgrounds ---------- */
 
 .card--tinted,
