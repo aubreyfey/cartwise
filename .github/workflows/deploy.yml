@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Are the deploy secrets present?
         id: gate
@@ -37,7 +37,7 @@ jobs:
             echo "Cloudflare secrets not set — skipping deploy."
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: steps.gate.outputs.ready == 'true'
         with:
           node-version: '24'
