@@ -10,8 +10,10 @@ const dateFormat = new Intl.DateTimeFormat(undefined, {
   day: 'numeric',
 })
 
-export default function Insights({ trips, onDeleteTrip }) {
-  const [open, setOpen] = useState(false)
+export default function Insights({ trips, onDeleteTrip, startOpen = false }) {
+  // Collapsed when it is one panel among many on a list screen; already open
+  // when it is the whole point of the screen you just navigated to.
+  const [open, setOpen] = useState(startOpen)
   const stats = useMemo(() => insights(trips), [trips])
 
   if (!stats) return null

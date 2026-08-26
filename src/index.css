@@ -854,6 +854,194 @@ button {
   }
 }
 
+/* ---------- bottom nav ---------- */
+
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  /* Clears the iOS home indicator without leaving a gap on other devices. */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.nav__tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0.25rem 0.55rem;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+}
+
+.nav__tab--on {
+  color: var(--primary);
+}
+
+.nav__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.nav__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.nav__badge {
+  position: absolute;
+  top: -0.3rem;
+  right: -0.55rem;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--amber);
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+/* Room for the bar, so the last card is never trapped underneath it. */
+.app--tabbed {
+  padding-bottom: 5.5rem;
+}
+
+/* ---------- list purposes ---------- */
+
+.purpose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.purpose__head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.3rem 0 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.purpose__count {
+  background: var(--surface-2);
+  color: var(--text-faint);
+  border-radius: 999px;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.66rem;
+}
+
+.newlist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.newlist__choices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.45rem;
+}
+
+.newlist__choice {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.5rem;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.newlist__choice:hover {
+  border-color: var(--primary);
+  border-style: solid;
+  color: var(--primary);
+  background: var(--surface);
+}
+
+.newlist__form {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.newlist__form .field__input {
+  flex: 1 1 9rem;
+  min-width: 0;
+}
+
+/* ---------- settings ---------- */
+
+.settings,
+.tripsview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.8rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.setting__label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
+.setting__control {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  font-size: 0.9rem;
+}
+
+.setting__control:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.setting__hint {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
 /* ---------- home screen ---------- */
 
 .home {

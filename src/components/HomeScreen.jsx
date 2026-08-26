@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { formatMoney, sumLines } from '../money.js'
-import { byRecent, insights } from '../trips.js'
+import { insights } from '../trips.js'
 import { needsAttention } from '../pantry.js'
-import { CURRENCIES, currencySymbol } from '../currency.js'
+import { PURPOSES, byPurpose } from '../carts.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -18,20 +18,27 @@ export default function HomeScreen({
   carts,
   trips,
   pantry,
-  currency,
-  onCurrencyChange,
+  name,
+  onNameChange,
   onOpenCart,
   onNewCart,
   onOpenExpiry,
-  onDeleteTrip,
 }) {
-  const [tab, setTab] = useState('active')
+  const [adding, setAdding] = useState(null) // purpose id being added to
+  const [draft, setDraft] = useState('')
   const stats = useMemo(() => insights(trips), [trips])
   const attention = needsAttention(pantry)
+  const groups = useMemo(() => byPurpose(carts), [carts])
 
   const since = trips.length
     ? dateFormat.format(new Date(Math.min(...trips.map((t) => t.completedAt))))
     : null
+
+  function submitNew(purposeId) {
+    onNewCart(draft, purposeId)
+    setDraft('')
+    setAdding(null)
+  }
 
   return (
     <div className="home">
@@ -43,33 +50,30 @@ export default function HomeScreen({
         </div>
 
         <h1 className="greeting__hi">
-          Hey <Icon name="wave" size={26} className="greeting__wave" />
+          Hey{name ? `, ${name}` : ''} <Icon name="wave" size={26} className="greeting__wave" />
         </h1>
 
         {stats ? (
           <>
             <p className="greeting__line">
               You've kept back{' '}
-              <strong className="greeting__good">
-                {formatMoney(stats.savedVsBudget)}
-              </strong>{' '}
-              across {stats.tripCount} {stats.tripCount === 1 ? 'trip' : 'trips'}
-              {since && <> since {since}</>}.
+              <strong className="greeting__good">{formatMoney(stats.savedVsBudget)}</strong>
+              {since && <> since {since}</>}, across {stats.tripCount}{' '}
+              {stats.tripCount === 1 ? 'trip' : 'trips'}.
             </p>
             {stats.overspend > 0 && (
               <p className="greeting__line greeting__line--sub">
                 You've also gone{' '}
-                <strong className="greeting__bad">
-                  {formatMoney(stats.overspend)}
-                </strong>{' '}
-                over on other trips — the two aren't netted off, so both stay
-                honest.
+                <strong className="greeting__bad">{formatMoney(stats.overspend)}</strong> over on
+                other trips — the two aren't netted off, so both stay honest.
               </p>
             )}
           </>
         ) : (
           <p className="greeting__line">
-            Finish your first trip and your savings will show up here.
+            {name
+              ? 'Finish your first trip and your savings will show up here.'
+              : 'Add your name in Settings and finish a trip — your savings show up here.'}
           </p>
         )}
       </section>
@@ -106,179 +110,113 @@ export default function HomeScreen({
         </span>
       </button>
 
-      <label className="currency">
-        <span className="currency__label">Currency</span>
-        <select
-          className="currency__select"
-          value={currency}
-          onChange={(e) => onCurrencyChange(e.target.value)}
-        >
-          {CURRENCIES.map((c) => (
-            <option key={c.code} value={c.code}>
-              {c.code} — {c.name} ({currencySymbol(c.code)})
-            </option>
-          ))}
-        </select>
-      </label>
+      {groups.map(({ purpose, carts: group }) => (
+        <section className="purpose" key={purpose.id}>
+          <h2 className="purpose__head">
+            <Icon name={purpose.icon} size={16} />
+            {purpose.label}
+            <span className="purpose__count">{group.length}</span>
+          </h2>
 
-      <div className="home__tabs" role="tablist">
-        {[
-          ['active', `Lists (${carts.length})`],
-          ['history', `History (${trips.length})`],
-        ].map(([id, label]) => (
-          <button
-            key={id}
-            role="tab"
-            aria-selected={tab === id}
-            className={`home__tab ${tab === id ? 'home__tab--on' : ''}`}
-            onClick={() => setTab(id)}
-            type="button"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+          <ul className="cards">
+            {group.map((cart) => {
+              const { total, unpriced } = sumLines(cart.items)
+              const done = cart.items.filter((i) => i.checked).length
+              const pct = cart.items.length > 0 ? (done / cart.items.length) * 100 : 0
+              const overBudget = cart.budget > 0 && total > cart.budget
 
-      {tab === 'active' ? (
-        <ul className="cards">
-          {carts.map((cart) => {
-            const { total, unpriced } = sumLines(cart.items)
-            const done = cart.items.filter((i) => i.checked).length
-            const pct =
-              cart.items.length > 0 ? (done / cart.items.length) * 100 : 0
-            const overBudget = cart.budget > 0 && total > cart.budget
-
-            return (
-              <li key={cart.id}>
-                <button
-                  className="card"
-                  type="button"
-                  onClick={() => onOpenCart(cart.id)}
-                >
-                  <span className="card__head">
-                    <span className="card__name">{cart.name}</span>
-                    <span
-                      className={`card__total ${overBudget ? 'card__total--over' : ''}`}
-                    >
-                      {formatMoney(total)}
-                      {cart.budget > 0 && (
-                        <span className="card__budget">
-                          {' '}
-                          / {formatMoney(cart.budget)}
-                        </span>
-                      )}
-                    </span>
-                  </span>
-
-                  <span className="card__stickers" aria-hidden="true">
-                    {cart.items.slice(0, 7).map((item, i) => (
-                      <Sticker
-                        key={item.id}
-                        id={stickerFor(item.name, item.category)}
-                        size={24}
-                        tilt={i % 2 ? 7 : -7}
-                      />
-                    ))}
-                    {cart.items.length === 0 && (
-                      <span className="card__empty">Nothing on this list yet</span>
-                    )}
-                  </span>
-
-                  {cart.items.length > 0 && (
-                    <span className="card__progress">
-                      <span
-                        className="card__progress-fill"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </span>
-                  )}
-
-                  <span className="card__meta">
-                    {done}/{cart.items.length} in the cart
-                    {unpriced > 0 && (
-                      <span className="card__unpriced"> · {unpriced} unpriced</span>
-                    )}
-                  </span>
-                </button>
-              </li>
-            )
-          })}
-
-          <li>
-            <button className="card card--new" type="button" onClick={() => onNewCart()}>
-              <span className="card--new__plus" aria-hidden="true">
-                +
-              </span>
-              New list
-            </button>
-          </li>
-        </ul>
-      ) : (
-        <ul className="cards">
-          {trips.length === 0 ? (
-            <li>
-              <p className="empty">No trips logged yet.</p>
-            </li>
-          ) : (
-            byRecent(trips).map((trip) => {
-              const over = trip.budget > 0 && trip.total > trip.budget
               return (
-                <li key={trip.id}>
-                  <div className="card card--trip">
+                <li key={cart.id}>
+                  <button className="card" type="button" onClick={() => onOpenCart(cart.id)}>
                     <span className="card__head">
-                      <span className="card__name">
-                        {trip.cartName}
-                        {trip.storeName && (
-                          <span className="card__store"> · {trip.storeName}</span>
+                      <span className="card__name">{cart.name}</span>
+                      <span className={`card__total ${overBudget ? 'card__total--over' : ''}`}>
+                        {formatMoney(total)}
+                        {cart.budget > 0 && (
+                          <span className="card__budget"> / {formatMoney(cart.budget)}</span>
                         )}
-                      </span>
-                      <span
-                        className={`card__total ${over ? 'card__total--over' : ''}`}
-                      >
-                        {formatMoney(trip.total)}
                       </span>
                     </span>
 
                     <span className="card__stickers" aria-hidden="true">
-                      {trip.items.slice(0, 7).map((item, i) => (
+                      {cart.items.slice(0, 7).map((item, i) => (
                         <Sticker
-                          key={`${trip.id}-${i}`}
+                          key={item.id}
                           id={stickerFor(item.name, item.category)}
                           size={24}
                           tilt={i % 2 ? 7 : -7}
                         />
                       ))}
+                      {cart.items.length === 0 && (
+                        <span className="card__empty">Nothing on this list yet</span>
+                      )}
                     </span>
 
+                    {cart.items.length > 0 && (
+                      <span className="card__progress">
+                        <span className="card__progress-fill" style={{ width: `${pct}%` }} />
+                      </span>
+                    )}
+
                     <span className="card__meta">
-                      {dateFormat.format(new Date(trip.completedAt))} ·{' '}
-                      {trip.items.length}{' '}
-                      {trip.items.length === 1 ? 'item' : 'items'}
-                      {trip.budget > 0 && (
-                        <>
-                          {' '}
-                          ·{' '}
-                          {over
-                            ? `${formatMoney(trip.total - trip.budget)} over`
-                            : `${formatMoney(trip.budget - trip.total)} under`}
-                        </>
+                      {done}/{cart.items.length} in the cart
+                      {unpriced > 0 && (
+                        <span className="card__unpriced"> · {unpriced} unpriced</span>
                       )}
-                      <button
-                        className="card__delete"
-                        type="button"
-                        onClick={() => onDeleteTrip(trip.id)}
-                        aria-label={`Delete trip from ${dateFormat.format(new Date(trip.completedAt))}`}
-                      >
-                        ×
-                      </button>
                     </span>
-                  </div>
+                  </button>
                 </li>
               )
-            })
-          )}
-        </ul>
-      )}
+            })}
+          </ul>
+        </section>
+      ))}
+
+      {/* One "new list" control per purpose, so choosing what a list is for is
+          part of making it rather than a setting to find afterwards. */}
+      <section className="newlist">
+        <h2 className="purpose__head">New list</h2>
+        {adding ? (
+          <div className="newlist__form">
+            <input
+              className="field__input"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') submitNew(adding)
+                if (e.key === 'Escape') setAdding(null)
+              }}
+              placeholder={`Name this ${adding} list`}
+              aria-label="List name"
+              autoFocus
+            />
+            <button className="btn btn--primary" type="button" onClick={() => submitNew(adding)}>
+              Create
+            </button>
+            <button className="btn btn--ghost" type="button" onClick={() => setAdding(null)}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <ul className="newlist__choices">
+            {PURPOSES.map((p) => (
+              <li key={p.id}>
+                <button
+                  className="newlist__choice"
+                  type="button"
+                  onClick={() => {
+                    setDraft('')
+                    setAdding(p.id)
+                  }}
+                >
+                  <Icon name={p.icon} size={18} />
+                  {p.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   )
 }

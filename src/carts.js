@@ -4,10 +4,44 @@
 export const newId = () =>
   crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`
 
-export function makeCart(name = 'Groceries') {
+// What a list is for. Shopping is not only groceries — a cafe restock and a
+// school supply run are the same job with different budgets, and mixing them
+// into one flat list of lists makes both harder to find.
+export const PURPOSES = [
+  { id: 'home', label: 'Home', icon: 'house' },
+  { id: 'work', label: 'Work', icon: 'briefcase' },
+  { id: 'school', label: 'School', icon: 'cap' },
+  { id: 'business', label: 'Business', icon: 'cart' },
+]
+
+export const DEFAULT_PURPOSE = 'home'
+
+export const PURPOSE_BY_ID = Object.fromEntries(PURPOSES.map((p) => [p.id, p]))
+
+export const purposeOf = (cart) =>
+  PURPOSE_BY_ID[cart?.purpose] ? cart.purpose : DEFAULT_PURPOSE
+
+export function purposeLabel(id) {
+  return (PURPOSE_BY_ID[id] ?? PURPOSE_BY_ID[DEFAULT_PURPOSE]).label
+}
+
+/**
+ * Group lists under their purpose, in PURPOSES order, dropping empty groups.
+ * Lists made before purposes existed have none, so they fall to Home rather
+ * than vanishing into a group nobody sees.
+ */
+export function byPurpose(carts = []) {
+  return PURPOSES.map((purpose) => ({
+    purpose,
+    carts: carts.filter((c) => purposeOf(c) === purpose.id),
+  })).filter((group) => group.carts.length > 0)
+}
+
+export function makeCart(name = 'Groceries', purpose = DEFAULT_PURPOSE) {
   return {
     id: newId(),
     name,
+    purpose: PURPOSE_BY_ID[purpose] ? purpose : DEFAULT_PURPOSE,
     items: [],
     budget: 0,
     storeId: null,
@@ -15,9 +49,9 @@ export function makeCart(name = 'Groceries') {
   }
 }
 
-export function addCart(carts, name) {
+export function addCart(carts, name, purpose = DEFAULT_PURPOSE) {
   const trimmed = (name ?? '').trim() || `List ${carts.length + 1}`
-  return [...carts, makeCart(trimmed)]
+  return [...carts, makeCart(trimmed, purpose)]
 }
 
 export const removeCart = (carts, id) => carts.filter((c) => c.id !== id)

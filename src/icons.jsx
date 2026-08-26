@@ -75,6 +75,36 @@ const PATHS = {
       <path d="M8 9.5 10.5 4M16 9.5 13.5 4" />
     </>
   ),
+  house: (
+    <>
+      <path d="M4 10.5 12 4l8 6.5" />
+      <path d="M6 9.8V19a1.5 1.5 0 0 0 1.5 1.5h9A1.5 1.5 0 0 0 18 19V9.8" />
+      <path d="M10 20.5v-5.5h4v5.5" />
+    </>
+  ),
+  cap: (
+    <>
+      <path d="M2.5 9.5 12 5.2l9.5 4.3L12 13.8z" />
+      <path d="M6.5 11.6v4.6c0 1.6 2.5 2.9 5.5 2.9s5.5-1.3 5.5-2.9v-4.6" />
+      <path d="M21.5 9.5v5" />
+    </>
+  ),
+  briefcase: (
+    <>
+      <rect x="3" y="7.5" width="18" height="12.5" rx="2.2" />
+      <path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5" />
+      <path d="M3 12.8h18" />
+    </>
+  ),
+  // Sliders rather than a cog: a circle ringed with spokes reads as a sun at
+  // nav-bar size, which is the wrong idea entirely.
+  gear: (
+    <>
+      <path d="M4 7.5h5M13 7.5h7M4 16.5h7M15 16.5h5" />
+      <circle cx="11" cy="7.5" r="2.3" />
+      <circle cx="13" cy="16.5" r="2.3" />
+    </>
+  ),
   wave: (
     <>
       <path d="M9 11V5.8a1.4 1.4 0 0 1 2.8 0V11" />

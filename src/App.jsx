@@ -9,6 +9,8 @@ import ExpiryScreen from './components/ExpiryScreen.jsx'
 import HomeScreen from './components/HomeScreen.jsx'
 import Insights from './components/Insights.jsx'
 import ItemSheet from './components/ItemSheet.jsx'
+import NavBar from './components/NavBar.jsx'
+import SettingsScreen from './components/SettingsScreen.jsx'
 import PhotoCapture from './components/PhotoCapture.jsx'
 import TourScreen from './components/TourScreen.jsx'
 import StoreBar from './components/StoreBar.jsx'
@@ -28,6 +30,7 @@ import {
 import { formatMoney, isKnownPrice, parsePrice, sumLines } from './money.js'
 import {
   addPantryItem,
+  needsAttention,
   removePantryItem,
   suggestedExpiry,
   updatePantryItem,
@@ -67,8 +70,9 @@ export default function App() {
   const [pantry, setPantry] = useLocalStorage('cartwise.pantry', [])
   const [sortMode, setSortMode] = useLocalStorage('cartwise.sort', 'aisle')
   const [mode, setMode] = useState('planning')
-  // 'home' | 'list' | 'expiry'
+  // 'home' | 'list' | 'expiry' | 'trips' | 'settings'
   const [view, setView] = useState('home')
+  const [displayName, setDisplayName] = useLocalStorage('cartwise.name', '')
   // Mirrors the module-level currency so changing it re-renders every price.
   const [currency, setCurrencyState] = useState(getCurrency)
   // Photo cut-outs live outside useLocalStorage: they're the one thing big
@@ -196,8 +200,8 @@ export default function App() {
       items: typeof updater === 'function' ? updater(cart.items) : updater,
     }))
 
-  function createCart(name) {
-    const next = addCart(carts, name)
+  function createCart(name, purpose) {
+    const next = addCart(carts, name, purpose)
     setCarts(next)
     setActiveCartId(next[next.length - 1].id)
     setView('list')
@@ -439,50 +443,73 @@ export default function App() {
 
   const activeStore = stores.find((s) => s.id === activeStoreId) ?? null
 
-  if (view === 'expiry') {
-    return (
-      <div className="app">
-        <ExpiryScreen
-          pantry={pantry}
-          vault={vault}
-          onAdd={(item) => setPantry((prev) => addPantryItem(prev, item))}
-          onRemove={(id) => setPantry((prev) => removePantryItem(prev, id))}
-          onUpdate={(id, patch) => setPantry((prev) => updatePantryItem(prev, id, patch))}
-          onBack={() => setView('home')}
-        />
-      </div>
-    )
-  }
-
+  // The tour covers everything, including the nav.
   if (showTour) {
     return <TourScreen onDone={closeTour} />
   }
 
-  if (view === 'home') {
-    return (
-      <div className="app">
+  const chrome = (children) => (
+    <>
+      <div className="app app--tabbed">
         <header className="app__header">
           <span className="app__brand">
             <Icon name="cart" size={22} strokeWidth={1.9} /> Cartwise
           </span>
         </header>
-        <HomeScreen
-          carts={carts}
-          trips={trips}
-          pantry={pantry}
-          currency={currency}
-          onCurrencyChange={changeCurrency}
-          onOpenCart={openCart}
-          onNewCart={() => createCart()}
-          onOpenExpiry={() => setView('expiry')}
-          onDeleteTrip={deleteTrip}
-        />
-        <button className="tour__open" type="button" onClick={() => setShowTour(true)}>
-          <Icon name="sparkle" size={17} /> What Cartwise does
-        </button>
-        <AccountPanel />
-        <DataPanel onRestore={restoreBackup} />
+        {children}
       </div>
+      <NavBar view={view} onNavigate={setView} alerts={needsAttention(pantry)} />
+    </>
+  )
+
+  if (view === 'expiry') {
+    return chrome(
+      <ExpiryScreen
+        pantry={pantry}
+        vault={vault}
+        onAdd={(item) => setPantry((prev) => addPantryItem(prev, item))}
+        onRemove={(id) => setPantry((prev) => removePantryItem(prev, id))}
+        onUpdate={(id, patch) => setPantry((prev) => updatePantryItem(prev, id, patch))}
+        onBack={() => setView('home')}
+      />,
+    )
+  }
+
+  if (view === 'trips') {
+    return chrome(
+      <div className="tripsview">
+        <header className="screen-head">
+          <h1 className="screen-head__title">Trips</h1>
+        </header>
+        <Insights trips={trips} onDeleteTrip={deleteTrip} startOpen />
+      </div>,
+    )
+  }
+
+  if (view === 'settings') {
+    return chrome(
+      <SettingsScreen
+        name={displayName}
+        onNameChange={setDisplayName}
+        currency={currency}
+        onCurrencyChange={changeCurrency}
+        onRestore={restoreBackup}
+        onShowTour={() => setShowTour(true)}
+      />,
+    )
+  }
+
+  if (view === 'home') {
+    return chrome(
+      <HomeScreen
+        carts={carts}
+        trips={trips}
+        pantry={pantry}
+        name={displayName}
+        onOpenCart={openCart}
+        onNewCart={createCart}
+        onOpenExpiry={() => setView('expiry')}
+      />,
     )
   }
 

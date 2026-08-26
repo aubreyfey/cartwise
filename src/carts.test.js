@@ -2,7 +2,19 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { addCart, findCart, initialCarts, makeCart, removeCart, renameCart, updateCart } from './carts.js'
+import {
+  DEFAULT_PURPOSE,
+  PURPOSES,
+  addCart,
+  byPurpose,
+  findCart,
+  initialCarts,
+  makeCart,
+  purposeOf,
+  removeCart,
+  renameCart,
+  updateCart,
+} from './carts.js'
 import { byRecent, completeTrip, insights } from './trips.js'
 
 describe('carts', () => {
@@ -35,6 +47,55 @@ describe('carts', () => {
     assert.equal(removeCart([a, b], a.id).length, 1)
     assert.equal(findCart([a, b], b.id).name, 'B')
     assert.equal(findCart([a, b], 'nope'), null)
+  })
+})
+
+describe('list purposes', () => {
+  it('defaults to home and rejects a purpose that does not exist', () => {
+    assert.equal(makeCart('A').purpose, DEFAULT_PURPOSE)
+    assert.equal(makeCart('A', 'school').purpose, 'school')
+    assert.equal(makeCart('A', 'nonsense').purpose, DEFAULT_PURPOSE)
+  })
+
+  it('treats a list made before purposes existed as Home', () => {
+    // Otherwise every existing list disappears into a group with no heading.
+    assert.equal(purposeOf({ name: 'Old list' }), DEFAULT_PURPOSE)
+    assert.equal(purposeOf({ name: 'Odd', purpose: 'zzz' }), DEFAULT_PURPOSE)
+    assert.equal(purposeOf(null), DEFAULT_PURPOSE)
+  })
+
+  it('groups in a fixed order and drops empty groups', () => {
+    const carts = [
+      makeCart('Weekly', 'home'),
+      makeCart('Cafe', 'business'),
+      makeCart('Supplies', 'school'),
+      makeCart('Party', 'home'),
+    ]
+    const groups = byPurpose(carts)
+    assert.deepEqual(groups.map((g) => g.purpose.id), ['home', 'school', 'business'])
+    assert.equal(groups[0].carts.length, 2, 'both home lists together')
+    assert.ok(!groups.some((g) => g.purpose.id === 'work'), 'no empty Work group')
+  })
+
+  it('accounts for every list exactly once', () => {
+    const carts = [
+      makeCart('A', 'home'),
+      makeCart('B', 'work'),
+      { id: 'legacy', name: 'C', items: [] },
+    ]
+    const total = byPurpose(carts).reduce((n, g) => n + g.carts.length, 0)
+    assert.equal(total, carts.length)
+  })
+
+  it('has an icon for every purpose', () => {
+    for (const p of PURPOSES) {
+      assert.ok(p.icon && p.label, `${p.id} is incomplete`)
+    }
+  })
+
+  it('carries the purpose through addCart', () => {
+    const carts = addCart([], 'Cafe Restock', 'business')
+    assert.equal(carts[0].purpose, 'business')
   })
 })
 
