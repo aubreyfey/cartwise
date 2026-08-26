@@ -94,6 +94,18 @@
           { name: 'Coffee Beans', category: 'drinks', qty: 8, price: 890, unit: 'bag' },
           { name: 'Paper Cups', category: 'household', qty: 4, price: 320, unit: 'pack' },
         ], 0, 0),
+        // Repeats, so the restock rhythm has something to read.
+        trip('t4', 'Grocery Time', 'Savemore', 21, 2000, 900, [
+          { name: 'Fresh Milk', category: 'dairy', qty: 2, price: 89, unit: 'bottle' },
+          { name: 'Bananas', category: 'produce', qty: 8, price: 12, unit: 'pc' },
+        ], 0, 0),
+        trip('t5', 'Grocery Time', 'Savemore', 14, 2000, 950, [
+          { name: 'Fresh Milk', category: 'dairy', qty: 2, price: 89, unit: 'bottle' },
+          { name: 'Bananas', category: 'produce', qty: 8, price: 12, unit: 'pc' },
+        ], 0, 0),
+        trip('t6', 'Grocery Time', 'Savemore', 7, 2000, 980, [
+          { name: 'Fresh Milk', category: 'dairy', qty: 2, price: 89, unit: 'bottle' },
+        ], 0, 0),
       ]))
       localStorage.setItem('cartwise.pantry', JSON.stringify([
         { id: 'q1', name: 'Fresh Milk', category: 'dairy', qty: 1, unit: 'bottle', expiresAt: iso(-1), addedAt: Date.now() },

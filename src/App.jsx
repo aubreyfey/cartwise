@@ -13,6 +13,11 @@ import ItemSheet from './components/ItemSheet.jsx'
 import NavBar from './components/NavBar.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import RecipesScreen from './components/RecipesScreen.jsx'
+import MealPlan from './components/MealPlan.jsx'
+import RestockPanel from './components/RestockPanel.jsx'
+import SplitShop from './components/SplitShop.jsx'
+import { prunePast } from './mealplan.js'
+import { splitShop } from './stores.js'
 import { addRecipe, removeRecipe, updateRecipe } from './recipes.js'
 import { applyTheme, loadAccent, loadTexture, saveAccent, saveTexture } from './theme.js'
 import SettingsScreen from './components/SettingsScreen.jsx'
@@ -78,6 +83,7 @@ export default function App() {
   const [trips, setTrips] = useLocalStorage('cartwise.trips', [])
   const [pantry, setPantry] = useLocalStorage('cartwise.pantry', [])
   const [recipes, setRecipes] = useLocalStorage('cartwise.recipes', [])
+  const [mealPlan, setMealPlan] = useLocalStorage('cartwise.mealplan', {})
   const [accent, setAccent] = useState(loadAccent)
   const [texture, setTexture] = useState(loadTexture)
 
@@ -139,6 +145,9 @@ export default function App() {
     removeStored('cartwise.items')
     removeStored('cartwise.budget')
     removeStored('cartwise.activeStore')
+    // Days that have been and gone, so the plan does not grow forever.
+    setMealPlan((prev) => prunePast(prev))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Onboard once, and only someone with nothing in the app yet — anyone with
@@ -259,6 +268,8 @@ export default function App() {
     () => compareStores(stores, vault, items),
     [stores, vault, items],
   )
+
+  const split = useMemo(() => splitShop(stores, vault, items), [stores, vault, items])
 
   // --- cart plumbing -------------------------------------------------------
 
@@ -589,14 +600,23 @@ export default function App() {
 
   if (view === 'recipes') {
     return chrome(
-      <RecipesScreen
-        recipes={recipes}
-        carts={carts}
-        onCreate={(name) => setRecipes((prev) => addRecipe(prev, name))}
-        onUpdate={(id, patch) => setRecipes((prev) => updateRecipe(prev, id, patch))}
-        onRemove={(id) => setRecipes((prev) => removeRecipe(prev, id))}
-        onAddToList={addIngredientsToCart}
-      />,
+      <>
+        <RecipesScreen
+          recipes={recipes}
+          carts={carts}
+          onCreate={(name) => setRecipes((prev) => addRecipe(prev, name))}
+          onUpdate={(id, patch) => setRecipes((prev) => updateRecipe(prev, id, patch))}
+          onRemove={(id) => setRecipes((prev) => removeRecipe(prev, id))}
+          onAddToList={addIngredientsToCart}
+        />
+        <MealPlan
+          plan={mealPlan}
+          recipes={recipes}
+          carts={carts}
+          onChange={setMealPlan}
+          onAddToList={addIngredientsToCart}
+        />
+      </>,
     )
   }
 
@@ -760,6 +780,22 @@ export default function App() {
             stores={stores}
             activeId={activeStoreId}
             onSelect={selectStore}
+          />
+
+          <SplitShop plan={split} stores={stores} />
+
+          <RestockPanel
+            trips={trips}
+            items={items}
+            onAdd={(suggestion) =>
+              addItem({
+                name: suggestion.name,
+                qty: 1,
+                price: priceFor(findVaultItem(vault, suggestion.name), activeStoreId),
+                unit: suggestion.unit ?? DEFAULT_UNIT,
+                category: suggestion.category,
+              })
+            }
           />
         </>
       )}

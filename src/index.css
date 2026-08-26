@@ -1607,6 +1607,409 @@ button {
   background-image: repeating-linear-gradient(-45deg, currentColor 0 3px, transparent 3px 9px);
 }
 
+/* ---------- restock suggestions ---------- */
+
+.restock {
+  padding: 0.75rem 0.9rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.restock__head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.restock__title {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.restock__count {
+  background: var(--surface-2);
+  color: var(--text-faint);
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.restock__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.restock__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.restock__row:last-child {
+  border-bottom: none;
+}
+
+.restock__names {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.restock__name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.restock__when {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+.restock__when--over {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.restock__add {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.restock__no {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+}
+
+.restock__no:hover {
+  color: var(--danger);
+}
+
+.restock__note {
+  margin: 0.55rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
+/* ---------- split shop ---------- */
+
+.split {
+  background: var(--money-soft);
+  border: 1px solid color-mix(in srgb, var(--money) 35%, var(--border));
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.split__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+.split__lead {
+  flex: 1;
+  font-size: 0.86rem;
+  color: var(--text);
+}
+
+.split__saving {
+  color: var(--money);
+  font-variant-numeric: tabular-nums;
+}
+
+.split__body {
+  padding: 0 0.9rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.split__group {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 0.5rem 0.6rem;
+}
+
+.split__store {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.split__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--store-color);
+}
+
+.split__name {
+  flex: 1;
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.split__total {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+
+.split__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.split__items li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0;
+  font-size: 0.78rem;
+}
+
+.split__item {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.split__cost {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.split__note {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ---------- meal plan ---------- */
+
+.plan {
+  padding: 0.85rem 0.9rem 0.95rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.plan__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.plan__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+.plan__count {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.plan__week {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan__day {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.plan__day:last-child {
+  border-bottom: none;
+}
+
+.plan__label {
+  width: 3.2rem;
+  flex-shrink: 0;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+}
+
+.plan__day--today .plan__label {
+  color: var(--primary);
+}
+
+.plan__today {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+}
+
+.plan__meals {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.plan__meal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.6rem;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.plan__meal button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 0.95rem;
+  line-height: 1;
+  opacity: 0.65;
+  padding: 0 0.1rem;
+}
+
+.plan__meal button:hover {
+  opacity: 1;
+}
+
+.plan__add {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--border);
+  border-radius: 50%;
+  background: none;
+  color: var(--text-faint);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.plan__add:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.plan__picker {
+  padding: 0.25rem 0.4rem;
+  background: var(--surface-2);
+  border: 1px solid var(--primary);
+  border-radius: 9px;
+  font-size: 0.78rem;
+}
+
+.plan__shopping {
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.plan__subtitle {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
+.plan__ingredients {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.plan__ingredients li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.18rem 0;
+  font-size: 0.8rem;
+}
+
+.plan__qty {
+  min-width: 4rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.plan__ing {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan__from {
+  font-size: 0.66rem;
+  color: var(--amber);
+  font-weight: 700;
+}
+
 /* ---------- recipes ---------- */
 
 .recipes {
