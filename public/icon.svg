@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#7b5ea7" />
+  <!-- basket body -->
+  <path fill="#ffffff" d="M104 192h304l-34 168a44 44 0 0 1-43 35H181a44 44 0 0 1-43-35z" />
+  <!-- handles -->
+  <path fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round"
+        d="M186 192v-30a70 70 0 0 1 140 0v30" />
+  <!-- price tick, the "wise" half of the name -->
+  <path fill="none" stroke="#55b45f" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"
+        d="m204 288 38 40 74-84" />
+</svg>

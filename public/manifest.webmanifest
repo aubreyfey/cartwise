@@ -1,0 +1,26 @@
+{
+  "name": "Cartwise",
+  "short_name": "Cartwise",
+  "description": "A grocery list that groups by aisle, remembers what things cost you, and keeps a running total against a budget.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f2f7",
+  "theme_color": "#7b5ea7",
+  "categories": ["productivity", "lifestyle", "shopping"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
