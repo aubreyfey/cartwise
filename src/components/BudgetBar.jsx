@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { formatMoney, parseMoney } from '../money.js'
+import Icon from '../icons.jsx'
 
 export default function BudgetBar({
   title,
@@ -8,6 +9,8 @@ export default function BudgetBar({
   listTotal,
   cartTotal,
   unpriced,
+  background,
+  onPickBackground,
 }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
@@ -27,8 +30,21 @@ export default function BudgetBar({
   }
 
   return (
-    <section className="budget">
-      <h2 className="budget__title">{title}</h2>
+    <section className="budget budget--tinted" style={background}>
+      <div className="budget__titlerow">
+        <h2 className="budget__title">{title}</h2>
+        {onPickBackground && (
+          <button
+            className="budget__theme"
+            type="button"
+            onClick={onPickBackground}
+            aria-label="Change this list's background"
+            title="Change background"
+          >
+            <Icon name="sparkle" size={16} />
+          </button>
+        )}
+      </div>
 
       <div className="budget__labels">
         <span className="budget__label">Total spent</span>

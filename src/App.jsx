@@ -3,6 +3,7 @@ import AddItemForm from './components/AddItemForm.jsx'
 import BudgetBar from './components/BudgetBar.jsx'
 import CartTabs from './components/CartTabs.jsx'
 import AccountPanel from './components/AccountPanel.jsx'
+import BackgroundPicker from './components/BackgroundPicker.jsx'
 import CategorySection from './components/CategorySection.jsx'
 import DataPanel from './components/DataPanel.jsx'
 import ExpiryScreen from './components/ExpiryScreen.jsx'
@@ -35,6 +36,7 @@ import {
   suggestedExpiry,
   updatePantryItem,
 } from './pantry.js'
+import { backgroundOf, backgroundStyle } from './backgrounds.js'
 import { addStore, compareStores, removeStore } from './stores.js'
 import { DEFAULT_UNIT } from './units.js'
 import { readStored, removeStored, useLocalStorage } from './useLocalStorage.js'
@@ -82,6 +84,7 @@ export default function App() {
   const [photoTarget, setPhotoTarget] = useState(null)
   // The full item editor: a draft for a new item, or an existing row.
   const [sheetItem, setSheetItem] = useState(null)
+  const [pickingBackground, setPickingBackground] = useState(false)
   // The tour opens itself once, for someone who has never used the app.
   const [tourSeen, setTourSeen] = useLocalStorage(TOUR_SEEN_KEY, false)
   const [showTour, setShowTour] = useState(false)
@@ -558,6 +561,8 @@ export default function App() {
         listTotal={listTotal}
         cartTotal={cartTotal}
         unpriced={unpriced}
+        background={backgroundStyle(backgroundOf(activeCart))}
+        onPickBackground={() => setPickingBackground(true)}
       />
 
       <div className="toolbar">
@@ -686,6 +691,15 @@ export default function App() {
         onConfirm={logPendingTrip}
         onCancel={() => setPendingTrip(null)}
       />
+
+      {pickingBackground && (
+        <BackgroundPicker
+          listName={activeCart.name}
+          current={backgroundOf(activeCart)}
+          onPick={(background) => patchCart({ background })}
+          onClose={() => setPickingBackground(false)}
+        />
+      )}
 
       {sheetItem && (
         <ItemSheet

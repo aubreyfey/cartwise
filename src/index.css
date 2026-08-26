@@ -854,69 +854,209 @@ button {
   }
 }
 
-/* ---------- bottom nav ---------- */
+/* ---------- side rail ---------- */
 
-.nav {
+/* Notebook dividers: tabs down the left edge, each a tongue sticking out of
+   the page, with the active one sliding proud of the others. */
+.rail {
   position: fixed;
   left: 0;
-  right: 0;
-  bottom: 0;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 40;
   display: flex;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
-  /* Clears the iOS home indicator without leaving a gap on other devices. */
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.nav__tab {
-  flex: 1;
+.rail__tab {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  padding: 0.5rem 0.25rem 0.55rem;
-  background: none;
-  border: none;
+  gap: 0.35rem;
+  padding: 0.75rem 0.3rem 0.75rem 0.25rem;
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  background: var(--surface-2);
   color: var(--text-faint);
+  box-shadow: 2px 2px 6px rgb(40 25 70 / 0.08);
+  transition: transform 200ms cubic-bezier(0.3, 0.8, 0.3, 1), background 200ms ease,
+    color 200ms ease;
 }
 
-.nav__tab--on {
+.rail__tab--on {
+  background: var(--surface);
   color: var(--primary);
+  border-color: var(--primary);
+  transform: translateX(4px);
+  box-shadow: 3px 3px 10px rgb(40 25 70 / 0.14);
 }
 
-.nav__icon {
+.rail__icon {
   position: relative;
   display: grid;
   place-items: center;
 }
 
-.nav__label {
+/* Sideways, the way a divider tab is printed. */
+.rail__label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
   font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-weight: 800;
+  letter-spacing: 0.06em;
 }
 
-.nav__badge {
+.rail__badge {
   position: absolute;
-  top: -0.3rem;
-  right: -0.55rem;
-  min-width: 1rem;
-  height: 1rem;
-  padding: 0 0.2rem;
+  top: -0.35rem;
+  right: -0.45rem;
+  min-width: 0.95rem;
+  height: 0.95rem;
+  padding: 0 0.18rem;
   display: grid;
   place-items: center;
   border-radius: 999px;
   background: var(--amber);
   color: #fff;
-  font-size: 0.58rem;
+  font-size: 0.55rem;
   font-weight: 800;
 }
 
-/* Room for the bar, so the last card is never trapped underneath it. */
+/* Room for the rail, so nothing sits under it. */
 .app--tabbed {
-  padding-bottom: 5.5rem;
+  padding-left: 3rem;
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 26rem) {
+  .app--tabbed {
+    padding-left: 2.6rem;
+  }
+  .rail__tab {
+    padding: 0.6rem 0.25rem;
+  }
+}
+
+/* ---------- list backgrounds ---------- */
+
+.card--tinted,
+.budget--tinted {
+  background: var(--card-bg, var(--surface));
+}
+
+@media (prefers-color-scheme: dark) {
+  .card--tinted,
+  .budget--tinted {
+    background: var(--card-bg-dark, var(--surface));
+  }
+}
+
+.budget__titlerow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.budget__theme {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.budget__theme:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.picker {
+  width: min(23rem, 100%);
+  padding: 1.2rem 1.1rem 1rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 32px rgb(20 10 40 / 0.35);
+}
+
+.picker__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+.picker__sub {
+  margin: 0.1rem 0 0.9rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.picker__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.swatch {
+  width: 100%;
+  height: 3.6rem;
+  display: grid;
+  place-items: end center;
+  padding: 0.35rem;
+  border: 2px solid var(--border);
+  border-radius: 13px;
+  background: var(--card-bg, var(--surface));
+}
+
+@media (prefers-color-scheme: dark) {
+  .swatch {
+    background: var(--card-bg-dark, var(--surface));
+  }
+}
+
+.swatch--on {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.swatch__label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.picker__actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.9rem;
+}
+
+/* Stickers tipping out of the bag on the trip sheet. */
+.collage__item--pop {
+  animation: collage-pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.35) both;
+}
+
+@keyframes collage-pop {
+  from { opacity: 0; transform: translateY(-14px) scale(0.6) rotate(-18deg); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collage__item--pop {
+    animation: none;
+  }
 }
 
 /* ---------- list purposes ---------- */

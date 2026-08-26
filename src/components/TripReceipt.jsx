@@ -74,7 +74,13 @@ export default function TripReceipt({ trip, photos, onConfirm, onCancel }) {
 
           <div className="collage">
             {trip.items.slice(0, 12).map((item, i) => (
-              <span className="collage__item" key={`${item.name}-${i}`}>
+              <span
+                className="collage__item collage__item--pop"
+                key={`${item.name}-${i}`}
+                /* Staggered so they land one after another, like things being
+                   tipped out of a bag rather than appearing all at once. */
+                style={{ animationDelay: `${i * 70}ms` }}
+              >
                 <Thumb
                   name={item.name}
                   category={item.category}
@@ -171,14 +177,14 @@ export default function TripReceipt({ trip, photos, onConfirm, onCancel }) {
 
           <div className="receipt__actions">
             <button className="btn btn--ghost" type="button" onClick={onCancel}>
-              Keep shopping
+              Continue shopping
             </button>
             <button
               className="btn btn--primary"
               type="button"
               onClick={() => onConfirm(perishables.filter((_, i) => tracked.has(i)))}
             >
-              Log this trip
+              Finish trip
             </button>
           </div>
         </div>

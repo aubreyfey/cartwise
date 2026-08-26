@@ -3,6 +3,7 @@ import { formatMoney, sumLines } from '../money.js'
 import { insights } from '../trips.js'
 import { needsAttention } from '../pantry.js'
 import { PURPOSES, byPurpose } from '../carts.js'
+import { backgroundOf, backgroundStyle } from '../backgrounds.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -127,7 +128,12 @@ export default function HomeScreen({
 
               return (
                 <li key={cart.id}>
-                  <button className="card" type="button" onClick={() => onOpenCart(cart.id)}>
+                  <button
+                    className="card card--tinted"
+                    type="button"
+                    onClick={() => onOpenCart(cart.id)}
+                    style={backgroundStyle(backgroundOf(cart))}
+                  >
                     <span className="card__head">
                       <span className="card__name">{cart.name}</span>
                       <span className={`card__total ${overBudget ? 'card__total--over' : ''}`}>

@@ -1,8 +1,7 @@
 import Icon from '../icons.jsx'
 
-// A bottom bar rather than the side rail some apps use: on a phone the bottom
-// of the screen is where a thumb already is, and vertical labels are hard to
-// read.
+// Notebook dividers down the left edge: each tab is a tongue sticking out of
+// the page, and the active one slides proud of the rest.
 const TABS = [
   { id: 'home', label: 'Home', icon: 'house' },
   { id: 'expiry', label: 'Expiry', icon: 'calendar' },
@@ -12,28 +11,28 @@ const TABS = [
 
 export default function NavBar({ view, onNavigate, alerts = 0 }) {
   return (
-    <nav className="nav" aria-label="Sections">
+    <nav className="rail" aria-label="Sections">
       {TABS.map((tab) => {
-        // A list belongs to Home; without this the bar goes blank as soon as
+        // A list belongs to Home; without this the rail goes blank the moment
         // you open one.
         const active = view === tab.id || (tab.id === 'home' && view === 'list')
         return (
           <button
             key={tab.id}
             type="button"
-            className={`nav__tab ${active ? 'nav__tab--on' : ''}`}
+            className={`rail__tab ${active ? 'rail__tab--on' : ''}`}
             onClick={() => onNavigate(tab.id)}
             aria-current={active ? 'page' : undefined}
           >
-            <span className="nav__icon">
-              <Icon name={tab.icon} size={21} />
+            <span className="rail__icon">
+              <Icon name={tab.icon} size={17} />
               {tab.id === 'expiry' && alerts > 0 && (
-                <span className="nav__badge" aria-hidden="true">
+                <span className="rail__badge" aria-hidden="true">
                   {alerts > 9 ? '9+' : alerts}
                 </span>
               )}
             </span>
-            <span className="nav__label">{tab.label}</span>
+            <span className="rail__label">{tab.label}</span>
           </button>
         )
       })}
