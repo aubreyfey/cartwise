@@ -1,0 +1,65 @@
+name: Deploy
+
+# Runs only once you have added the two Cloudflare secrets. Until then it is
+# skipped rather than failing, so the repo does not sit permanently red.
+#
+# Settings -> Secrets and variables -> Actions:
+#   CLOUDFLARE_API_TOKEN    a token with the "Cloudflare Pages: Edit" permission
+#   CLOUDFLARE_ACCOUNT_ID   from the right-hand side of the Cloudflare dashboard
+#
+# Sharing is optional. Add these too and sign-in appears; leave them out and
+# the app runs entirely on-device:
+#   VITE_SUPABASE_URL
+#   VITE_SUPABASE_ANON_KEY
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Are the deploy secrets present?
+        id: gate
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Cloudflare secrets not set — skipping deploy."
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.ready == 'true'
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+        if: steps.gate.outputs.ready == 'true'
+
+      # The app is tested before it is published, not after.
+      - run: npm test
+        if: steps.gate.outputs.ready == 'true'
+
+      - run: npm run build
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Publish to Cloudflare Pages
+        if: steps.gate.outputs.ready == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=cartwise --branch=main

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      # `npm ci` rather than `npm install`: it installs exactly what the
+      # lockfile says and fails if the lockfile and package.json disagree,
+      # which is what you want from a build you are going to ship.
+      - run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # A build that quietly stops producing the service worker or the
+      # manifest would ship an app that no longer installs, and nothing else
+      # here would notice.
+      - name: Check the PWA files made it into the build
+        run: |
+          for f in dist/index.html dist/sw.js dist/manifest.webmanifest dist/icon.svg; do
+            test -s "$f" || { echo "missing or empty: $f"; exit 1; }
+          done
+          echo "PWA files present"
+
+      - name: Check marketing assets did not leak into the build
+        run: |
+          if [ -d dist/marketing ] || [ -d dist/_shots ]; then
+            echo "marketing images leaked into dist"; exit 1
+          fi
+          echo "dist is clean"
