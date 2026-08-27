@@ -38,6 +38,7 @@ export default function ExpiryScreen({
   onEnableNotifications,
   onAdd,
   onRemove,
+  onResolve,
   onUpdate,
   onPhoto,
 }) {
@@ -355,11 +356,33 @@ export default function ExpiryScreen({
                         ))}
                       </select>
 
+                      {/* Eaten and thrown out are different facts. Both take
+                          it off the list; only one of them is waste, and
+                          keeping them apart is the point of recording either. */}
+                      <button
+                        className="expiry__resolve expiry__resolve--ate"
+                        type="button"
+                        onClick={() => onResolve(item.id, 'consumed')}
+                        aria-label={`Mark ${item.name}${item.expiresAt ? ` due ${item.expiresAt}` : ''} as eaten`}
+                        title="Eaten"
+                      >
+                        ✓ Ate it
+                      </button>
+                      <button
+                        className="expiry__resolve expiry__resolve--binned"
+                        type="button"
+                        onClick={() => onResolve(item.id, 'discarded')}
+                        aria-label={`Mark ${item.name}${item.expiresAt ? ` due ${item.expiresAt}` : ''} as thrown out`}
+                        title="Thrown out"
+                      >
+                        Binned
+                      </button>
                       <button
                         className="item__remove"
                         type="button"
                         onClick={() => onRemove(item.id)}
-                        aria-label={`Remove ${item.name}`}
+                        aria-label={`Stop tracking ${item.name}${item.expiresAt ? ` due ${item.expiresAt}` : ''}`}
+                        title="Stop tracking"
                       >
                         ×
                       </button>

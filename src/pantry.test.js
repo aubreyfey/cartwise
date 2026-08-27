@@ -182,9 +182,13 @@ describe('pantry list', () => {
     ]
 
   it('groups by urgency, soonest first, dropping empty bands', () => {
+    // Bread is due tomorrow and Yogurt in two days. They get separate bands:
+    // "tomorrow" and "in three days" are different kinds of urgent, and one
+    // band covering both reads as more alarming than it should.
     const groups = byUrgency(base(), NOW)
-    assert.deepEqual(groups.map((g) => g.bucket.id), ['expired', 'soon', 'none'])
-    assert.deepEqual(groups[1].items.map((i) => i.name), ['Bread', 'Yogurt'])
+    assert.deepEqual(groups.map((g) => g.bucket.id), ['expired', 'tomorrow', 'soon', 'none'])
+    assert.deepEqual(groups[1].items.map((i) => i.name), ['Bread'])
+    assert.deepEqual(groups[2].items.map((i) => i.name), ['Yogurt'])
   })
 
   it('sorts undated items last, not as urgent', () => {

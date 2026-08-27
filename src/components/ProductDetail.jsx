@@ -26,6 +26,7 @@ export default function ProductDetail({
   stores = [],
   categories = [],
   onSave,
+  onTrackExpiry,
   onDelete,
   onClose,
 }) {
@@ -281,9 +282,16 @@ export default function ProductDetail({
           </section>
         )}
 
-        <button className="pdetail__delete" type="button" onClick={onDelete}>
-          Forget this product
-        </button>
+        <div className="pdetail__foot">
+          {onTrackExpiry && (
+            <button className="btn btn--ghost btn--small" type="button" onClick={onTrackExpiry}>
+              Track expiry
+            </button>
+          )}
+          <button className="pdetail__delete" type="button" onClick={onDelete}>
+            Forget this product
+          </button>
+        </div>
       </div>
     </div>
   )

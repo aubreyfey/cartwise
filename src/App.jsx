@@ -58,6 +58,7 @@ import {
   needsAttention,
   removePantryItem,
   reminderMessage,
+  resolvePantryItem,
   suggestedExpiry,
   updatePantryItem,
 } from './pantry.js'
@@ -66,6 +67,8 @@ import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from './backgrounds.j
 import { AISLE_ORDER_KEY, defaultAisleOrder, orderedCategories } from './aisleOrder.js'
 import AislePanel from './components/AislePanel.jsx'
 import ProductSearch from './components/ProductSearch.jsx'
+import BuyingSheet from './components/BuyingSheet.jsx'
+import TrackExpirySheet from './components/TrackExpirySheet.jsx'
 import ProductDetail from './components/ProductDetail.jsx'
 import VaultWhySheet from './components/VaultWhySheet.jsx'
 import CategoryLibrary from './components/CategoryLibrary.jsx'
@@ -221,6 +224,9 @@ export default function App() {
   const [whyVault, setWhyVault] = useState(false)
   // The Vault product open in the receipt view, by id.
   const [detailId, setDetailId] = useState(null)
+  // The item being confirmed at the shelf, and the product being put away.
+  const [buying, setBuying] = useState(null)
+  const [trackTarget, setTrackTarget] = useState(null)
   // Lifted out of AddItemForm and VaultPanel so the search sheet's buttons can
   // actually open them. Both components still manage themselves by default.
   const [scanRequested, setScanRequested] = useState(false)
@@ -560,6 +566,36 @@ export default function App() {
     setDetailId(null)
   }
 
+  /**
+   * Put a product in the fridge with a use-by. Links back to the Vault entry
+   * and to the most recent purchase of it, so a future "money wasted" figure
+   * has a price to work from and the item knows what it is.
+   */
+  function trackExpiry({ expiresAt, place, remindDays }) {
+    const product = trackTarget
+    setTrackTarget(null)
+    if (!product) return
+
+    const lastBuy = [...purchases]
+      .filter((purchase) => purchase.productId === product.id)
+      .sort((a, b) => b.purchasedAt - a.purchasedAt)[0]
+
+    setPantry((prev) =>
+      addPantryItem(prev, {
+        name: product.name,
+        category: product.category,
+        qty: product.defaultQty ?? 1,
+        unit: product.unit ?? DEFAULT_UNIT,
+        expiresAt,
+        place,
+        remindDays,
+        productId: product.id,
+        purchaseId: lastBuy?.id ?? null,
+        unitPrice: lastBuy?.price ?? priceFor(product, activeStoreId),
+      }),
+    )
+  }
+
   function forgetProduct(id) {
     const product = vault.find((v) => v.id === id)
     if (!window.confirm(`Forget ${product?.name ?? 'this product'}? Its price history goes too.`)) {
@@ -578,10 +614,38 @@ export default function App() {
     setPantry((prev) => prev.map(fix))
   }
 
-  const toggleItem = (id) =>
+  const toggleItem = (id) => {
+    const item = items.find((i) => i.id === id)
+    // Only on the way into the trolley, and only while actually shopping —
+    // asking on every tick during planning would be exhausting, and unticking
+    // something is not a purchase.
+    if (mode === 'shopping' && item && !item.checked) {
+      setBuying(item)
+      return
+    }
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)))
+  }
+
+  /**
+   * What you actually paid, from the shelf. Ticks the item, corrects the line,
+   * and teaches the Vault — which is what makes the next list's estimate real.
+   */
+  function confirmBuying({ qty, price, storeId }) {
+    const item = buying
+    setBuying(null)
+    if (!item) return
+
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)),
+      prev.map((i) => (i.id === item.id ? { ...i, qty, price, storeId, checked: true } : i)),
     )
+
+    // Remember the corrected price against the shop it was seen at. The
+    // historical record is written on trip completion, so nothing already
+    // archived is touched by this.
+    if (isKnownPrice(price)) {
+      setVault((prev) => rememberPrice(prev, item.name, price, storeId ?? activeStoreId))
+    }
+  }
 
   function updateItem(id, patch) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)))
@@ -847,6 +911,7 @@ export default function App() {
         onEnableNotifications={enableNotifications}
         onAdd={(item) => setPantry((prev) => addPantryItem(prev, item))}
         onRemove={(id) => setPantry((prev) => removePantryItem(prev, id))}
+        onResolve={(id, status) => setPantry((prev) => resolvePantryItem(prev, id, status))}
         onUpdate={(id, patch) => setPantry((prev) => updatePantryItem(prev, id, patch))}
         onPhoto={(name, category) => setPhotoTarget({ name, category })}
       />,
@@ -1101,6 +1166,7 @@ export default function App() {
             categoryFor={categoryFor}
             onWhy={() => setWhyVault(true)}
             onOpenProduct={setDetailId}
+            onTrackExpiry={setTrackTarget}
             vault={vault}
             stores={stores}
             aisleOrder={aisleOrder}
@@ -1251,6 +1317,29 @@ export default function App() {
 
       {whyVault && <VaultWhySheet onClose={() => setWhyVault(false)} />}
 
+      {buying && (
+        <BuyingSheet
+          item={buying}
+          stores={stores}
+          activeStoreId={activeStoreId}
+          categoryFor={categoryFor}
+          onConfirm={confirmBuying}
+          onCancel={() => setBuying(null)}
+        />
+      )}
+
+      {trackTarget && (
+        <TrackExpirySheet
+          product={trackTarget}
+          storeName={activeStore?.name ?? null}
+          categoryFor={categoryFor}
+          notifyState={notifyState}
+          onEnableNotifications={enableNotifications}
+          onAdd={trackExpiry}
+          onCancel={() => setTrackTarget(null)}
+        />
+      )}
+
       {detailId && vault.find((v) => v.id === detailId) && (
         <ProductDetail
           item={vault.find((v) => v.id === detailId)}
@@ -1258,6 +1347,11 @@ export default function App() {
           stores={stores}
           categories={categories}
           onSave={(patch) => saveProduct(detailId, patch)}
+          onTrackExpiry={() => {
+            const product = vault.find((v) => v.id === detailId)
+            setDetailId(null)
+            setTrackTarget(product)
+          }}
           onDelete={() => forgetProduct(detailId)}
           onClose={() => setDetailId(null)}
         />

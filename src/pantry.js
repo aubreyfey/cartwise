@@ -57,7 +57,8 @@ export const placeOf = (item) =>
   PLACE_BY_ID[item?.place] ? item.place : DEFAULT_PLACE
 
 /** Group by where it is kept, in PLACES order, dropping empty places. */
-export function byPlace(pantry = [], now = Date.now()) {
+export function byPlace(rawPantry = [], now = Date.now()) {
+  const pantry = activePantry(rawPantry)
   return PLACES.map((place) => ({
     place,
     items: pantry
@@ -79,6 +80,7 @@ export const QUICK_SETS = [
   { id: '1w', label: '1 week', days: 7 },
   { id: '2w', label: '2 weeks', days: 14 },
   { id: '1m', label: '1 month', days: 30 },
+  { id: '3m', label: '3 months', days: 90 },
 ]
 
 /** A date `days` from now, in the 'YYYY-MM-DD' form the date input wants. */
@@ -90,8 +92,10 @@ export function dateInDays(days, from = Date.now()) {
 
 // How much warning you want. null means no reminder for that item.
 export const REMINDER_LEADS = [
+  { days: null, label: 'No reminder' },
   { days: 0, label: 'On the day' },
   { days: 1, label: 'A day before' },
+  { days: 2, label: '2 days before' },
   { days: 3, label: '3 days before' },
   { days: 7, label: 'A week before' },
 ]
@@ -101,7 +105,8 @@ export const REMINDER_LEADS = [
  * asked for, including ones already past. Undated items and items with
  * reminders switched off never appear.
  */
-export function dueItems(pantry = [], now = Date.now()) {
+export function dueItems(rawPantry = [], now = Date.now()) {
+  const pantry = activePantry(rawPantry)
   return pantry.filter((item) => {
     if (typeof item?.remindDays !== 'number') return false
     const days = daysUntil(item.expiresAt, now)
@@ -124,6 +129,7 @@ export function reminderMessage(items = [], now = Date.now()) {
 export const BUCKETS = [
   { id: 'expired', label: 'Expired', tone: 'bad' },
   { id: 'today', label: 'Today', tone: 'bad' },
+  { id: 'tomorrow', label: 'Tomorrow', tone: 'warn' },
   { id: 'soon', label: 'Next 3 days', tone: 'warn' },
   { id: 'week', label: 'This week', tone: 'warn' },
   { id: 'later', label: 'Later', tone: 'ok' },
@@ -135,6 +141,7 @@ export function bucketOf(dateStr, now = Date.now()) {
   if (days === null) return 'none'
   if (days < 0) return 'expired'
   if (days === 0) return 'today'
+  if (days === 1) return 'tomorrow'
   if (days <= 3) return 'soon'
   if (days <= 7) return 'week'
   return 'later'
@@ -164,7 +171,7 @@ export function suggestedExpiry(category, from = Date.now()) {
 
 export function addPantryItem(
   pantry,
-  { name, category, qty, unit, expiresAt, place, remindDays },
+  { name, category, qty, unit, expiresAt, place, remindDays, productId, purchaseId, unitPrice },
 ) {
   const trimmed = (name ?? '').trim()
   if (!trimmed) return pantry
@@ -180,9 +187,107 @@ export function addPantryItem(
       place: PLACE_BY_ID[place] ? place : DEFAULT_PLACE,
       // A number means remind me that many days ahead; null means don't.
       remindDays: typeof remindDays === 'number' ? remindDays : null,
+      // What this is, and the particular time it was bought. The Vault entry is
+      // the reusable product; the purchase is one shop; this is the physical
+      // thing in the fridge. Nullable, because you can also just type
+      // "leftovers" straight into the Expiry screen and never have bought it.
+      productId: productId ?? null,
+      purchaseId: purchaseId ?? null,
+      // Copied, not looked up: what it cost when you bought it is what a
+      // future "money wasted" figure has to be based on, and the Vault price
+      // will have moved on by then.
+      unitPrice: typeof unitPrice === 'number' ? unitPrice : null,
+      // 'active' until it is eaten or thrown out. Resolved items leave the
+      // active views but stay in the array — throwing the record away would
+      // throw away the only evidence of what gets wasted.
+      status: 'active',
+      resolvedAt: null,
       addedAt: Date.now(),
     },
   ]
+}
+
+/** Items still in the house. Anything stored before status existed counts. */
+export const activePantry = (pantry = []) =>
+  pantry.filter((p) => (p.status ?? 'active') === 'active')
+
+export const resolvedPantry = (pantry = []) =>
+  pantry.filter((p) => p.status === 'consumed' || p.status === 'discarded')
+
+/**
+ * Eaten, or thrown out. Both leave the active list; only one of them is a
+ * loss, and keeping them distinct is the whole point of recording either.
+ */
+export function resolvePantryItem(pantry, id, status, at = Date.now()) {
+  if (status !== 'consumed' && status !== 'discarded') return pantry
+  return pantry.map((p) => (p.id === id ? { ...p, status, resolvedAt: at } : p))
+}
+
+/** Back to the fridge — for an item resolved by mistake. */
+export const reopenPantryItem = (pantry, id) =>
+  pantry.map((p) => (p.id === id ? { ...p, status: 'active', resolvedAt: null } : p))
+
+/**
+ * The raw material for food-waste insights. Deliberately just counts and
+ * sums — the analytics can be built later, but only if the data survives now.
+ */
+export function wasteStats(pantry = []) {
+  const resolved = resolvedPantry(pantry)
+  if (resolved.length === 0) return null
+
+  let consumed = 0
+  let discarded = 0
+  let wastedValue = 0
+  let expiredWhenDiscarded = 0
+  const byProduct = new Map()
+  const byCategory = new Map()
+  let shelfDaysTotal = 0
+  let shelfDaysCount = 0
+
+  for (const item of resolved) {
+    if (item.status === 'consumed') {
+      consumed += 1
+      continue
+    }
+    discarded += 1
+
+    const value = (item.unitPrice ?? 0) * (item.qty ?? 1)
+    if (Number.isFinite(value)) wastedValue += value
+
+    // Thrown out on or after its use-by, as opposed to cleared out early.
+    if (item.expiresAt && item.resolvedAt && startOfDay(item.resolvedAt) >= startOfDay(parseDate(item.expiresAt))) {
+      expiredWhenDiscarded += 1
+    }
+
+    const key = item.productId ?? item.name
+    byProduct.set(key, (byProduct.get(key) ?? 0) + 1)
+    byCategory.set(item.category, (byCategory.get(item.category) ?? 0) + 1)
+  }
+
+  // How long things actually last between buying and using them up.
+  for (const item of resolved) {
+    if (!item.addedAt || !item.resolvedAt) continue
+    // Clamped: a device clock that moved backwards must not report that
+    // something was used up before it was bought.
+    shelfDaysTotal += Math.max(0, (item.resolvedAt - item.addedAt) / DAY)
+    shelfDaysCount += 1
+  }
+
+  const rank = (map) =>
+    [...map.entries()].sort((a, b) => b[1] - a[1]).map(([key, count]) => ({ key, count }))
+
+  return {
+    consumed,
+    discarded,
+    total: consumed + discarded,
+    // Of everything resolved, how much was thrown away.
+    wasteRate: consumed + discarded > 0 ? discarded / (consumed + discarded) : 0,
+    wastedValue,
+    expiredWhenDiscarded,
+    mostWastedProducts: rank(byProduct),
+    mostWastedCategories: rank(byCategory),
+    averageDaysHeld: shelfDaysCount > 0 ? shelfDaysTotal / shelfDaysCount : null,
+  }
 }
 
 export const removePantryItem = (pantry, id) => pantry.filter((p) => p.id !== id)
@@ -197,7 +302,9 @@ export function updatePantryItem(pantry, id, patch) {
  */
 export function byUrgency(pantry, now = Date.now()) {
   const groups = new Map(BUCKETS.map((b) => [b.id, []]))
-  for (const item of pantry) {
+  // Active only: something eaten last week must not still be shouting that it
+  // expired, and something thrown out is not going to need eating.
+  for (const item of activePantry(pantry)) {
     groups.get(bucketOf(item.expiresAt, now)).push(item)
   }
 
@@ -216,7 +323,7 @@ export function byUrgency(pantry, now = Date.now()) {
 
 /** How many things need eating in the next `withinDays` days, or are already past. */
 export function needsAttention(pantry, now = Date.now(), withinDays = 3) {
-  return pantry.filter((p) => {
+  return activePantry(pantry).filter((p) => {
     const days = daysUntil(p.expiresAt, now)
     return days !== null && days <= withinDays
   }).length

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { CATEGORY_BY_ID } from '../categories.js'
 import { formatMoney } from '../money.js'
 import { priceFor, priceSource, searchVault, vaultCategories } from '../vault.js'
+import { isPerishable } from '../pantry.js'
 import Sticker from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -20,6 +21,7 @@ export default function VaultPanel({
   categoryFor,
   onWhy,
   onOpenProduct,
+  onTrackExpiry,
   vault,
   stores = [],
   activeStoreId,
@@ -191,6 +193,20 @@ export default function VaultPanel({
                         )}
                       </span>
                     </button>
+
+                    {/* Perishables get the fridge button inline; anything can
+                        still be tracked from the product receipt. */}
+                    {!managing && onTrackExpiry && isPerishable(item.category) && (
+                      <button
+                        className="vrow__track"
+                        type="button"
+                        onClick={() => onTrackExpiry(item)}
+                        aria-label={`Track expiry for ${item.name}`}
+                        title="Track expiry"
+                      >
+                        <Icon name="calendar" size={15} />
+                      </button>
+                    )}
 
                     {managing ? (
                       <button
