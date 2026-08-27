@@ -21,12 +21,15 @@ import { splitShop } from './stores.js'
 import { addRecipe, removeRecipe, updateRecipe } from './recipes.js'
 import {
   applyTheme,
-  loadAccent,
-  loadTexture,
+  loadLook,
+  savePaper,
   saveAccent,
+  saveSaturation,
   saveTexture,
+  saveTextureStrength,
   watchColorScheme,
 } from './theme.js'
+import LookPopover from './components/LookPopover.jsx'
 import {
   DEFAULT_STICKER_STYLE,
   STICKER_STYLE_KEY,
@@ -96,8 +99,11 @@ export default function App() {
   const [pantry, setPantry] = useLocalStorage('cartwise.pantry', [])
   const [recipes, setRecipes] = useLocalStorage('cartwise.recipes', [])
   const [mealPlan, setMealPlan] = useLocalStorage('cartwise.mealplan', {})
-  const [accent, setAccent] = useState(loadAccent)
-  const [texture, setTexture] = useState(loadTexture)
+  // Accent, paper, texture and the two strength sliders move together, so
+  // they travel as one object rather than five pieces of state that have to
+  // be kept in step.
+  const [look, setLook] = useState(loadLook)
+  const [lookOpen, setLookOpen] = useState(false)
   const [stickerStyle, setStickerStyle] = useLocalStorage(
     STICKER_STYLE_KEY,
     DEFAULT_STICKER_STYLE,
@@ -113,9 +119,20 @@ export default function App() {
   // Re-applied when the system flips to dark, since the soft accent variant is
   // chosen in JavaScript and CSS cannot pick it for us.
   useEffect(() => {
-    applyTheme(accent, texture)
-    return watchColorScheme(() => applyTheme(accent, texture))
-  }, [accent, texture])
+    applyTheme(look)
+    return watchColorScheme(() => applyTheme(look))
+  }, [look])
+
+  /** Apply and persist in one move, so no setting can be applied but not saved. */
+  function changeLook(next) {
+    setLook({
+      accent: saveAccent(next.accent),
+      texture: saveTexture(next.texture),
+      paper: savePaper(next.paper),
+      textureStrength: saveTextureStrength(next.textureStrength),
+      saturation: saveSaturation(next.saturation),
+    })
+  }
   const [sortMode, setSortMode] = useLocalStorage('cartwise.sort', 'aisle')
   const [mode, setMode] = useState('planning')
   // 'home' | 'list' | 'expiry' | 'trips' | 'settings'
@@ -598,6 +615,29 @@ export default function App() {
    * control, so a section screen is the section and nothing else — and there
    * is only ever one way out of it.
    */
+  /**
+   * The swatch button and its popover. The list screen builds its own header
+   * rather than going through chrome(), so this lives in both — changing the
+   * look should be one tap from wherever you are, and the screen you are most
+   * likely to be looking at is the list.
+   */
+  const lookControl = () => (
+    <div className="app__look">
+      <button
+        className={`lookbtn ${lookOpen ? 'lookbtn--on' : ''}`}
+        type="button"
+        onClick={() => setLookOpen((open) => !open)}
+        aria-label="Appearance"
+        aria-expanded={lookOpen}
+      >
+        <span className="lookbtn__swatch" aria-hidden="true" />
+      </button>
+      {lookOpen && (
+        <LookPopover look={look} onChange={changeLook} onClose={() => setLookOpen(false)} />
+      )}
+    </div>
+  )
+
   const chrome = (children) => {
     const atHome = view === 'home'
     return (
@@ -616,6 +656,8 @@ export default function App() {
                 Home
               </button>
             )}
+
+            {lookControl()}
           </header>
           {children}
         </div>
@@ -682,10 +724,10 @@ export default function App() {
         onNameChange={setDisplayName}
         currency={currency}
         onCurrencyChange={changeCurrency}
-        accent={accent}
-        onAccentChange={(id) => setAccent(saveAccent(id))}
-        texture={texture}
-        onTextureChange={(id) => setTexture(saveTexture(id))}
+        accent={look.accent}
+        onAccentChange={(id) => changeLook({ ...look, accent: id })}
+        texture={look.texture}
+        onTextureChange={(id) => changeLook({ ...look, texture: id })}
         stickerStyle={stickerStyle}
         onStickerStyleChange={setStickerStyle}
         onRestore={restoreBackup}
@@ -738,6 +780,7 @@ export default function App() {
           {mode === 'planning' ? 'Planning' : 'Shopping'}
           {activeStore && <> · {activeStore.name}</>}
         </span>
+        {lookControl()}
       </header>
 
       <CartTabs
