@@ -14,6 +14,12 @@ import Icon from '../icons.jsx'
  * reason to add from here rather than typing the name again.
  */
 export default function VaultPanel({
+  open: openProp,
+  onOpenChange,
+  purchases = [],
+  categoryFor,
+  onWhy,
+  onOpenProduct,
   vault,
   stores = [],
   activeStoreId,
@@ -22,7 +28,15 @@ export default function VaultPanel({
   onRemove,
   onList,
 }) {
-  const [open, setOpen] = useState(false)
+  // Controlled when the parent passes `open` (the search sheet opens it),
+  // self-managed otherwise.
+  const [ownOpen, setOwnOpen] = useState(false)
+  const open = openProp ?? ownOpen
+  const setOpen = (next) => {
+    const value = typeof next === 'function' ? next(open) : next
+    setOwnOpen(value)
+    onOpenChange?.(value)
+  }
   const [managing, setManaging] = useState(false)
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState(null)
@@ -56,6 +70,12 @@ export default function VaultPanel({
           ▾
         </span>
       </button>
+
+      {open && onWhy && (
+        <button className="vault__why" type="button" onClick={onWhy} aria-label="Why build your Vault?">
+          <Icon name="sparkle" size={14} /> Why build your Vault?
+        </button>
+      )}
 
       {open && (
         <div className="vault__body">
@@ -129,7 +149,7 @@ export default function VaultPanel({
                 const added = onListNames.has(item.name.toLowerCase())
                 const price = priceFor(item, activeStoreId)
                 const source = priceSource(item, activeStoreId)
-                const cat = CATEGORY_BY_ID[item.category] ?? CATEGORY_BY_ID.other
+                const cat = categoryFor ? categoryFor(item.category) : (CATEGORY_BY_ID[item.category] ?? CATEGORY_BY_ID.other)
                 const from = source && source !== 'anywhere' ? storeName(source) : null
 
                 return (
@@ -138,7 +158,14 @@ export default function VaultPanel({
                       <Sticker id={cat.sticker} size={20} />
                     </span>
 
-                    <span className="vrow__text">
+                    <button
+                      className="vrow__text vrow__text--open"
+                      type="button"
+                      onClick={() => onOpenProduct?.(item.id)}
+                      disabled={!onOpenProduct}
+                      aria-label={`${item.name} — price history and details`}
+                      title="Price history and details"
+                    >
                       <span className="vrow__name">
                         {item.brand && <span className="vrow__brand">{item.brand} </span>}
                         {item.name}
@@ -163,7 +190,7 @@ export default function VaultPanel({
                           <span className="vrow__unpriced">No price yet</span>
                         )}
                       </span>
-                    </span>
+                    </button>
 
                     {managing ? (
                       <button

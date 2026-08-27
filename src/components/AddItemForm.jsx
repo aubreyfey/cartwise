@@ -10,7 +10,9 @@ import Icon from '../icons.jsx'
 
 const EMPTY = { name: '', qty: '1', price: '', unit: DEFAULT_UNIT }
 
-export default function AddItemForm({ onAdd, onOpenSheet, vault, activeStoreId, onVaultPick }) {
+export default function AddItemForm({
+  openScanner = false,
+  onScannerHandled, onAdd, onOpenSheet, vault, activeStoreId, onVaultPick }) {
   const [fields, setFields] = useState(EMPTY)
   const [category, setCategory] = useState('other')
   // Once the user picks a category by hand, stop re-guessing under them.
@@ -18,6 +20,14 @@ export default function AddItemForm({ onAdd, onOpenSheet, vault, activeStoreId, 
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [highlighted, setHighlighted] = useState(0)
   const [scanning, setScanning] = useState(false)
+
+  // The search sheet can ask for the scanner. Acknowledged immediately so a
+  // cancelled scan doesn't reopen on the next render.
+  useEffect(() => {
+    if (!openScanner) return
+    setScanning(true)
+    onScannerHandled?.()
+  }, [openScanner, onScannerHandled])
   // A scanned code we don't recognise yet — attached to whatever you name it.
   const [pendingBarcode, setPendingBarcode] = useState(null)
   const [lookupState, setLookupState] = useState('idle')

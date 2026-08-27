@@ -32,6 +32,7 @@ export default function SettingsScreen({
   onStickerStyleChange,
   onRestore,
   onShowTour,
+  onOpenCategories,
 }) {
   return (
     <div className="settings">
@@ -139,6 +140,10 @@ export default function SettingsScreen({
           ))}
         </ul>
       </section>
+
+      <button className="tour__open" type="button" onClick={onOpenCategories}>
+        <Icon name="shelf" size={17} /> Category Library
+      </button>
 
       <button className="tour__open" type="button" onClick={onShowTour}>
         <Icon name="sparkle" size={17} /> What Cartwise does

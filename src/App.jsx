@@ -65,6 +65,10 @@ import { askForNotifications, notificationPermission, showReminder } from './not
 import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from './backgrounds.js'
 import { AISLE_ORDER_KEY, defaultAisleOrder, orderedCategories } from './aisleOrder.js'
 import AislePanel from './components/AislePanel.jsx'
+import ProductSearch from './components/ProductSearch.jsx'
+import ProductDetail from './components/ProductDetail.jsx'
+import VaultWhySheet from './components/VaultWhySheet.jsx'
+import CategoryLibrary from './components/CategoryLibrary.jsx'
 import {
   downscale,
   loadListPhotos,
@@ -72,9 +76,23 @@ import {
   writeListPhotos,
 } from './listPhotos.js'
 import { addStore, compareStores, removeStore } from './stores.js'
+import { guessCategory } from './categories.js'
 import { DEFAULT_UNIT } from './units.js'
 import { readStored, removeStored, useLocalStorage } from './useLocalStorage.js'
 import { completeTrip } from './trips.js'
+import {
+  forgetTripPurchases,
+  lastPurchasedAt,
+  priceStats,
+  recordTripPurchases,
+  storeComparison,
+} from './purchases.js'
+import {
+  CATEGORY_LIBRARY_KEY,
+  activeCategories,
+  allCategories,
+  emptyLibrary,
+} from './categoryLibrary.js'
 import {
   findVaultItem,
   forgetStorePrices,
@@ -103,6 +121,13 @@ export default function App() {
   const [vault, setVault] = useLocalStorage('cartwise.vault', [])
   const [stores, setStores] = useLocalStorage('cartwise.stores', [])
   const [trips, setTrips] = useLocalStorage('cartwise.trips', [])
+  // Every line ever actually bought. This is what price history and per-product
+  // store comparison are computed from — a trip is keyed by shop, not product.
+  const [purchases, setPurchases] = useLocalStorage('cartwise.purchases', [])
+  const [categoryLibrary, setCategoryLibrary] = useLocalStorage(
+    CATEGORY_LIBRARY_KEY,
+    emptyLibrary,
+  )
   const [pantry, setPantry] = useLocalStorage('cartwise.pantry', [])
   const [recipes, setRecipes] = useLocalStorage('cartwise.recipes', [])
   const [mealPlan, setMealPlan] = useLocalStorage('cartwise.mealplan', {})
@@ -143,6 +168,33 @@ export default function App() {
   const [sortMode, setSortMode] = useLocalStorage('cartwise.sort', 'aisle')
   const [aisleOrder, setAisleOrder] = useLocalStorage(AISLE_ORDER_KEY, defaultAisleOrder)
   const [aislesOpen, setAislesOpen] = useState(false)
+  // The aisles as configured: renamed, reordered, archived ones dropped.
+  const categories = useMemo(
+    () => activeCategories(categoryLibrary, aisleOrder),
+    [categoryLibrary, aisleOrder],
+  )
+  const allCategoriesFor = useMemo(
+    () => allCategories(categoryLibrary, aisleOrder),
+    [categoryLibrary, aisleOrder],
+  )
+  const categoryCounts = useMemo(() => {
+    const counts = {}
+    const bump = (id) => { counts[id] = (counts[id] ?? 0) + 1 }
+    for (const cart of carts) for (const item of cart.items ?? []) bump(item.category)
+    for (const item of vault) bump(item.category)
+    for (const item of pantry) bump(item.category)
+    return counts
+  }, [carts, vault, pantry])
+  // "Aug 27 Today" while shopping, so the header says which trip this is.
+  const tripDateLabel = useMemo(() => {
+    const now = new Date()
+    const stamp = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(now)
+    return `${stamp} Today`
+  }, [])
+
+  const categoryFor = (id) =>
+    categories.find((c) => c.id === id) ??
+    categories.find((c) => c.id === 'other') ?? { id: 'other', label: 'Other', sticker: 'basket' }
   // Photos used as list backgrounds. Outside useLocalStorage for the same
   // reason product cut-outs are: a write can fail, and that has to be sayable.
   const [listPhotos, setListPhotos] = useState(loadListPhotos)
@@ -165,6 +217,14 @@ export default function App() {
   const [tourSeen, setTourSeen] = useLocalStorage(TOUR_SEEN_KEY, false)
   const [showTour, setShowTour] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [searching, setSearching] = useState(false)
+  const [whyVault, setWhyVault] = useState(false)
+  // The Vault product open in the receipt view, by id.
+  const [detailId, setDetailId] = useState(null)
+  // Lifted out of AddItemForm and VaultPanel so the search sheet's buttons can
+  // actually open them. Both components still manage themselves by default.
+  const [scanRequested, setScanRequested] = useState(false)
+  const [vaultOpen, setVaultOpen] = useState(false)
 
   function savePhoto(dataUrl) {
     const key = photoKey(photoTarget.name)
@@ -468,6 +528,56 @@ export default function App() {
       category: vaultItem.category,
     })
 
+  /* ------------------------------------------------ product search + detail */
+
+  /** Add from search, then close — the point of searching was to add it. */
+  function addFromSearch(vaultItem) {
+    quickAddFromVault(vaultItem)
+    setSearching(false)
+  }
+
+  /**
+   * "Manual" from the search sheet, and the landing spot for an online result:
+   * open the full editor pre-filled with whatever we know, which may be
+   * nothing but the words that were typed.
+   */
+  function manualFromSearch(name, product = null) {
+    setSearching(false)
+    setSheetItem({
+      name: name ?? '',
+      brand: product?.brand ?? null,
+      category: product?.category ?? guessCategory(name ?? ''),
+      barcode: product?.barcode ?? null,
+      qty: 1,
+      price: null,
+      unit: DEFAULT_UNIT,
+    })
+  }
+
+  /** Save an edit made in the product receipt back to the Vault. */
+  function saveProduct(id, patch) {
+    setVault((prev) => prev.map((v) => (v.id === id ? { ...v, ...patch, id } : v)))
+    setDetailId(null)
+  }
+
+  function forgetProduct(id) {
+    const product = vault.find((v) => v.id === id)
+    if (!window.confirm(`Forget ${product?.name ?? 'this product'}? Its price history goes too.`)) {
+      return
+    }
+    setVault((prev) => removeVaultItem(prev, id))
+    setPurchases((prev) => prev.filter((purchase) => purchase.productId !== id))
+    setDetailId(null)
+  }
+
+  /** A deleted custom category leaves its items somewhere real, not nowhere. */
+  function reassignCategory(fromId, toId = 'other') {
+    const fix = (item) => (item.category === fromId ? { ...item, category: toId } : item)
+    setCarts((prev) => prev.map((c) => ({ ...c, items: (c.items ?? []).map(fix) })))
+    setVault((prev) => prev.map(fix))
+    setPantry((prev) => prev.map(fix))
+  }
+
   const toggleItem = (id) =>
     setItems((prev) =>
       prev.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)),
@@ -606,6 +716,9 @@ export default function App() {
 
   function logPendingTrip(toTrack = []) {
     setTrips((prev) => [...prev, pendingTrip])
+    // The Vault already knows the latest price; this is the record of every
+    // price, which is what a history can be drawn from.
+    setPurchases((prev) => recordTripPurchases(prev, pendingTrip, vault))
 
     if (toTrack.length > 0) {
       setPantry((prev) =>
@@ -629,7 +742,11 @@ export default function App() {
     setView('home')
   }
 
-  const deleteTrip = (id) => setTrips((prev) => prev.filter((t) => t.id !== id))
+  const deleteTrip = (id) => {
+    setTrips((prev) => prev.filter((t) => t.id !== id))
+    // Otherwise the history would still show prices from a trip you deleted.
+    setPurchases((prev) => forgetTripPurchases(prev, id))
+  }
 
   /**
    * Write a validated backup straight to storage and reload. Reloading rather
@@ -769,6 +886,20 @@ export default function App() {
     )
   }
 
+  if (view === 'categories') {
+    return chrome(
+      <CategoryLibrary
+        categories={allCategoriesFor}
+        library={categoryLibrary}
+        order={aisleOrder}
+        counts={categoryCounts}
+        onLibraryChange={setCategoryLibrary}
+        onOrderChange={setAisleOrder}
+        onReassign={reassignCategory}
+      />,
+    )
+  }
+
   if (view === 'settings') {
     return chrome(
       <SettingsScreen
@@ -784,6 +915,7 @@ export default function App() {
         onStickerStyleChange={setStickerStyle}
         onRestore={restoreBackup}
         onShowTour={() => setShowTour(true)}
+        onOpenCategories={() => setView('categories')}
       />,
     )
   }
@@ -831,6 +963,7 @@ export default function App() {
         </button>
         <span className="app__breadcrumb">
           {mode === 'planning' ? 'Planning' : 'Shopping'}
+          {mode === 'shopping' && <> · {tripDateLabel}</>}
           {activeStore && <> · {activeStore.name}</>}
         </span>
         {lookControl()}
@@ -876,6 +1009,15 @@ export default function App() {
         </div>
 
         <div className="sortbar">
+          <button
+            className="searchbtn"
+            type="button"
+            onClick={() => setSearching(true)}
+            aria-label="Search for a product"
+            title="Search for a product to add"
+          >
+            <Icon name="search" size={16} />
+          </button>
           <div className="segmented segmented--sort" role="group" aria-label="Sort">
             <button
               type="button"
@@ -934,6 +1076,8 @@ export default function App() {
       {/* Available in both modes: forgetting something is exactly what happens
           mid-shop, and those additions are what impulse tracking measures. */}
       <AddItemForm
+        openScanner={scanRequested}
+        onScannerHandled={() => setScanRequested(false)}
         onAdd={addItem}
         onOpenSheet={(draft) => setSheetItem(draft)}
         vault={vault}
@@ -951,6 +1095,12 @@ export default function App() {
           />
 
           <VaultPanel
+            open={vaultOpen}
+            onOpenChange={setVaultOpen}
+            purchases={purchases}
+            categoryFor={categoryFor}
+            onWhy={() => setWhyVault(true)}
+            onOpenProduct={setDetailId}
             vault={vault}
             stores={stores}
             aisleOrder={aisleOrder}
@@ -1010,6 +1160,29 @@ export default function App() {
         )}
       </main>
 
+      {/* The running state of the trip, in words, above the sticky bar — which
+          only ever has room for the count and the total. */}
+      {mode === 'shopping' && items.length > 0 && (
+        <p className="fulfilled">
+          {checkedCount}/{items.length} items fulfilled, totalling{' '}
+          <strong>{formatMoney(cartTotal)}</strong>
+          {activeCart.budget > 0 && (
+            <>
+              {' · '}
+              <span
+                className={
+                  listTotal > activeCart.budget ? 'fulfilled__over' : 'fulfilled__left'
+                }
+              >
+                {listTotal > activeCart.budget
+                  ? `${formatMoney(listTotal - activeCart.budget)} over budget`
+                  : `${formatMoney(activeCart.budget - cartTotal)} left`}
+              </span>
+            </>
+          )}
+        </p>
+      )}
+
       {mode === 'planning' && <Insights trips={trips} onDeleteTrip={deleteTrip} />}
 
       {items.length > 0 && (
@@ -1052,6 +1225,41 @@ export default function App() {
             setPhotoNote(null)
             setPickingBackground(false)
           }}
+        />
+      )}
+
+      {searching && (
+        <ProductSearch
+          vault={vault}
+          purchases={purchases}
+          stores={stores}
+          activeStoreId={activeStoreId}
+          categoryFor={categoryFor}
+          onAdd={addFromSearch}
+          onScan={() => {
+            setSearching(false)
+            setScanRequested(true)
+          }}
+          onManual={manualFromSearch}
+          onOpenVault={() => {
+            setSearching(false)
+            setVaultOpen(true)
+          }}
+          onClose={() => setSearching(false)}
+        />
+      )}
+
+      {whyVault && <VaultWhySheet onClose={() => setWhyVault(false)} />}
+
+      {detailId && vault.find((v) => v.id === detailId) && (
+        <ProductDetail
+          item={vault.find((v) => v.id === detailId)}
+          purchases={purchases}
+          stores={stores}
+          categories={categories}
+          onSave={(patch) => saveProduct(detailId, patch)}
+          onDelete={() => forgetProduct(detailId)}
+          onClose={() => setDetailId(null)}
         />
       )}
 

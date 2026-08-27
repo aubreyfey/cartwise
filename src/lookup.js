@@ -60,3 +60,58 @@ export async function lookupBarcode(code) {
     clearTimeout(timer)
   }
 }
+
+const SEARCH_ENDPOINT = 'https://world.openfoodfacts.org/cgi/search.pl'
+
+/**
+ * Search Open Food Facts by name.
+ *
+ * Cartwise ships no product catalogue of its own, and this is the honest
+ * alternative to inventing one: a public database, queried only when someone
+ * explicitly asks. It is never automatic — the Vault is what the search screen
+ * looks at by default, and this runs on a tap.
+ *
+ * Resolves to `[{ name, brand, category, barcode }]`, or [] when nothing
+ * matches. Rejects on network failure so the caller can say "couldn't reach
+ * it" rather than "no results", which are different things.
+ */
+export async function searchProducts(query, { limit = 20 } = {}) {
+  const term = String(query ?? '').trim()
+  if (term.length < 2) return []
+
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+
+  const params = new URLSearchParams({
+    search_terms: term,
+    search_simple: '1',
+    action: 'process',
+    json: '1',
+    page_size: String(limit),
+    fields: 'code,product_name,brands,quantity,categories_tags',
+  })
+
+  try {
+    const res = await fetch(`${SEARCH_ENDPOINT}?${params}`, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
+    })
+    if (!res.ok) return []
+
+    const body = await res.json()
+    return (body?.products ?? [])
+      .map((product) => {
+        const name = product.product_name?.trim()
+        if (!name) return null
+        return {
+          name: product.quantity ? `${name} (${product.quantity.trim()})` : name,
+          brand: product.brands?.split(',')[0]?.trim() || null,
+          category: aisleFromTags(product.categories_tags),
+          barcode: product.code ?? null,
+        }
+      })
+      .filter(Boolean)
+  } finally {
+    clearTimeout(timer)
+  }
+}
