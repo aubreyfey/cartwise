@@ -23,9 +23,13 @@ The panels are rendered from HTML, so changing a headline means editing text
 rather than re-doing a graphic.
 
 1. `npm run dev`
-2. Capture the app screens (`shotgen.html` seeds a realistic list, then
-   screenshot at 430 × 932 into `marketing/shots/`)
+2. `npm run shots` — walks the running app with headless Edge and writes the
+   eight source screens into `marketing/shots/`. `shotgen.html` seeds a
+   realistic list first, so the screens have plausible prices on them, and
+   each shot's click path and scroll offset live in `scripts/shots.mjs`.
 3. Render each panel from `promo.html?p=1` … `?p=8` at 1290 × 2796
+4. `npm run tour:images` — resizes the panels into `public/tour/` for the
+   in-app tour
 
 Both helper pages live at the project root and are dev-only — Vite builds
 `index.html` alone, so neither ships in `dist/`. The source screens live in
@@ -40,7 +44,12 @@ Add a 13" iPad set (2064 × 2752) only if you ship an iPad build.
 
 ## Note on the artwork
 
-All stickers are the original vectors from `src/stickers.jsx`. No third-party
-product photography or branding appears anywhere in these panels, which is
-deliberate: marketing material carrying other companies' packaging is a
-trademark problem that App Review is entitled to raise.
+Every phone in these panels is a real screenshot, and any sticker inside one is
+an original vector from `src/stickers.jsx`. No third-party product photography
+or branding appears anywhere, which is deliberate: marketing material carrying
+other companies' packaging is a trademark problem App Review is entitled to
+raise.
+
+The panels carry no decoration of their own — ink or paper, an accent-coloured
+eyebrow, a serif headline, and the phone. Stickers scattered around the
+headline made the set read as a craft app rather than a tool.

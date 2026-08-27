@@ -12,9 +12,6 @@ const dateFormat = new Intl.DateTimeFormat(undefined, {
   day: 'numeric',
 })
 
-const DECOR = ['banana', 'broccoli', 'bread', 'milk', 'cookie', 'bottle']
-const DECOR_TILT = [-14, 9, -6, 12, -10, 5]
-
 export default function HomeScreen({
   carts,
   trips,
@@ -44,14 +41,8 @@ export default function HomeScreen({
   return (
     <div className="home">
       <section className="greeting">
-        <div className="greeting__decor" aria-hidden="true">
-          {DECOR.map((id, i) => (
-            <Sticker key={id} id={id} size={30} tilt={DECOR_TILT[i]} />
-          ))}
-        </div>
-
         <h1 className="greeting__hi">
-          Hey{name ? `, ${name}` : ''} <Icon name="wave" size={26} className="greeting__wave" />
+          Hey{name ? `, ${name}` : ''}
         </h1>
 
         {stats ? (

@@ -2,54 +2,63 @@
    body face is a rounded sans so numbers stay legible at small sizes. */
 
 :root {
-  --bg: #f3f2f7;
+  /* A near-neutral ground with a trace of warmth. Colour is spent on the one
+     thing that matters on a screen, not distributed evenly across it. */
+  --bg: #fbfbf9;
   --surface: #ffffff;
-  --surface-2: #f4f4f7;
-  --border: #e8e6ee;
-  --text: #2b2b30;
-  --text-muted: #7c7a86;
-  --text-faint: #a9a7b3;
+  --surface-2: #f4f4f1;
+  --border: #e7e7e2;
+  --hairline: rgb(20 20 25 / 0.07);
+  --text: #14141a;
+  --text-muted: #6b6b74;
+  --text-faint: #9b9ba3;
 
-  --primary: #7b5ea7;
-  --primary-soft: #f0eaf8;
+  --primary: #6d5bd0;
+  --primary-soft: #efedfd;
   --primary-ink: #ffffff;
 
-  --money: #55b45f;
-  --money-soft: #e6f5e7;
-  --danger: #dd5c63;
-  --danger-soft: #fdecec;
-  --amber: #f0ab2e;
+  --money: #17864a;
+  --money-soft: #e7f3ec;
+  --danger: #c4362f;
+  --danger-soft: #fbecea;
+  --amber: #a86a08;
 
-  --radius: 18px;
-  --radius-sm: 12px;
-  --shadow: 0 1px 2px rgb(40 30 60 / 0.05), 0 8px 20px rgb(40 30 60 / 0.06);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
 
-  --font-display: 'Patrick Hand', 'Segoe UI', ui-rounded, cursive;
-  --font-body: 'Nunito', ui-rounded, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Depth comes from a hairline and a whisper of shadow, not a soft grey
+     halo under every rectangle. */
+  --shadow: 0 1px 1px rgb(20 20 25 / 0.03), 0 2px 6px rgb(20 20 25 / 0.04);
+  --shadow-lg: 0 12px 32px rgb(20 20 25 / 0.13);
+
+  --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #17161c;
-    --surface: #201f27;
-    --surface-2: #292832;
-    --border: #34323f;
-    --text: #eceaf2;
-    --text-muted: #a09eae;
-    --text-faint: #75738200;
-    --text-faint: #757382;
+    --bg: #0b0b0d;
+    --surface: #161619;
+    --surface-2: #1e1e22;
+    --border: #2a2a2f;
+    --hairline: rgb(255 255 255 / 0.08);
+    --text: #f4f4f6;
+    --text-muted: #9d9da6;
+    --text-faint: #6a6a73;
 
-    --primary: #a98bd8;
-    --primary-soft: #2c2440;
-    --primary-ink: #1a1620;
+    --primary: #9c8bff;
+    --primary-soft: #211d3a;
+    --primary-ink: #12101c;
 
-    --money: #6cc776;
-    --money-soft: #1e3320;
-    --danger: #ef7f85;
-    --danger-soft: #3a2225;
-    --amber: #f0b955;
+    --money: #47c07d;
+    --money-soft: #12291d;
+    --danger: #f2695f;
+    --danger-soft: #2c1614;
+    --amber: #e0a02c;
 
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 20px rgb(0 0 0 / 0.25);
+    --shadow: 0 1px 1px rgb(0 0 0 / 0.4), 0 2px 8px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.55);
   }
 }
 
@@ -68,8 +77,55 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.45;
+  /* Inter sits better with a touch of negative tracking at UI sizes. */
+  letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv05' 1, 'ss03' 1;
+}
+
+/* Figures line up in columns and never jitter as they count. */
+.budget__spent,
+.budget__cap,
+.budget__input,
+.item__total,
+.item__delta,
+.card__total,
+.compare__amount,
+.split__total,
+.split__cost,
+.stat dd,
+.receipt__figures dd,
+.receipt__amount,
+.history__total,
+.breakdown__amount,
+.demo__amount {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Display type: large, tight, and used sparingly. */
+.app__brand,
+.screen-head__title,
+.budget__title,
+.card__name,
+.recipe__name,
+.plan__title,
+.receipt__title,
+.capture__title,
+.picker__title,
+.scanner__title,
+.crash__title,
+.household__name,
+.onb__brand,
+.onb__title,
+.itemsheet__title,
+.greeting__hi {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
 }
 
 button,
@@ -181,10 +237,15 @@ textarea {
 }
 
 .app__brand {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.app__brand .icon {
   color: var(--primary);
-  letter-spacing: 0.01em;
 }
 
 .app__breadcrumb {
@@ -224,7 +285,7 @@ textarea {
 .compare,
 .insights {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -236,11 +297,8 @@ textarea {
 }
 
 .budget__title {
-  font-family: var(--font-display);
-  font-size: 1.7rem;
-  font-weight: 400;
-  margin: 0 0 0.5rem;
-  letter-spacing: 0.01em;
+  font-size: clamp(1.7rem, 7vw, 2.1rem);
+  margin: 0 0 0.6rem;
 }
 
 .budget__labels {
@@ -262,17 +320,12 @@ textarea {
 
 .budget__track {
   flex: 1;
-  height: 2rem;
+  height: 1.6rem;
   border-radius: 999px;
   overflow: hidden;
-  /* The unspent remainder is hatched, so a part-filled bar reads as
-     "still to go" rather than as an empty gray trough. */
-  background-color: var(--danger-soft);
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent 0 5px,
-    color-mix(in srgb, var(--danger) 28%, transparent) 5px 10px
-  );
+  /* A plain trough. The hatched barber-pole this replaced was the loudest
+     thing on the screen and said nothing the fill does not already say. */
+  background: var(--surface-2);
 }
 
 .budget__fill {
@@ -362,7 +415,7 @@ textarea {
   display: inline-flex;
   padding: 0.2rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
 }
 
@@ -404,7 +457,7 @@ textarea {
   align-items: flex-start;
   padding: 0.3rem 0.7rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 12px;
   max-width: 10rem;
 }
@@ -489,16 +542,17 @@ textarea {
 }
 
 /* Aisle names sit in a soft pill, the way a tab on a divider would. */
+/* Aisle names are a label, not a badge. They sat in a coloured pill that
+   competed with the prices; now they read as a quiet section heading. */
 .section__tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
-  background: var(--primary-soft);
-  color: var(--primary);
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 800;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
 }
 
 .section__meta {
@@ -611,7 +665,7 @@ textarea {
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 5px;
   background: var(--surface-2);
   color: var(--text-muted);
@@ -678,7 +732,7 @@ textarea {
 .item__unit-select {
   padding: 0.1rem 0.2rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 7px;
   font-size: 0.72rem;
 }
@@ -750,27 +804,36 @@ textarea {
   display: flex;
   flex-direction: column;
   padding: 1.5rem 1.15rem 1.2rem;
-  background: linear-gradient(165deg, #f3effa 0%, #ece6f7 45%, #e6f2ec 100%);
+  background: var(--bg);
   overflow-y: auto;
 }
 
-@media (prefers-color-scheme: dark) {
-  .onb {
-    background: linear-gradient(165deg, #201a2e 0%, #191527 45%, #141f1c 100%);
-  }
-}
-
+/* The welcome step is the store listing's first panel, arriving intact: ink
+   ground, serif wordmark, one phone. The steps that follow ask questions, so
+   they sit on the app's own paper instead. */
 .onb--welcome {
   align-items: center;
   text-align: center;
+  background: #100f14;
+  color: #f7f6f9;
+  padding-top: max(2.4rem, env(safe-area-inset-top));
 }
 
-.onb__decor {
-  display: flex;
-  justify-content: center;
-  gap: 0.15rem;
-  margin-bottom: 0.6rem;
-  opacity: 0.9;
+.onb--welcome::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 34rem;
+  height: 34rem;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgb(126 102 232 / 0.42), transparent 72%);
+  pointer-events: none;
+}
+
+.onb--welcome > * {
+  position: relative;
+  z-index: 1;
 }
 
 .onb__brand {
@@ -780,34 +843,50 @@ textarea {
   gap: 0.5rem;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 12vw, 3.2rem);
+  font-size: clamp(2.6rem, 13vw, 3.4rem);
   font-weight: 400;
-  color: var(--primary);
+  letter-spacing: -0.025em;
+  color: #fff;
 }
 
 .onb__tagline {
-  margin: 0.3rem 0 0;
-  max-width: 22rem;
-  font-size: clamp(0.95rem, 4.2vw, 1.1rem);
-  line-height: 1.5;
-  color: var(--text-muted);
+  margin: 0.45rem 0 0;
+  max-width: 20rem;
+  font-size: clamp(0.95rem, 4.2vw, 1.05rem);
+  line-height: 1.45;
+  color: rgb(255 255 255 / 0.6);
 }
 
-/* Phone with the screenshot creeping upward inside it. */
+.onb__badge {
+  margin-top: 1rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgb(255 255 255 / 0.78);
+}
+
+.onb__badge span {
+  opacity: 0.4;
+}
+
+/* Phone with the screenshot creeping upward inside it. A thin bezel, the same
+   one the store panels use. */
 .onb__phone {
   flex: 1;
   min-height: 0;
   width: min(16rem, 72vw);
-  margin: 1.1rem auto 0;
-  padding: 0.5rem;
-  border-radius: 2.4rem 2.4rem 0 0;
-  background: linear-gradient(155deg, #4a4a56, #23232c 45%, #14141a);
-  box-shadow: 0 -2px 40px rgb(30 15 60 / 0.22);
+  margin: 1.3rem auto 0;
+  padding: 0.4rem;
+  border-radius: 2.2rem 2.2rem 0 0;
+  background: #2a2833;
+  box-shadow: 0 -2px 44px rgb(0 0 0 / 0.5);
 }
 
 .onb__screen {
   height: 100%;
-  border-radius: 2rem 2rem 0 0;
+  border-radius: 1.9rem 1.9rem 0 0;
   overflow: hidden;
   background: var(--surface);
 }
@@ -865,7 +944,7 @@ textarea {
   margin-top: 0.4rem;
   padding: 0.8rem 0.95rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 14px;
   font-size: 1rem;
   text-align: center;
@@ -890,7 +969,7 @@ textarea {
     linear-gradient(-45deg, transparent 75%, rgb(0 0 0 / 0.04) 75%);
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
 }
 
 .onb__preview {
@@ -1136,24 +1215,41 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.75rem 0.3rem 0.75rem 0.25rem;
-  border: 1px solid var(--border);
+  gap: 0.4rem;
+  padding: 0.8rem 0.35rem 0.8rem 0.3rem;
+  border: 1px solid var(--hairline);
   border-left: none;
-  border-radius: 0 12px 12px 0;
-  background: var(--surface-2);
+  border-radius: 0 10px 10px 0;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(10px);
   color: var(--text-faint);
-  box-shadow: 2px 2px 6px rgb(40 25 70 / 0.08);
-  transition: transform 200ms cubic-bezier(0.3, 0.8, 0.3, 1), background 200ms ease,
-    color 200ms ease;
+  box-shadow: var(--shadow);
+  transition: transform 220ms cubic-bezier(0.3, 0.8, 0.3, 1), color 180ms ease,
+    background 180ms ease;
 }
 
 .rail__tab--on {
   background: var(--surface);
   color: var(--primary);
-  border-color: var(--primary);
-  transform: translateX(4px);
-  box-shadow: 3px 3px 10px rgb(40 25 70 / 0.14);
+  transform: translateX(5px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* The active tab is marked by a spine, not by an outline round the whole
+   tongue — the outline made every tab look like a button. */
+.rail__tab--on::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--primary);
+}
+
+.rail__tab {
+  position: relative;
 }
 
 .rail__icon {
@@ -1215,7 +1311,7 @@ textarea {
 
 .quickset__btn {
   padding: 0.3rem 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   background: var(--surface-2);
   font-size: 0.76rem;
@@ -1250,7 +1346,7 @@ textarea {
   align-items: center;
   gap: 0.3rem;
   padding: 0.3rem 0.7rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   background: none;
   font-size: 0.76rem;
@@ -1314,7 +1410,7 @@ textarea {
   padding: 0.15rem 0.25rem;
   max-width: 6.5rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 8px;
   font-size: 0.68rem;
   color: var(--text-muted);
@@ -1388,7 +1484,7 @@ textarea {
   place-items: center;
   width: 1.9rem;
   height: 1.9rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 50%;
   background: color-mix(in srgb, var(--surface) 70%, transparent);
   color: var(--text-muted);
@@ -1577,10 +1673,9 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* The ink the patterns are drawn in. Strong enough to actually see — the
-     first attempt used 4-6%, which was invisible on a phone — but not so
-     strong that it competes with the content sitting on top of it. */
-  color: color-mix(in srgb, var(--text) 11%, transparent);
+  /* Visible, but a ground rather than a pattern shouting for attention. The
+     first attempt at 4-6% could not be seen at all; 16% fought the content. */
+  color: color-mix(in srgb, var(--text) 7%, transparent);
 }
 
 /* Only the page content needs lifting above the texture layer. The rail and
@@ -1707,7 +1802,7 @@ body::before {
 .restock {
   padding: 0.75rem 0.9rem 0.85rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -1924,7 +2019,7 @@ body::before {
 .plan {
   padding: 0.85rem 0.9rem 0.95rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -2122,7 +2217,7 @@ body::before {
 
 .recipe {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -2266,7 +2361,7 @@ body::before {
   gap: 0.25rem;
   padding: 0.8rem 0.9rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -2283,7 +2378,7 @@ body::before {
   width: 100%;
   padding: 0.5rem 0.6rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 11px;
   font-size: 0.9rem;
 }
@@ -2315,7 +2410,7 @@ body::before {
 .screen-head__back {
   padding: 0.25rem 0.7rem 0.25rem 0.5rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   color: var(--text-muted);
   font-size: 0.8rem;
@@ -2336,17 +2431,13 @@ body::before {
   line-height: 1.1;
 }
 
+/* The greeting is the first thing on the screen, so it gets air rather than
+   a gradient. It used to be a pink-lilac wash that set the tone for the whole
+   app, and the tone it set was juvenile. */
 .greeting {
   position: relative;
   overflow: hidden;
-  padding: 1.1rem 1rem 1.2rem;
-  border-radius: var(--radius);
-  background: linear-gradient(
-    150deg,
-    var(--primary-soft),
-    color-mix(in srgb, var(--danger-soft) 65%, var(--surface))
-  );
-  border: 1px solid var(--border);
+  padding: 0.5rem 0.15rem 1.1rem;
 }
 
 .greeting__decor {
@@ -2360,17 +2451,21 @@ body::before {
 }
 
 .greeting__hi {
-  font-family: var(--font-display);
-  font-size: 1.8rem;
-  font-weight: 400;
-  margin: 0 0 0.3rem;
+  font-size: clamp(2rem, 9vw, 2.6rem);
+  margin: 0 0 0.45rem;
 }
 
 .greeting__line {
   margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.5;
-  max-width: 22rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  max-width: 24rem;
+  color: var(--text-muted);
+}
+
+.greeting__good,
+.greeting__bad {
+  font-weight: 600;
 }
 
 .greeting__line--sub {
@@ -2394,7 +2489,7 @@ body::before {
   width: 100%;
   padding: 0.7rem 0.9rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   text-align: left;
@@ -2461,7 +2556,7 @@ body::before {
   align-self: flex-start;
   padding: 0.2rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
 }
 
@@ -2493,14 +2588,15 @@ body::before {
 .card {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.85rem 0.9rem;
+  padding: 1rem 1.05rem 0.95rem;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   text-align: left;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 button.card:hover {
@@ -2515,8 +2611,7 @@ button.card:hover {
 }
 
 .card__name {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2545,12 +2640,32 @@ button.card:hover {
   font-size: 0.8rem;
 }
 
+/* Overlapping wells rather than a row of loose cartoons: it reads as a
+   stack of contents, and the neutral backing stops small glossy shapes
+   turning to mush against a white card. */
 .card__stickers {
   display: flex;
   align-items: center;
-  gap: 0.1rem;
-  min-height: 1.6rem;
-  flex-wrap: wrap;
+  min-height: 1.9rem;
+  padding-left: 0.2rem;
+}
+
+.card__stickers > .sticker,
+.card__stickers > .sticker-photo {
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0.15rem;
+  margin-left: -0.35rem;
+  background: var(--surface-2);
+  border: 1.5px solid var(--surface);
+  border-radius: 50%;
+  box-sizing: border-box;
+  transform: none;
+  filter: none;
+}
+
+.card__stickers > :first-child {
+  margin-left: 0;
 }
 
 .card__empty {
@@ -2630,7 +2745,7 @@ button.card:hover {
   margin-top: 2rem;
   padding: 1.5rem 1.25rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -2679,7 +2794,7 @@ button.card:hover {
 
 .datapanel {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -2760,7 +2875,7 @@ button.card:hover {
 
 .account {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -2872,7 +2987,7 @@ button.card:hover {
 .household {
   padding: 0.65rem 0.7rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 12px;
 }
 
@@ -2952,7 +3067,7 @@ button.card:hover {
   align-self: flex-start;
   padding: 0.35rem 0.5rem 0.35rem 0.8rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   box-shadow: var(--shadow);
   max-width: 100%;
@@ -2972,7 +3087,7 @@ button.card:hover {
   max-width: 13rem;
   padding: 0.2rem 0.4rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
@@ -3130,7 +3245,7 @@ button.card:hover {
   gap: 0.3rem;
   padding: 0.22rem 0.6rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   font-size: 0.78rem;
 }
@@ -3162,7 +3277,7 @@ button.card:hover {
 .urgency__date {
   padding: 0.1rem 0.3rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 7px;
   font-size: 0.72rem;
   color: var(--text-muted);
@@ -3220,22 +3335,26 @@ button.card:hover {
     drop-shadow(0 1px 1.5px rgb(40 30 60 / 0.28));
 }
 
+/* A neutral well, so a drawn sticker and a photographed product read as the
+   same kind of thing: a thumbnail, not a cartoon floating on the row. */
 .item__thumb {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  background: var(--surface-2);
+  border-radius: 9px;
 }
 
+/* Keeps the well from .item__thumb; only the border and padding are reset,
+   because a bare `background: none` here was cancelling it. */
 .item__thumb--button {
   padding: 0;
   border: none;
-  background: none;
-  border-radius: 8px;
 }
 
 .item__thumb--button:hover {
-  background: var(--surface-2);
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface-2));
 }
 
 /* Dimmed enough to read as done, not so much that the sticker — which is how
@@ -3387,7 +3506,7 @@ button.card:hover {
   flex-shrink: 0;
   padding: 0;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 14px;
 }
 
@@ -3472,7 +3591,7 @@ button.card:hover {
   min-width: 0;
   padding: 0.55rem 0.65rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 12px;
   font-size: 0.9rem;
 }
@@ -3776,7 +3895,7 @@ button.card:hover {
   gap: 0.35rem;
   padding: 0.25rem 0.6rem 0.25rem 0.45rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   font-size: 0.78rem;
   cursor: pointer;
@@ -3785,6 +3904,46 @@ button.card:hover {
 .track__row:has(input:checked) {
   border-color: var(--money);
   background: var(--money-soft);
+}
+
+/* The last native control on the receipt. At App Store size a stock blue
+   OS checkbox is the one thing that gives away nobody drew this screen. */
+.track__row input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.track__row input[type='checkbox']::after {
+  content: '';
+  width: 0.55rem;
+  height: 0.32rem;
+  border: 2px solid var(--surface);
+  border-top: 0;
+  border-right: 0;
+  transform: rotate(-45deg) translate(1px, -1px);
+  opacity: 0;
+}
+
+.track__row input[type='checkbox']:checked {
+  background: var(--money);
+  border-color: var(--money);
+}
+
+.track__row input[type='checkbox']:checked::after { opacity: 1; }
+
+.track__row input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .track__name {
@@ -3911,7 +4070,7 @@ button.card:hover {
   width: 100%;
   padding: 0.4rem 0.45rem;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 10px;
   font-size: 0.85rem;
   min-width: 0;
@@ -3935,12 +4094,14 @@ button.card:hover {
 /* ---------- buttons ---------- */
 
 .btn {
-  padding: 0.45rem 1rem;
-  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
   border: 1px solid transparent;
-  font-size: 0.85rem;
-  font-weight: 800;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.006em;
   white-space: nowrap;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
 }
 
 .btn--primary {
@@ -4030,7 +4191,7 @@ button.card:hover {
   margin: 0;
   padding: 0.25rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 12px;
   box-shadow: 0 8px 26px rgb(40 30 60 / 0.16);
   max-height: 14rem;
@@ -4154,7 +4315,7 @@ button.card:hover {
 .chip {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   overflow: hidden;
   background: var(--surface-2);
@@ -4227,7 +4388,7 @@ button.card:hover {
 .store {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   background: var(--surface);
   overflow: hidden;
@@ -4387,19 +4548,21 @@ button.card:hover {
 }
 
 .compare__bar {
-  height: 8px;
+  height: 5px;
   background: var(--surface-2);
   border-radius: 999px;
   overflow: hidden;
 }
 
+/* Everything stays quiet except the winner. Two saturated bars competing
+   made the reader work out which one mattered. */
 .compare__bar-fill {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--store-color);
-  opacity: 0.55;
-  transition: width 180ms ease;
+  background: var(--text-faint);
+  opacity: 0.4;
+  transition: width 220ms ease;
 }
 
 .compare__row--best .compare__bar-fill {

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import Icon from '../icons.jsx'
-import Sticker from '../stickers.jsx'
 import {
   contentBounds,
   describeResult,
@@ -15,9 +14,6 @@ import {
 const OUTPUT = 192
 const WORK = 320
 const PAD = 0.06
-
-const DECOR = ['banana', 'broccoli', 'bread', 'milk', 'cheese', 'bottle']
-const TILT = [-13, 8, -6, 11, -9, 5]
 
 export default function Onboarding({ base = '/', onFinish }) {
   const [step, setStep] = useState(0)
@@ -120,16 +116,13 @@ export default function Onboarding({ base = '/', onFinish }) {
   if (step === 0) {
     return (
       <div className="onb onb--welcome">
-        <div className="onb__decor" aria-hidden="true">
-          {DECOR.map((id, i) => (
-            <Sticker key={id} id={id} size={38} tilt={TILT[i]} />
-          ))}
-        </div>
-
         <h1 className="onb__brand">
           <Icon name="cart" size={36} strokeWidth={1.9} /> Cartwise
         </h1>
         <p className="onb__tagline">The grocery list that remembers what things cost.</p>
+        <p className="onb__badge">
+          Works offline <span aria-hidden="true">·</span> No account
+        </p>
 
         {/* The screenshot scrolls inside the phone, so the app is seen doing
             something rather than sitting still.
