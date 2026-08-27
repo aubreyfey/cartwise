@@ -1,9 +1,14 @@
-// Backgrounds for a list.
+// Backgrounds for a list: twelve gradients, or a photograph of your own.
 //
-// Gradients rather than photographs: a dozen photos would weigh more than the
-// whole app, they cannot follow the light/dark theme, and text sitting on an
-// arbitrary photo is a contrast problem you cannot solve in advance. These are
-// deliberately soft, so the dark text of a card stays readable on every one.
+// The gradients are deliberately soft, so the dark text of a card stays
+// readable on every one, and they carry both themes so they can follow the
+// light/dark setting the way nothing photographic can.
+//
+// A photo cannot promise any of that — the contrast problem is unsolvable in
+// advance, because it depends on the picture. So a photo background is always
+// laid under a scrim and never asked to sit behind body text: on the home card
+// it takes white type over a dark wash, and on the list screen it sits behind
+// the opaque cards rather than under them. See PHOTO in the stylesheet.
 
 export const BACKGROUNDS = [
   { id: 'plain', label: 'Plain', light: 'var(--surface)', dark: 'var(--surface)' },
@@ -24,17 +29,37 @@ export const DEFAULT_BACKGROUND = 'plain'
 
 export const BACKGROUND_BY_ID = Object.fromEntries(BACKGROUNDS.map((b) => [b.id, b]))
 
-/** A list made before backgrounds existed, or one naming a background we
- *  dropped, falls back to plain rather than rendering as a blank card. */
-export function backgroundOf(cart) {
-  return BACKGROUND_BY_ID[cart?.background] ? cart.background : DEFAULT_BACKGROUND
+/** Marks a background as "the photo stored for this list" rather than a preset. */
+export const PHOTO_BACKGROUND = 'photo'
+
+export const isPhotoBackground = (id) => id === PHOTO_BACKGROUND
+
+/**
+ * A list made before backgrounds existed, or one naming a background we
+ * dropped, falls back to plain rather than rendering as a blank card.
+ *
+ * A list set to `photo` whose picture has since been deleted — or failed to
+ * load on this device — also falls back, so the card is never a grey hole.
+ */
+export function backgroundOf(cart, photo) {
+  const id = cart?.background
+  if (isPhotoBackground(id)) return photo ? PHOTO_BACKGROUND : DEFAULT_BACKGROUND
+  return BACKGROUND_BY_ID[id] ? id : DEFAULT_BACKGROUND
 }
 
 /**
  * The CSS value for a background. Both themes are declared up front so the
  * caller can hand them to a custom property and let the stylesheet pick.
+ *
+ * A photo is the same picture in both, since a photograph has no dark variant;
+ * the scrim over it is what changes.
  */
-export function backgroundStyle(id) {
+export function backgroundStyle(id, photo) {
+  if (isPhotoBackground(id) && photo) {
+    // Quotes matter: an unquoted data URL with a comma in it ends the value.
+    const image = `url("${photo}") center / cover no-repeat`
+    return { '--card-bg': image, '--card-bg-dark': image }
+  }
   const bg = BACKGROUND_BY_ID[id] ?? BACKGROUND_BY_ID[DEFAULT_BACKGROUND]
   return { '--card-bg': bg.light, '--card-bg-dark': bg.dark }
 }

@@ -42,7 +42,6 @@ import StoreBar from './components/StoreBar.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import TripReceipt from './components/TripReceipt.jsx'
 import VaultPanel from './components/VaultPanel.jsx'
-import { CATEGORIES } from './categories.js'
 import {
   addCart,
   findCart,
@@ -63,7 +62,15 @@ import {
   updatePantryItem,
 } from './pantry.js'
 import { askForNotifications, notificationPermission, showReminder } from './notify.js'
-import { backgroundOf, backgroundStyle } from './backgrounds.js'
+import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from './backgrounds.js'
+import { AISLE_ORDER_KEY, defaultAisleOrder, orderedCategories } from './aisleOrder.js'
+import AislePanel from './components/AislePanel.jsx'
+import {
+  downscale,
+  loadListPhotos,
+  readImage,
+  writeListPhotos,
+} from './listPhotos.js'
 import { addStore, compareStores, removeStore } from './stores.js'
 import { DEFAULT_UNIT } from './units.js'
 import { readStored, removeStored, useLocalStorage } from './useLocalStorage.js'
@@ -134,6 +141,12 @@ export default function App() {
     })
   }
   const [sortMode, setSortMode] = useLocalStorage('cartwise.sort', 'aisle')
+  const [aisleOrder, setAisleOrder] = useLocalStorage(AISLE_ORDER_KEY, defaultAisleOrder)
+  const [aislesOpen, setAislesOpen] = useState(false)
+  // Photos used as list backgrounds. Outside useLocalStorage for the same
+  // reason product cut-outs are: a write can fail, and that has to be sayable.
+  const [listPhotos, setListPhotos] = useState(loadListPhotos)
+  const [photoNote, setPhotoNote] = useState(null)
   const [mode, setMode] = useState('planning')
   // 'home' | 'list' | 'expiry' | 'trips' | 'settings'
   const [view, setView] = useState('home')
@@ -174,6 +187,42 @@ export default function App() {
     writePhotos(rest)
     setPhotos(rest)
     setPhotoTarget(null)
+  }
+
+  /**
+   * Take a picture from the camera roll and make it this list's background.
+   *
+   * Downscaled before it is stored, and the list is only switched over once
+   * the write succeeds — pointing a list at a photo that failed to save would
+   * leave it showing nothing.
+   */
+  async function saveListPhoto(cartId, file) {
+    setPhotoNote(null)
+    try {
+      const image = await readImage(file)
+      const next = { ...listPhotos, [cartId]: downscale(image) }
+      const result = writeListPhotos(next)
+      if (!result.ok) {
+        setPhotoNote(
+          result.reason === 'full'
+            ? "This device's storage is full. Remove a photo background or a few stickers and try again."
+            : 'This device blocked saving the photo.',
+        )
+        return
+      }
+      setListPhotos(next)
+      patchCart({ background: PHOTO_BACKGROUND }, cartId)
+    } catch (e) {
+      setPhotoNote(e.message)
+    }
+  }
+
+  function removeListPhoto(cartId) {
+    const { [cartId]: _gone, ...rest } = listPhotos
+    writeListPhotos(rest)
+    setListPhotos(rest)
+    setPhotoNote(null)
+    if (activeCart?.background === PHOTO_BACKGROUND) patchCart({ background: 'plain' }, cartId)
   }
 
   function changeCurrency(code) {
@@ -270,19 +319,21 @@ export default function App() {
     const checked = items.filter((i) => i.checked)
     const { total: cartTotal } = sumLines(checked)
 
-    const grouped =
-      sortMode === 'az'
-        ? [
-            {
-              category: ALL,
-              items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
-            },
-          ]
-        : // Keep CATEGORIES order (store walk order) and drop empty aisles.
-          CATEGORIES.map((category) => ({
-            category,
-            items: items.filter((i) => i.category === category.id),
-          })).filter((group) => group.items.length > 0)
+    // 'aisle' groups into sections in the order you walk the shop; 'all' and
+    // 'az' are both one list, differing only in whether it is sorted.
+    let grouped
+    if (sortMode === 'az') {
+      grouped = [{ category: ALL, items: [...items].sort((a, b) => a.name.localeCompare(b.name)) }]
+    } else if (sortMode === 'all') {
+      grouped = [{ category: ALL, items }]
+    } else {
+      grouped = orderedCategories(aisleOrder)
+        .map((category) => ({
+          category,
+          items: items.filter((i) => i.category === category.id),
+        }))
+        .filter((group) => group.items.length > 0)
+    }
 
     return {
       listTotal,
@@ -292,7 +343,7 @@ export default function App() {
       grouped,
       names: items.map((i) => i.name),
     }
-  }, [items, sortMode])
+  }, [items, sortMode, aisleOrder])
 
   // How each item's price compares to what you last paid for it here.
   const deltas = useMemo(() => {
@@ -315,8 +366,9 @@ export default function App() {
 
   // --- cart plumbing -------------------------------------------------------
 
-  const patchCart = (patch) =>
-    setCarts((prev) => updateCart(prev, activeCart.id, patch))
+  // `id` defaults to the open list, which is what almost every caller means.
+  const patchCart = (patch, id = activeCart?.id) =>
+    setCarts((prev) => updateCart(prev, id, patch))
 
   const setItems = (updater) =>
     patchCart((cart) => ({
@@ -742,6 +794,7 @@ export default function App() {
         carts={carts}
         trips={trips}
         pantry={pantry}
+        listPhotos={listPhotos}
         name={displayName}
         onOpenCart={openCart}
         onNewCart={createCart}
@@ -799,7 +852,11 @@ export default function App() {
         listTotal={listTotal}
         cartTotal={cartTotal}
         unpriced={unpriced}
-        background={backgroundStyle(backgroundOf(activeCart))}
+        background={backgroundStyle(
+          backgroundOf(activeCart, listPhotos[activeCart.id]),
+          listPhotos[activeCart.id],
+        )}
+        onPhoto={backgroundOf(activeCart, listPhotos[activeCart.id]) === PHOTO_BACKGROUND}
         onPickBackground={() => setPickingBackground(true)}
       />
 
@@ -818,25 +875,59 @@ export default function App() {
           ))}
         </div>
 
-        <div className="segmented segmented--sort" role="group" aria-label="Sort">
-          <button
-            type="button"
-            className={`segmented__btn ${sortMode === 'aisle' ? 'segmented__btn--on' : ''}`}
-            onClick={() => setSortMode('aisle')}
-            aria-pressed={sortMode === 'aisle'}
-            title="Group by aisle"
-          >
-            <Icon name="basket" size={16} />
-          </button>
-          <button
-            type="button"
-            className={`segmented__btn ${sortMode === 'az' ? 'segmented__btn--on' : ''}`}
-            onClick={() => setSortMode('az')}
-            aria-pressed={sortMode === 'az'}
-            title="Sort A–Z"
-          >
-            Abc
-          </button>
+        <div className="sortbar">
+          <div className="segmented segmented--sort" role="group" aria-label="Sort">
+            <button
+              type="button"
+              className={`segmented__btn ${sortMode === 'aisle' ? 'segmented__btn--on' : ''}`}
+              onClick={() => setSortMode('aisle')}
+              aria-pressed={sortMode === 'aisle'}
+              title="Group by aisle"
+            >
+              <Icon name="basket" size={16} />
+            </button>
+            <button
+              type="button"
+              className={`segmented__btn ${sortMode === 'all' ? 'segmented__btn--on' : ''}`}
+              onClick={() => setSortMode('all')}
+              aria-pressed={sortMode === 'all'}
+              title="One list, no aisles"
+            >
+              All
+            </button>
+            <button
+              type="button"
+              className={`segmented__btn ${sortMode === 'az' ? 'segmented__btn--on' : ''}`}
+              onClick={() => setSortMode('az')}
+              aria-pressed={sortMode === 'az'}
+              title="Sort A–Z"
+            >
+              Abc
+            </button>
+          </div>
+
+          {/* Only means anything while the list is actually in aisles. */}
+          {sortMode === 'aisle' && (
+            <div className="sortbar__reorder">
+              <button
+                className={`aislebtn ${aislesOpen ? 'aislebtn--on' : ''}`}
+                type="button"
+                onClick={() => setAislesOpen((open) => !open)}
+                aria-label="Aisle order"
+                aria-expanded={aislesOpen}
+                title="Rearrange the aisles"
+              >
+                ⇅
+              </button>
+              {aislesOpen && (
+                <AislePanel
+                  order={aisleOrder}
+                  onChange={setAisleOrder}
+                  onClose={() => setAislesOpen(false)}
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -949,9 +1040,16 @@ export default function App() {
       {pickingBackground && (
         <BackgroundPicker
           listName={activeCart.name}
-          current={backgroundOf(activeCart)}
+          current={backgroundOf(activeCart, listPhotos[activeCart.id])}
+          photo={listPhotos[activeCart.id]}
+          note={photoNote}
           onPick={(background) => patchCart({ background })}
-          onClose={() => setPickingBackground(false)}
+          onPickPhoto={(file) => saveListPhoto(activeCart.id, file)}
+          onRemovePhoto={() => removeListPhoto(activeCart.id)}
+          onClose={() => {
+            setPhotoNote(null)
+            setPickingBackground(false)
+          }}
         />
       )}
 

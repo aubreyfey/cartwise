@@ -3,7 +3,7 @@ import { formatMoney, sumLines } from '../money.js'
 import { insights } from '../trips.js'
 import { needsAttention } from '../pantry.js'
 import { PURPOSES, byPurpose } from '../carts.js'
-import { backgroundOf, backgroundStyle } from '../backgrounds.js'
+import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from '../backgrounds.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -14,6 +14,7 @@ const dateFormat = new Intl.DateTimeFormat(undefined, {
 
 export default function HomeScreen({
   carts,
+  listPhotos = {},
   trips,
   pantry,
   name,
@@ -120,10 +121,17 @@ export default function HomeScreen({
               return (
                 <li key={cart.id}>
                   <button
-                    className="card card--tinted"
+                    className={`card card--tinted ${
+                      backgroundOf(cart, listPhotos[cart.id]) === PHOTO_BACKGROUND
+                        ? 'card--photo'
+                        : ''
+                    }`}
                     type="button"
                     onClick={() => onOpenCart(cart.id)}
-                    style={backgroundStyle(backgroundOf(cart))}
+                    style={backgroundStyle(
+                      backgroundOf(cart, listPhotos[cart.id]),
+                      listPhotos[cart.id],
+                    )}
                   >
                     <span className="card__head">
                       <span className="card__name">{cart.name}</span>

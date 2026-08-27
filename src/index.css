@@ -1739,6 +1739,265 @@ textarea {
 
 /* ---------- list backgrounds ---------- */
 
+/* PHOTO. A photograph cannot promise contrast the way a gradient can, so the
+   card switches to white type over a dark wash rather than trusting the
+   picture. The wash is heaviest at the foot, where the totals and the progress
+   bar sit. */
+.card--photo {
+  position: relative;
+  color: #fff;
+  border-color: transparent;
+  background-color: #2a2730;
+  isolation: isolate;
+}
+
+.card--photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    to top,
+    rgb(12 10 18 / 0.78) 0%,
+    rgb(12 10 18 / 0.5) 45%,
+    rgb(12 10 18 / 0.22) 100%
+  );
+}
+
+/* Everything the card draws in a muted or coloured ink has to be re-stated:
+   --text-muted on a photograph is unreadable, and the over-budget red loses
+   almost all its contrast. White throughout, with weight carrying the
+   emphasis instead of hue. */
+.card--photo .card__name,
+.card--photo .card__total,
+.card--photo .card__total--over,
+.card--photo .card__budget,
+.card--photo .card__meta,
+.card--photo .card__unpriced,
+.card--photo .card__empty {
+  color: #fff;
+}
+
+.card--photo .card__budget,
+.card--photo .card__meta,
+.card--photo .card__empty {
+  color: rgb(255 255 255 / 0.78);
+}
+
+.card--photo .card__total--over {
+  /* Still marked, but by a badge rather than by a red that the picture eats. */
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+.card--photo .card__progress {
+  background: rgb(255 255 255 / 0.28);
+}
+
+.card--photo .card__stickers > .sticker,
+.card--photo .card__stickers > .sticker-photo {
+  background: rgb(255 255 255 / 0.9);
+  border-color: rgb(255 255 255 / 0.55);
+}
+
+/* The budget bar carries the same photo as the card, so it needs the same
+   scrim. Without it the title, the labels and the over-budget note are dark
+   text sitting straight on an arbitrary picture. */
+.budget--photo {
+  position: relative;
+  color: #fff;
+  border-color: transparent;
+  background-color: #2a2730;
+  isolation: isolate;
+}
+
+.budget--photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(12 10 18 / 0.55);
+}
+
+.budget--photo .budget__title,
+.budget--photo .budget__cap,
+.budget--photo .budget__input {
+  color: #fff;
+}
+
+.budget--photo .budget__label,
+.budget--photo .budget__note {
+  color: rgb(255 255 255 / 0.82);
+}
+
+/* Green on a photograph reads as part of the picture. White keeps the good
+   news legible; the over-budget red is dark enough to survive on its own. */
+.budget--photo .budget__note--good {
+  color: #fff;
+}
+
+.budget--photo .budget__note--over,
+.budget--photo .budget__warn {
+  color: #ffd3cd;
+}
+
+.budget--photo .budget__track {
+  background: rgb(255 255 255 / 0.25);
+  border-color: rgb(255 255 255 / 0.3);
+}
+
+.budget--photo .budget__theme {
+  background: rgb(255 255 255 / 0.16);
+  border-color: rgb(255 255 255 / 0.3);
+  color: #fff;
+}
+
+/* The picker's photo tile. */
+.swatch--photo {
+  gap: 0.15rem;
+  place-items: center;
+  color: var(--text-muted);
+}
+
+.swatch--photo.swatch--on,
+.swatch--photo[style] {
+  color: #fff;
+}
+
+.swatch--photo[style] .swatch__label {
+  background: rgb(0 0 0 / 0.45);
+  border-radius: 6px;
+  padding: 0.05rem 0.3rem;
+}
+
+.picker__photo-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.picker__note {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--danger);
+}
+
+.picker__hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-faint);
+}
+
+/* ---------- sort bar and aisle order ---------- */
+
+.sortbar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sortbar__reorder {
+  position: relative;
+}
+
+.aislebtn {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.aislebtn--on {
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.aisles {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 60;
+  width: min(17rem, calc(100vw - 2rem));
+  padding: 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 6px rgb(20 20 25 / 0.06), 0 18px 40px -12px rgb(20 20 25 / 0.28);
+}
+
+.aisles__head {
+  display: grid;
+  margin: 0 0 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.aisles__hint {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text-faint);
+}
+
+.aisles__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.aisles__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0;
+}
+
+.aisles__name {
+  flex: 1;
+  font-size: 0.85rem;
+}
+
+.aisles__move {
+  width: 1.7rem;
+  height: 1.7rem;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.aisles__move:disabled {
+  opacity: 0.35;
+}
+
+.aisles__reset {
+  margin-top: 0.5rem;
+  padding: 0.2rem 0;
+  border: 0;
+  background: none;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-decoration: underline;
+}
+
+
 .card--tinted,
 .budget--tinted {
   background: var(--card-bg, var(--surface));

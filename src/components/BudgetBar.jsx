@@ -10,6 +10,7 @@ export default function BudgetBar({
   cartTotal,
   unpriced,
   background,
+  onPhoto,
   onPickBackground,
 }) {
   const [editing, setEditing] = useState(false)
@@ -30,7 +31,10 @@ export default function BudgetBar({
   }
 
   return (
-    <section className="budget budget--tinted" style={background}>
+    <section
+      className={`budget budget--tinted ${onPhoto ? 'budget--photo' : ''}`}
+      style={background}
+    >
       <div className="budget__titlerow">
         <h2 className="budget__title">{title}</h2>
         {onPickBackground && (

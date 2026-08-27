@@ -132,6 +132,24 @@
         { id: 'q5', name: 'Cheddar Slices', category: 'dairy', qty: 1, unit: 'pack', expiresAt: iso(19), addedAt: Date.now() },
       ]))
       localStorage.setItem('cartwise.photos', JSON.stringify({}))
+      // ?listphoto=1 puts a stand-in picture behind list c1, so the scrim over
+      // a photo background can be checked without a camera.
+      if (S.get('listphoto')) {
+        const c = document.createElement('canvas')
+        c.width = 600; c.height = 400
+        const x = c.getContext('2d')
+        const g = x.createLinearGradient(0, 0, 600, 400)
+        g.addColorStop(0, '#f5a623'); g.addColorStop(0.5, '#7ed321'); g.addColorStop(1, '#1b4332')
+        x.fillStyle = g; x.fillRect(0, 0, 600, 400)
+        x.fillStyle = 'rgba(255,255,255,.55)'
+        for (let i = 0; i < 60; i++) x.fillRect((i * 97) % 600, (i * 61) % 400, 40, 26)
+        localStorage.setItem('cartwise.listPhotos', JSON.stringify({ c1: c.toDataURL('image/webp', 0.7) }))
+        const carts = JSON.parse(localStorage.getItem('cartwise.carts'))
+        carts[0].background = 'photo'
+        localStorage.setItem('cartwise.carts', JSON.stringify(carts))
+        localStorage.setItem('cartwise.aisleOrder', JSON.stringify(
+          ['dairy', 'produce', 'bakery', 'meat', 'frozen', 'pantry', 'snacks', 'drinks', 'household', 'other']))
+      }
       localStorage.setItem('cartwise.sort', JSON.stringify('aisle'))
 
       const clicks = (S.get('click') || '').split('|').filter(Boolean)
