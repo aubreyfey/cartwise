@@ -27,6 +27,11 @@ import {
   saveTexture,
   watchColorScheme,
 } from './theme.js'
+import {
+  DEFAULT_STICKER_STYLE,
+  STICKER_STYLE_KEY,
+  setStickerStyle as applyStickerStyle,
+} from './stickerStyle.js'
 import SettingsScreen from './components/SettingsScreen.jsx'
 import PhotoCapture from './components/PhotoCapture.jsx'
 import TourScreen from './components/TourScreen.jsx'
@@ -93,6 +98,16 @@ export default function App() {
   const [mealPlan, setMealPlan] = useLocalStorage('cartwise.mealplan', {})
   const [accent, setAccent] = useState(loadAccent)
   const [texture, setTexture] = useState(loadTexture)
+  const [stickerStyle, setStickerStyle] = useLocalStorage(
+    STICKER_STYLE_KEY,
+    DEFAULT_STICKER_STYLE,
+  )
+
+  // Pushed into the sticker store, which every Sticker on the page subscribes
+  // to, and stamped on the root so CSS can see it too.
+  useEffect(() => {
+    applyStickerStyle(stickerStyle)
+  }, [stickerStyle])
 
   // Applied to the root element, so changing it repaints without re-rendering.
   // Re-applied when the system flips to dark, since the soft accent variant is
@@ -671,6 +686,8 @@ export default function App() {
         onAccentChange={(id) => setAccent(saveAccent(id))}
         texture={texture}
         onTextureChange={(id) => setTexture(saveTexture(id))}
+        stickerStyle={stickerStyle}
+        onStickerStyleChange={setStickerStyle}
         onRestore={restoreBackup}
         onShowTour={() => setShowTour(true)}
       />,

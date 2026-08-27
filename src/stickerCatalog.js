@@ -59,6 +59,44 @@ const BY_CATEGORY = {
   other: 'basket',
 }
 
+// The same twenty-six things as characters, for when the app is showing the
+// device's own emoji instead of the drawn set. Every one of these is Unicode
+// 12 or earlier, so nothing lands as a tofu box on a phone old enough to be
+// running the app at all.
+export const STICKER_EMOJI = {
+  banana: '🍌',
+  apple: '🍎',
+  broccoli: '🥦',
+  carrot: '🥕',
+  tomato: '🍅',
+  leaf: '🥬',
+  bread: '🍞',
+  baguette: '🥖',
+  drumstick: '🍗',
+  fish: '🐟',
+  milk: '🥛',
+  egg: '🥚',
+  cheese: '🧀',
+  yogurt: '🥣',
+  ice: '🧊',
+  can: '🥫',
+  jar: '🍯',
+  pasta: '🍝',
+  oil: '🫒',
+  chips: '🍿',
+  cookie: '🍪',
+  bottle: '🥤',
+  cup: '☕',
+  paper: '🧻',
+  spray: '🧴',
+  basket: '🧺',
+}
+
+/** The character for a sticker id, falling back the way the artwork does. */
+export function emojiFor(id) {
+  return STICKER_EMOJI[id] ?? STICKER_EMOJI.basket
+}
+
 export function stickerFor(name = '', category = 'other') {
   const lower = String(name).toLowerCase()
   for (const [pattern, id] of KEYWORDS) {

@@ -3,6 +3,16 @@ import DataPanel from './DataPanel.jsx'
 import Icon from '../icons.jsx'
 import { CURRENCIES, currencySymbol } from '../currency.js'
 import { ACCENTS, TEXTURES } from '../theme.js'
+import Sticker from '../stickers.jsx'
+
+const STICKER_STYLE_CHOICES = [
+  { id: 'emoji', label: 'Emoji' },
+  { id: 'drawn', label: 'Drawn' },
+]
+
+// Three that look clearly different in each set, so the choice is legible
+// at a glance rather than a pair of identical-looking swatches.
+const PREVIEW = ['banana', 'cheese', 'milk']
 
 /**
  * Everything that is configuration rather than shopping. Moving these off the
@@ -18,6 +28,8 @@ export default function SettingsScreen({
   onAccentChange,
   texture,
   onTextureChange,
+  stickerStyle,
+  onStickerStyleChange,
   onRestore,
   onShowTour,
 }) {
@@ -93,6 +105,35 @@ export default function SettingsScreen({
                 aria-pressed={t.id === texture}
               >
                 <span className="texture__label">{t.label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="setting">
+        <span className="setting__label">Item pictures</span>
+        <span className="setting__hint">
+          Emoji are drawn by your phone, so on an iPhone you get Apple's. The
+          drawn set looks the same on every device.
+        </span>
+        <ul className="stickerstyles">
+          {STICKER_STYLE_CHOICES.map((choice) => (
+            <li key={choice.id}>
+              <button
+                type="button"
+                className={`stickerstyle ${
+                  choice.id === stickerStyle ? 'stickerstyle--on' : ''
+                }`}
+                onClick={() => onStickerStyleChange(choice.id)}
+                aria-pressed={choice.id === stickerStyle}
+              >
+                <span className="stickerstyle__sample" aria-hidden="true">
+                  {PREVIEW.map((id) => (
+                    <Sticker key={id} id={id} size={24} variant={choice.id} />
+                  ))}
+                </span>
+                <span className="stickerstyle__label">{choice.label}</span>
               </button>
             </li>
           ))}

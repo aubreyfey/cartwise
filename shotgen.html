@@ -24,6 +24,14 @@
       localStorage.setItem('cartwise.currency', JSON.stringify('PHP'))
       // A name in the greeting: "Hey" on its own reads like an unfinished screen.
       localStorage.setItem('cartwise.name', JSON.stringify('Mia'))
+      // The drawn set, not the device's emoji. These screens end up in the
+      // store listing, and this machine draws Segoe UI Emoji — publishing
+      // Microsoft's artwork in our marketing is their copyright, not ours.
+      // `?stickers=emoji` overrides it for checking the emoji set on screen.
+      localStorage.setItem(
+        'cartwise.stickerStyle',
+        JSON.stringify(S.get('stickers') || 'drawn'),
+      )
       if (S.get('accent')) localStorage.setItem('cartwise.accent', JSON.stringify(S.get('accent')))
       if (S.get('texture')) localStorage.setItem('cartwise.texture', JSON.stringify(S.get('texture')))
       localStorage.setItem('cartwise.stores', JSON.stringify([

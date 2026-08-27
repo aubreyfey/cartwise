@@ -1774,6 +1774,44 @@ body::before {
   color: var(--text-muted);
 }
 
+.stickerstyles {
+  list-style: none;
+  margin: 0.15rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Each option draws its own set, so the choice is made by looking rather than
+   by reading two labels and guessing. */
+.stickerstyle {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.85rem 0.4rem;
+  border: 1.5px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface-2);
+}
+
+.stickerstyle--on {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.stickerstyle__sample {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stickerstyle__label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
 /* Each swatch previews its own pattern. */
 .texture--dots {
   background-image: radial-gradient(currentColor 1px, transparent 1px);
@@ -3322,6 +3360,34 @@ button.card:hover {
 .sticker {
   filter: drop-shadow(0 1px 1.5px rgb(40 30 60 / 0.22));
   flex-shrink: 0;
+}
+
+/* The device's own emoji. The stack is every colour emoji font a browser is
+   likely to have; the body font is deliberately not in it, so nothing here
+   can fall back to a monochrome outline glyph. */
+.sticker--emoji {
+  display: inline-grid;
+  place-items: center;
+  width: var(--sticker-size, 28px);
+  height: var(--sticker-size, 28px);
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji',
+    'Android Emoji', 'EmojiOne Color', 'Twemoji Mozilla', sans-serif;
+  /* Emoji are drawn with their own padding inside the em box, so they need
+     more of it than a vector that fills its viewBox. */
+  font-size: calc(var(--sticker-size, 28px) * 0.92);
+  line-height: 1;
+  /* They carry their own shading; the drop-shadow that gives a flat vector
+     depth just makes these look smudged. */
+  filter: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* The overlapping row on a list card sizes its stickers itself, so the glyph
+   has to be told again rather than scaling from --sticker-size. */
+.card__stickers > .sticker--emoji {
+  font-size: 0.98rem;
+  padding: 0;
 }
 
 /* A cut-out photo has no outline of its own, so stack four one-pixel white

@@ -1,14 +1,27 @@
-// Original vector stickers, drawn in the glossy style people expect from a
-// phone: a gradient body, a soft specular highlight, and a die-cut white
-// border.
+// The pictures next to items, in whichever of the two sets is switched on.
 //
-// The gradients live in one hidden <svg> mounted once (StickerDefs), so a
-// list of forty rows references them rather than repeating the definitions
-// forty times. No third-party product art or emoji font is involved anywhere.
+// "Emoji" hands the character to the platform, so an iPhone draws it with
+// Apple Color Emoji — the real thing, asked for rather than shipped. See
+// stickerStyle.js for why that is the only honest route to iOS emoji.
+//
+// "Drawn" uses the original vectors below: a gradient body, a soft specular
+// highlight and a die-cut white border, in the glossy style people expect
+// from a phone. The gradients live in one hidden <svg> mounted once
+// (StickerDefs), so a list of forty rows references them rather than
+// repeating the definitions forty times. No third-party product art or emoji
+// font is involved in that set anywhere.
+
+import { useSyncExternalStore } from 'react'
+import { emojiFor } from './stickerCatalog.js'
+import {
+  DEFAULT_STICKER_STYLE,
+  getStickerStyle,
+  subscribeToStickerStyle,
+} from './stickerStyle.js'
 
 // Names and matching live in stickerCatalog.js, which is plain JavaScript so
 // the tests can import it. Re-exported so existing imports keep working.
-export { STICKER_IDS, stickerFor } from './stickerCatalog.js'
+export { STICKER_IDS, stickerFor, STICKER_EMOJI, emojiFor } from './stickerCatalog.js'
 
 const GRADIENTS = [
   ['sYellow', '#ffe06a', '#e8a91f'],
@@ -255,7 +268,37 @@ const P = {
   ),
 }
 
-export default function Sticker({ id, size = 28, tilt = 0, className = '' }) {
+/**
+ * `variant` pins one set regardless of the setting. Only the settings preview
+ * needs it — it has to show both at once, which is the one place following
+ * the store would be wrong.
+ */
+export default function Sticker({ id, size = 28, tilt = 0, className = '', variant }) {
+  const stored = useSyncExternalStore(
+    subscribeToStickerStyle,
+    getStickerStyle,
+    () => DEFAULT_STICKER_STYLE,
+  )
+  const style = variant ?? stored
+
+  if (style === 'emoji') {
+    // Size travels as a custom property rather than a width, so the rules that
+    // resize stickers in context — the overlapping row on a list card — still
+    // win, and the glyph scales with the box instead of rattling around in it.
+    return (
+      <span
+        className={`sticker sticker--emoji ${className}`}
+        aria-hidden="true"
+        style={{
+          '--sticker-size': `${size}px`,
+          ...(tilt ? { transform: `rotate(${tilt}deg)` } : null),
+        }}
+      >
+        {emojiFor(id)}
+      </span>
+    )
+  }
+
   const art = P[id] ?? P.basket
   return (
     <svg
