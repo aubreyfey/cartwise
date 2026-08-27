@@ -128,7 +128,7 @@ export default function ExpiryScreen({
             <span className="notifycard__sub">
               {notifyState === 'denied'
                 ? 'Allow notifications for this site in your browser settings.'
-                : 'Cartwise checks when you open it and tells you what is due.'}
+                : 'CartWise checks when you open it and tells you what is due.'}
             </span>
           </span>
         </button>
@@ -142,7 +142,7 @@ export default function ExpiryScreen({
               {due} {due === 1 ? 'reminder' : 'reminders'} due
             </strong>
             <span className="notifycard__sub">
-              Shown when you open Cartwise. A web app cannot notify you while it
+              Shown when you open CartWise. A web app cannot notify you while it
               is closed.
             </span>
           </span>
@@ -266,7 +266,7 @@ export default function ExpiryScreen({
 
       {groups.length === 0 ? (
         <p className="empty">
-          Nothing tracked yet. Add what is in the fridge and Cartwise will tell
+          Nothing tracked yet. Add what is in the fridge and CartWise will tell
           you what needs eating first.
         </p>
       ) : (

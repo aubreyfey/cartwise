@@ -12,7 +12,7 @@ const when = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric'
  * Search for something to add to the list.
  *
  * What is searched is your own Vault — every product you have bought or saved,
- * with the price you actually paid. Cartwise ships no product catalogue and
+ * with the price you actually paid. CartWise ships no product catalogue and
  * this screen will not pretend otherwise: the count in the field is the size
  * of *your* catalogue, and it grows as you shop.
  *
@@ -56,7 +56,7 @@ export default function ProductSearch({
   const searching = query.trim().length > 0
   const storeName = (id) => stores.find((s) => s.id === id)?.name ?? null
 
-  // Open Food Facts, on a tap and never automatically. Cartwise ships no
+  // Open Food Facts, on a tap and never automatically. CartWise ships no
   // catalogue of its own; this is the honest alternative to inventing one.
   const [online, setOnline] = useState({ state: 'idle', results: [] })
 

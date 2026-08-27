@@ -17,7 +17,7 @@ const shortDate = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'num
  * cost that.
  *
  * The prices below the fold are every purchase you have recorded — not live
- * shelf prices. Cartwise has no retailer feed and the copy says so plainly,
+ * shelf prices. CartWise has no retailer feed and the copy says so plainly,
  * because "Gaisano ₱289.50" read as a current price would be a claim the app
  * cannot support.
  */
@@ -290,7 +290,7 @@ export default function ProductDetail({
               ))}
             </ul>
             <p className="pcompare__caveat">
-              These are prices you recorded, not live shop prices — Cartwise has
+              These are prices you recorded, not live shop prices — CartWise has
               no connection to any retailer. The date is when you last paid it.
             </p>
           </section>

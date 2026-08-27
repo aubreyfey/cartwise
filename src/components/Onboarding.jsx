@@ -117,7 +117,7 @@ export default function Onboarding({ base = '/', onFinish }) {
     return (
       <div className="onb onb--welcome">
         <h1 className="onb__brand">
-          <Icon name="cart" size={36} strokeWidth={1.9} /> Cartwise
+          <Icon name="cart" size={36} strokeWidth={1.9} /> CartWise
         </h1>
         <p className="onb__tagline">The grocery list that remembers what things cost.</p>
         <p className="onb__badge">
@@ -139,7 +139,7 @@ export default function Onboarding({ base = '/', onFinish }) {
               backgroundImage: `url(${`${base}tour/scroll.webp`.replace(/\/{2,}/g, '/')})`,
             }}
             role="img"
-            aria-label="Cartwise showing a grocery list with prices and a budget"
+            aria-label="CartWise showing a grocery list with prices and a budget"
           />
         </div>
 
@@ -160,7 +160,7 @@ export default function Onboarding({ base = '/', onFinish }) {
         <div className="onb__body">
           <h1 className="onb__title">Where was your last grocery trip?</h1>
           <p className="onb__sub">
-            Cartwise keeps prices per shop, so it can tell you where things are
+            CartWise keeps prices per shop, so it can tell you where things are
             cheaper. You can add more later.
           </p>
 
@@ -208,7 +208,7 @@ export default function Onboarding({ base = '/', onFinish }) {
       <div className="onb__body">
         <h1 className="onb__title">Got something you just bought?</h1>
         <p className="onb__sub">
-          Photograph it on a plain surface and Cartwise cuts it out into a
+          Photograph it on a plain surface and CartWise cuts it out into a
           sticker, so you recognise it on the list at a glance.
         </p>
 

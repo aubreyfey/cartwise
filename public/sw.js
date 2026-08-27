@@ -1,4 +1,4 @@
-// Offline support for Cartwise.
+// Offline support for CartWise.
 //
 // The build emits content-hashed filenames, so there's no fixed asset list to
 // precache. Instead: navigations are network-first (you get the new build the
@@ -109,9 +109,9 @@ self.addEventListener('fetch', (event) => {
 
 function offlineResponse() {
   return new Response(
-    '<!doctype html><meta charset="utf-8"><title>Cartwise — offline</title>' +
+    '<!doctype html><meta charset="utf-8"><title>CartWise — offline</title>' +
       '<body style="font-family:system-ui;padding:2rem;text-align:center">' +
-      '<h1>Offline</h1><p>Open Cartwise once while connected and it will work ' +
+      '<h1>Offline</h1><p>Open CartWise once while connected and it will work ' +
       'offline from then on.</p></body>',
     { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } },
   )

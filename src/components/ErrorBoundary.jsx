@@ -16,7 +16,7 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     // eslint-disable-next-line no-console
-    console.error('Cartwise crashed:', error, info?.componentStack)
+    console.error('CartWise crashed:', error, info?.componentStack)
   }
 
   download = () => {
@@ -44,7 +44,7 @@ export default class ErrorBoundary extends Component {
         <section className="crash">
           <h1 className="crash__title">Something broke</h1>
           <p className="crash__lead">
-            Cartwise hit an error and stopped. Your lists and prices are still
+            CartWise hit an error and stopped. Your lists and prices are still
             saved on this device — save a copy before you do anything else.
           </p>
 

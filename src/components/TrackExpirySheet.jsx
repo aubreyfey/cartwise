@@ -164,7 +164,7 @@ export default function TrackExpirySheet({
           <p className="trackx__perm">
             {notifyState === 'denied' ? (
               <>
-                Reminders are blocked for Cartwise in this browser's settings. The
+                Reminders are blocked for CartWise in this browser's settings. The
                 date is still saved and the Expiry screen still shows it.
               </>
             ) : (
@@ -176,7 +176,7 @@ export default function TrackExpirySheet({
                 >
                   Allow reminders
                 </button>{' '}
-                Cartwise checks when you open it, so a reminder needs permission.
+                CartWise checks when you open it, so a reminder needs permission.
               </>
             )}
           </p>

@@ -66,7 +66,7 @@ const SEARCH_ENDPOINT = 'https://world.openfoodfacts.org/cgi/search.pl'
 /**
  * Search Open Food Facts by name.
  *
- * Cartwise ships no product catalogue of its own, and this is the honest
+ * CartWise ships no product catalogue of its own, and this is the honest
  * alternative to inventing one: a public database, queried only when someone
  * explicitly asks. It is never automatic — the Vault is what the search screen
  * looks at by default, and this runs on a tap.

@@ -40,6 +40,7 @@ import PhotoCapture from './components/PhotoCapture.jsx'
 import TourScreen from './components/TourScreen.jsx'
 import StoreBar from './components/StoreBar.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
+import BasketCompare from './components/BasketCompare.jsx'
 import TripReceipt from './components/TripReceipt.jsx'
 import VaultPanel from './components/VaultPanel.jsx'
 import {
@@ -79,6 +80,7 @@ import {
   writeListPhotos,
 } from './listPhotos.js'
 import { addStore, compareStores, removeStore } from './stores.js'
+import { reportsFromPurchases } from './community.js'
 import { guessCategory } from './categories.js'
 import { DEFAULT_UNIT } from './units.js'
 import { readStored, removeStored, useLocalStorage } from './useLocalStorage.js'
@@ -188,6 +190,11 @@ export default function App() {
     for (const item of pantry) bump(item.category)
     return counts
   }, [carts, vault, pantry])
+  const priceReports = useMemo(
+    () => reportsFromPurchases(purchases, vault),
+    [purchases, vault],
+  )
+
   // "Aug 27 Today" while shopping, so the header says which trip this is.
   const tripDateLabel = useMemo(() => {
     const now = new Date()
@@ -960,7 +967,7 @@ export default function App() {
           <header className="app__header">
             {atHome ? (
               <span className="app__brand">
-                <Icon name="cart" size={22} strokeWidth={1.9} /> Cartwise
+                <Icon name="cart" size={22} strokeWidth={1.9} /> CartWise
               </span>
             ) : (
               <button className="backbtn" type="button" onClick={() => setView('home')}>
@@ -1265,6 +1272,8 @@ export default function App() {
             onList={names}
           />
 
+          <BasketCompare items={items} reports={priceReports} currency={currency} />
+
           <StoreCompare
             comparison={comparison}
             stores={stores}
@@ -1293,7 +1302,7 @@ export default function App() {
       <main className="app__list">
         {grouped.length === 0 ? (
           <p className="empty">
-            Nothing on this list yet. Add your first item above — Cartwise sorts
+            Nothing on this list yet. Add your first item above — CartWise sorts
             it into the right aisle and remembers the price for next time.
           </p>
         ) : (

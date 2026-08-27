@@ -1,4 +1,4 @@
-/* Cartwise — soft, rounded, card-based. Display type is a marker face; the
+/* CartWise — soft, rounded, card-based. Display type is a marker face; the
    body face is a rounded sans so numbers stay legible at small sizes. */
 
 :root {
@@ -1935,6 +1935,151 @@ textarea {
 .pdetail__track-text span {
   font-size: 0.74rem;
   color: var(--text-muted);
+}
+
+/* ---------- basket comparison ---------- */
+
+.basket {
+  margin-top: 0.6rem;
+  padding: 0.8rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+}
+
+.basket__thin {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.basket__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.basket__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.basket__store {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.basket__total {
+  margin: 0.1rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.basket__total span {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.basket__cover {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.basket__saving {
+  margin: 0.5rem 0 0;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--money-soft, var(--surface-2));
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--money);
+}
+
+.basket__saving--none {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+.basket__list {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+}
+
+.basket__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed var(--hairline);
+  font-size: 0.86rem;
+}
+
+.basket__row:last-child {
+  border-bottom: 0;
+}
+
+.basket__row--best {
+  font-weight: 700;
+  color: var(--money);
+}
+
+.basket__row--partial {
+  color: var(--text-faint);
+}
+
+.basket__rowstore {
+  flex: 1;
+  min-width: 0;
+}
+
+.basket__rowtotal {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.basket__rowmissing {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.basket__partial {
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.basket__partialhead {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.basket__caveat {
+  margin: 0.6rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--text-faint);
 }
 
 /* ---------- track expiry entry point ---------- */

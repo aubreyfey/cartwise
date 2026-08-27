@@ -1,4 +1,4 @@
-# Cartwise
+# CartWise
 
 A grocery list that groups items by aisle, remembers what things cost you, and
 keeps a running total against a budget. Everything stays on your device.

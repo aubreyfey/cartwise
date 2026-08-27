@@ -13,7 +13,7 @@ export const TOUR_PANELS = [
   {
     id: 'hero',
     image: 'appstore-01',
-    title: 'Cartwise',
+    title: 'CartWise',
     body: 'The grocery list that remembers what things cost. Works offline, no account.',
   },
   {

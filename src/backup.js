@@ -38,7 +38,7 @@ export function collectBackup(read) {
  */
 export function validateBackup(parsed) {
   if (!parsed || typeof parsed !== 'object') {
-    return { ok: false, reason: "That file isn't a Cartwise backup." }
+    return { ok: false, reason: "That file isn't a CartWise backup." }
   }
   if (parsed.app !== 'cartwise') {
     return { ok: false, reason: "That file is from a different app." }
@@ -46,7 +46,7 @@ export function validateBackup(parsed) {
   if (typeof parsed.version !== 'number' || parsed.version > BACKUP_VERSION) {
     return {
       ok: false,
-      reason: 'That backup is from a newer version of Cartwise. Update first.',
+      reason: 'That backup is from a newer version of CartWise. Update first.',
     }
   }
   if (!parsed.data || typeof parsed.data !== 'object') {

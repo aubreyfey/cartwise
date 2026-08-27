@@ -53,7 +53,7 @@ describe('backup validation', () => {
     assert.equal(validateBackup(good()).ok, true)
   })
 
-  it('rejects anything that is not a Cartwise backup', () => {
+  it('rejects anything that is not a CartWise backup', () => {
     for (const bad of [null, undefined, 42, 'text', {}, { app: 'other', version: 1, data: {} }]) {
       assert.equal(validateBackup(bad).ok, false)
     }

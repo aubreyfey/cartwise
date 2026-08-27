@@ -1,6 +1,6 @@
 // Sync is optional and off by default.
 //
-// Cartwise works completely without an account: lists, Vault, trips, expiry
+// CartWise works completely without an account: lists, Vault, trips, expiry
 // and stickers all live on the device. Signing in adds one thing — sharing a
 // list with the people you live with — and nothing else moves off the phone.
 //

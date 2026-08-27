@@ -1,4 +1,4 @@
--- Cartwise household sharing.
+-- CartWise household sharing.
 --
 -- Run this once against a fresh Supabase project (SQL Editor → New query).
 -- It is written to be re-runnable: every object is created if-not-exists or

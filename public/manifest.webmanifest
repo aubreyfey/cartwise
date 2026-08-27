@@ -1,6 +1,6 @@
 {
-  "name": "Cartwise",
-  "short_name": "Cartwise",
+  "name": "CartWise",
+  "short_name": "CartWise",
   "description": "A grocery list that groups by aisle, remembers what things cost you, and keeps a running total against a budget.",
   "start_url": ".",
   "scope": ".",

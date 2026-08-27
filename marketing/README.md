@@ -5,7 +5,7 @@ PNG, no alpha channel — App Store Connect rejects screenshots with one.
 
 | File | Headline |
 | --- | --- |
-| `appstore-01.png` | Cartwise — the grocery list that remembers what things cost |
+| `appstore-01.png` | CartWise — the grocery list that remembers what things cost |
 | `appstore-02.png` | Know the total before the till |
 | `appstore-03.png` | It remembers every price |
 | `appstore-04.png` | Which shop is actually cheaper? |

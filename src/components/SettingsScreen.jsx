@@ -146,13 +146,13 @@ export default function SettingsScreen({
       </button>
 
       <button className="tour__open" type="button" onClick={onShowTour}>
-        <Icon name="sparkle" size={17} /> What Cartwise does
+        <Icon name="sparkle" size={17} /> What CartWise does
       </button>
 
       {/* Which build this actually is. Without it, "the feature is missing"
           and "you are looking at last week's bundle" are indistinguishable. */}
       <p className="settings__build">
-        Cartwise build{' '}
+        CartWise build{' '}
         <code>{typeof __BUILD_STAMP__ === 'string' ? __BUILD_STAMP__ : 'dev'}</code>
       </p>
 
