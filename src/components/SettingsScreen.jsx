@@ -149,6 +149,13 @@ export default function SettingsScreen({
         <Icon name="sparkle" size={17} /> What Cartwise does
       </button>
 
+      {/* Which build this actually is. Without it, "the feature is missing"
+          and "you are looking at last week's bundle" are indistinguishable. */}
+      <p className="settings__build">
+        Cartwise build{' '}
+        <code>{typeof __BUILD_STAMP__ === 'string' ? __BUILD_STAMP__ : 'dev'}</code>
+      </p>
+
       <AccountPanel />
       <DataPanel onRestore={onRestore} />
     </div>

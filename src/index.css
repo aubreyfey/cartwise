@@ -1891,6 +1891,52 @@ textarea {
   color: var(--text-faint);
 }
 
+.settings__build {
+  margin: 0.9rem 0 0;
+  font-size: 0.72rem;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.settings__build code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* Track expiry, at the top of the product receipt rather than the foot of
+   a long scroll — "from the purchased item's details" has to mean where
+   you land, not where you end up. */
+.pdetail__track {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  margin-bottom: 0.6rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--primary-soft);
+  color: var(--primary);
+  text-align: left;
+}
+
+.pdetail__track-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.pdetail__track-text { flex: 1; min-width: 0; display: grid; gap: 0.05rem; }
+.pdetail__track-text strong { font-size: 0.9rem; }
+
+.pdetail__track-text span {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
 /* ---------- track expiry entry point ---------- */
 
 /* The way in, at the top of the screen someone opens when they want exactly

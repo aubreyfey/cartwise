@@ -3,6 +3,7 @@ import { formatMoney, parsePrice } from '../money.js'
 import { UNITS } from '../units.js'
 import { historyFor, priceStats, storeComparison } from '../purchases.js'
 import Sticker from '../stickers.jsx'
+import Icon from '../icons.jsx'
 
 const longDate = new Intl.DateTimeFormat(undefined, {
   year: 'numeric',
@@ -88,6 +89,19 @@ export default function ProductDetail({
             Update
           </button>
         </div>
+
+        {onTrackExpiry && (
+          <button className="pdetail__track" type="button" onClick={onTrackExpiry}>
+            <span className="pdetail__track-icon" aria-hidden="true">
+              <Icon name="calendar" size={18} />
+            </span>
+            <span className="pdetail__track-text">
+              <strong>Track expiry</strong>
+              <span>Say when this goes off and where it's kept</span>
+            </span>
+            <span aria-hidden="true">›</span>
+          </button>
+        )}
 
         <div className="receipt pdetail__receipt">
           <div className="receipt__body">
@@ -282,16 +296,9 @@ export default function ProductDetail({
           </section>
         )}
 
-        <div className="pdetail__foot">
-          {onTrackExpiry && (
-            <button className="btn btn--ghost btn--small" type="button" onClick={onTrackExpiry}>
-              Track expiry
-            </button>
-          )}
-          <button className="pdetail__delete" type="button" onClick={onDelete}>
-            Forget this product
-          </button>
-        </div>
+        <button className="pdetail__delete" type="button" onClick={onDelete}>
+          Forget this product
+        </button>
       </div>
     </div>
   )
