@@ -81,6 +81,39 @@ select {
 
 button {
   cursor: pointer;
+  /* iOS paints a grey box over anything tappable; we do our own feedback. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch feedback that reads as a press rather than a hover. Hover styles do
+   nothing useful on a phone and stick after a tap. */
+@media (hover: none) {
+  button:active,
+  .card:active,
+  .item__thumb--button:active {
+    transform: scale(0.975);
+    transition: transform 90ms ease;
+  }
+}
+
+/* Rubber-banding the whole page behind a fixed rail looks broken. */
+body {
+  overscroll-behavior-y: none;
+}
+
+/* Anything that scrolls should carry momentum on iOS. */
+.sheet,
+.receipt,
+.tour,
+.onb {
+  -webkit-overflow-scrolling: touch;
+}
+
+input,
+select,
+textarea {
+  /* Safari zooms the page when a focused field is under 16px. */
+  font-size: max(16px, 1em);
 }
 
 :focus-visible {
@@ -94,10 +127,49 @@ button {
 .app {
   max-width: 32rem;
   margin: 0 auto;
-  padding: 1rem 0.85rem 6rem;
+  /* Safe-area insets so nothing hides under the notch or the home bar. */
+  padding: calc(1rem + env(safe-area-inset-top, 0)) 0.85rem
+    calc(2.5rem + env(safe-area-inset-bottom, 0));
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  /* Each screen arrives rather than blinking into place. */
+  animation: screen-in 260ms cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app {
+    animation: none;
+  }
+}
+
+/* A section screen has no rail, so it needs no room for one. */
+.app--inner {
+  padding-left: 0.85rem;
+}
+
+.backbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.8rem 0.35rem 0.55rem;
+  margin-left: -0.35rem;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.backbtn__chevron {
+  font-size: 1.5rem;
+  line-height: 0.7;
+  font-weight: 400;
 }
 
 .app__header {
@@ -1117,8 +1189,11 @@ button {
 
 /* Room for the rail, so nothing sits under it. */
 .app--tabbed {
-  padding-left: 3rem;
-  padding-bottom: 2rem;
+  padding-left: calc(3rem + env(safe-area-inset-left, 0));
+}
+
+.rail {
+  padding-left: env(safe-area-inset-left, 0);
 }
 
 @media (max-width: 26rem) {
@@ -1485,43 +1560,63 @@ button {
 
 /* ---------- appearance ---------- */
 
-/* Textures are gradients painted behind the whole app: no image to download,
-   no tile to cache, and they scale to any screen. */
-:root[data-texture='dots'] body {
-  background-image: radial-gradient(currentColor 1px, transparent 1px);
-  background-size: 18px 18px;
-  color: color-mix(in srgb, var(--text) 8%, transparent);
+/* Textures are gradients, so there is no image to download and they stay
+   crisp at any resolution.
+ *
+ * Painted on a fixed pseudo-element rather than on `body` itself. The first
+ * version set `color` on body so the gradients could use `currentColor` —
+ * which also drained the colour out of every piece of text that inherited
+ * it. Here the tint is local to the layer that draws the pattern.
+ *
+ * The layer sits above the page background and below the content, so it
+ * shows through the gutters and the gaps between cards without ever getting
+ * behind text. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* The ink the patterns are drawn in. Strong enough to actually see — the
+     first attempt used 4-6%, which was invisible on a phone — but not so
+     strong that it competes with the content sitting on top of it. */
+  color: color-mix(in srgb, var(--text) 11%, transparent);
 }
 
-:root[data-texture='grid'] body {
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px);
-  background-size: 22px 22px;
+/* Only the page content needs lifting above the texture layer. The rail and
+   the overlays are already positioned with their own stacking order, and
+   restating `position` here would flatten them into the document — which is
+   exactly what sent the rail to the bottom of the page. */
+.app {
+  position: relative;
+  z-index: 1;
 }
 
-:root[data-texture='paper'] body {
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      color-mix(in srgb, var(--text) 4%, transparent) 0 1px,
-      transparent 1px 4px
-    );
+:root[data-texture='dots'] body::before {
+  background-image: radial-gradient(currentColor 1.2px, transparent 1.2px);
+  background-size: 16px 16px;
 }
 
-:root[data-texture='weave'] body {
+:root[data-texture='grid'] body::before {
   background-image:
-    repeating-linear-gradient(45deg, color-mix(in srgb, var(--text) 4%, transparent) 0 2px, transparent 2px 7px),
-    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--text) 4%, transparent) 0 2px, transparent 2px 7px);
+    linear-gradient(currentColor 1px, transparent 1px),
+    linear-gradient(90deg, currentColor 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
-:root[data-texture='stripe'] body {
+:root[data-texture='paper'] body::before {
+  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 5px);
+}
+
+:root[data-texture='weave'] body::before {
   background-image:
-    repeating-linear-gradient(
-      -45deg,
-      color-mix(in srgb, var(--text) 4%, transparent) 0 6px,
-      transparent 6px 16px
-    );
+    repeating-linear-gradient(45deg, currentColor 0 1.5px, transparent 1.5px 8px),
+    repeating-linear-gradient(-45deg, currentColor 0 1.5px, transparent 1.5px 8px);
+}
+
+:root[data-texture='stripe'] body::before {
+  background-image:
+    repeating-linear-gradient(-45deg, currentColor 0 5px, transparent 5px 15px);
 }
 
 .accents,
@@ -2232,11 +2327,13 @@ button {
   border-color: var(--primary);
 }
 
+/* Large title, the way a system app opens a section. */
 .screen-head__title {
   font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-size: clamp(1.9rem, 8vw, 2.4rem);
   font-weight: 400;
   margin: 0;
+  line-height: 1.1;
 }
 
 .greeting {

@@ -19,7 +19,14 @@ import SplitShop from './components/SplitShop.jsx'
 import { prunePast } from './mealplan.js'
 import { splitShop } from './stores.js'
 import { addRecipe, removeRecipe, updateRecipe } from './recipes.js'
-import { applyTheme, loadAccent, loadTexture, saveAccent, saveTexture } from './theme.js'
+import {
+  applyTheme,
+  loadAccent,
+  loadTexture,
+  saveAccent,
+  saveTexture,
+  watchColorScheme,
+} from './theme.js'
 import SettingsScreen from './components/SettingsScreen.jsx'
 import PhotoCapture from './components/PhotoCapture.jsx'
 import TourScreen from './components/TourScreen.jsx'
@@ -88,8 +95,11 @@ export default function App() {
   const [texture, setTexture] = useState(loadTexture)
 
   // Applied to the root element, so changing it repaints without re-rendering.
+  // Re-applied when the system flips to dark, since the soft accent variant is
+  // chosen in JavaScript and CSS cannot pick it for us.
   useEffect(() => {
     applyTheme(accent, texture)
+    return watchColorScheme(() => applyTheme(accent, texture))
   }, [accent, texture])
   const [sortMode, setSortMode] = useLocalStorage('cartwise.sort', 'aisle')
   const [mode, setMode] = useState('planning')
@@ -568,19 +578,38 @@ export default function App() {
     return <TourScreen onDone={closeTour} />
   }
 
-  const chrome = (children) => (
-    <>
-      <div className="app app--tabbed">
-        <header className="app__header">
-          <span className="app__brand">
-            <Icon name="cart" size={22} strokeWidth={1.9} /> Cartwise
-          </span>
-        </header>
-        {children}
-      </div>
-      <NavBar view={view} onNavigate={setView} alerts={needsAttention(pantry)} />
-    </>
-  )
+  /**
+   * The rail belongs to Home. Anywhere else it is replaced by a single Back
+   * control, so a section screen is the section and nothing else — and there
+   * is only ever one way out of it.
+   */
+  const chrome = (children) => {
+    const atHome = view === 'home'
+    return (
+      <>
+        <div className={`app ${atHome ? 'app--tabbed' : 'app--inner'}`} key={view}>
+          <header className="app__header">
+            {atHome ? (
+              <span className="app__brand">
+                <Icon name="cart" size={22} strokeWidth={1.9} /> Cartwise
+              </span>
+            ) : (
+              <button className="backbtn" type="button" onClick={() => setView('home')}>
+                <span className="backbtn__chevron" aria-hidden="true">
+                  ‹
+                </span>
+                Home
+              </button>
+            )}
+          </header>
+          {children}
+        </div>
+        {atHome && (
+          <NavBar view={view} onNavigate={setView} alerts={needsAttention(pantry)} />
+        )}
+      </>
+    )
+  }
 
   if (view === 'expiry') {
     return chrome(
@@ -682,8 +711,11 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <button className="screen-head__back" type="button" onClick={() => setView('home')}>
-          ‹ Home
+        <button className="backbtn" type="button" onClick={() => setView('home')}>
+          <span className="backbtn__chevron" aria-hidden="true">
+            ‹
+          </span>
+          Home
         </button>
         <span className="app__breadcrumb">
           {mode === 'planning' ? 'Planning' : 'Shopping'}

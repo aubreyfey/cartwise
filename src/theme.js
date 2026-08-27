@@ -55,19 +55,37 @@ export const loadTexture = () => textureOf(read(TEXTURE_KEY, DEFAULT_TEXTURE))
  * Apply to the document. Called on load and on every change; setting a custom
  * property is cheap and avoids re-rendering the tree just to repaint a colour.
  */
+const prefersDark = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(prefers-color-scheme: dark)').matches
+
 export function applyTheme(accentId, textureId) {
   if (typeof document === 'undefined') return
   const accent = ACCENT_BY_ID[accentOf(accentId)]
   const root = document.documentElement
 
   root.style.setProperty('--primary', accent.color)
-  root.style.setProperty('--primary-soft', accent.soft)
-  root.style.setProperty('--primary-soft-dark', accent.softDark)
+  // An inline custom property beats the stylesheet's dark-mode block, so the
+  // right variant has to be chosen here. Setting the light one unconditionally
+  // put pale lilac panels on a dark background.
+  root.style.setProperty('--primary-soft', prefersDark() ? accent.softDark : accent.soft)
   root.dataset.texture = textureOf(textureId)
 
   // Keep the browser chrome in step with the app.
   const meta = document.querySelector('meta[name="theme-color"]')
   if (meta) meta.setAttribute('content', accent.color)
+}
+
+/**
+ * Re-apply when the system flips between light and dark, since the soft
+ * variant is resolved in JavaScript and CSS cannot do it for us.
+ */
+export function watchColorScheme(onChange) {
+  if (typeof window === 'undefined' || !window.matchMedia) return () => {}
+  const query = window.matchMedia('(prefers-color-scheme: dark)')
+  const handler = () => onChange()
+  query.addEventListener('change', handler)
+  return () => query.removeEventListener('change', handler)
 }
 
 export function saveAccent(id) {
