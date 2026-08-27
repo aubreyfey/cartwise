@@ -206,3 +206,75 @@ export function byPopularity(vault) {
     (a, b) => b.timesUsed - a.timesUsed || a.name.localeCompare(b.name),
   )
 }
+
+/**
+ * Which aisle a price came from, so a row can say so.
+ *
+ * priceFor falls back to the last price paid anywhere when the item has never
+ * been priced at the shop you are in. That fallback is the right number to
+ * show, but presenting it as this shop's price would be a lie — the row needs
+ * to be able to mark it.
+ */
+export function priceSource(vaultItem, storeId) {
+  if (!vaultItem) return null
+  if (storeId && isKnownPrice(vaultItem.prices?.[storeId])) return storeId
+  return isKnownPrice(vaultItem.price) ? 'anywhere' : null
+}
+
+/**
+ * Search the Vault the way someone standing in a shop would: by what the thing
+ * is called, or the brand on the packet, narrowed to one aisle if they have
+ * tapped one.
+ *
+ * Ranked rather than filtered alphabetically — typing "mil" should offer Milk
+ * before Buttermilk, and the thing you buy every week before the thing you
+ * bought once.
+ */
+export function searchVault(vault, { query = '', category = null } = {}) {
+  const q = key(String(query ?? ''))
+  const inAisle = category ? vault.filter((v) => v.category === category) : [...vault]
+
+  if (!q) return byPopularity(inAisle)
+
+  return inAisle
+    .map((item) => {
+      const name = key(item.name ?? '')
+      const brand = key(item.brand ?? '')
+
+      let rank
+      if (name.startsWith(q)) rank = 0
+      // A word boundary inside the name: "cheese" should find "Cheddar Cheese"
+      // ahead of anything that merely contains the letters.
+      else if (name.includes(` ${q}`)) rank = 1
+      else if (name.includes(q)) rank = 2
+      else if (brand.startsWith(q) || brand.includes(` ${q}`)) rank = 3
+      else if (brand.includes(q)) rank = 4
+      else return null
+
+      return { item, rank }
+    })
+    .filter(Boolean)
+    .sort(
+      (a, b) =>
+        a.rank - b.rank ||
+        (b.item.timesUsed ?? 0) - (a.item.timesUsed ?? 0) ||
+        String(a.item.name).localeCompare(String(b.item.name)),
+    )
+    .map((s) => s.item)
+}
+
+/**
+ * The aisles the Vault actually has something in, with counts, in shop-walk
+ * order. An aisle you have never bought from is not a filter worth offering.
+ */
+export function vaultCategories(vault, order) {
+  const counts = new Map()
+  for (const item of vault) {
+    const id = item.category ?? 'other'
+    counts.set(id, (counts.get(id) ?? 0) + 1)
+  }
+  const ids = Array.isArray(order) && order.length ? order : [...counts.keys()]
+  return ids
+    .filter((id) => counts.has(id))
+    .map((id) => ({ id, count: counts.get(id) }))
+}

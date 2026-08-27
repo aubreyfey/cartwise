@@ -1891,6 +1891,218 @@ textarea {
   color: var(--text-faint);
 }
 
+/* ---------- vault search ---------- */
+
+.vault__search {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.7rem;
+  margin-bottom: 0.5rem;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--text-faint);
+}
+
+.vault__search:focus-within {
+  border-color: var(--primary);
+}
+
+.vault__search-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.vault__search-input:focus {
+  outline: none;
+}
+
+/* Safari draws its own clear button on type=search, and we have one. */
+.vault__search-input::-webkit-search-decoration,
+.vault__search-input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.vault__clear {
+  flex-shrink: 0;
+  width: 1.3rem;
+  height: 1.3rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--border);
+  font-size: 0.85rem;
+  line-height: 1;
+  color: var(--surface);
+}
+
+/* A strip of aisles you have actually bought from, scrolled sideways. */
+.vault__aisles {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0 0 0.25rem;
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.vault__aisles::-webkit-scrollbar {
+  display: none;
+}
+
+.vaisle {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.vaisle__tile {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 2px solid transparent;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.vaisle--on .vaisle__tile {
+  border-color: var(--text);
+}
+
+.vaisle__count {
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+
+.vaisle--on .vaisle__count {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Each aisle's tile takes a wash of its own, so the strip is scannable by
+   colour before it is readable by picture. */
+.vaisle__tile--produce { background: color-mix(in srgb, #4f9c3f 13%, var(--surface-2)); }
+.vaisle__tile--bakery { background: color-mix(in srgb, #d9a35d 16%, var(--surface-2)); }
+.vaisle__tile--meat { background: color-mix(in srgb, #dd6b5b 14%, var(--surface-2)); }
+.vaisle__tile--dairy { background: color-mix(in srgb, #f2c14e 16%, var(--surface-2)); }
+.vaisle__tile--frozen { background: color-mix(in srgb, #8ecbe8 18%, var(--surface-2)); }
+.vaisle__tile--pantry { background: color-mix(in srgb, #c3ccd6 20%, var(--surface-2)); }
+.vaisle__tile--snacks { background: color-mix(in srgb, #d2a05c 16%, var(--surface-2)); }
+.vaisle__tile--drinks { background: color-mix(in srgb, #7fb4ec 16%, var(--surface-2)); }
+.vaisle__tile--household { background: color-mix(in srgb, #b49ce0 16%, var(--surface-2)); }
+.vaisle__tile--other { background: var(--surface-2); }
+
+.vault__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 19rem;
+  overflow-y: auto;
+}
+
+.vrow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed var(--hairline);
+}
+
+.vrow:last-child {
+  border-bottom: 0;
+}
+
+.vrow--added {
+  opacity: 0.5;
+}
+
+.vrow__thumb {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  border-radius: 9px;
+}
+
+.vrow__text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.05rem;
+}
+
+.vrow__name {
+  font-size: 0.88rem;
+  line-height: 1.3;
+}
+
+.vrow__brand {
+  color: var(--text-muted);
+}
+
+.vrow__size {
+  color: var(--text-faint);
+}
+
+.vrow__price {
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.vrow__elsewhere,
+.vrow__store {
+  color: var(--text-faint);
+  font-variant-numeric: normal;
+}
+
+.vrow__unpriced {
+  color: var(--warn, var(--text-faint));
+}
+
+.vrow__add,
+.vrow__remove {
+  flex-shrink: 0;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.vrow__add:disabled {
+  border-color: transparent;
+  background: none;
+  color: var(--money);
+}
+
+.vault__empty {
+  margin: 0.4rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 /* ---------- sort bar and aisle order ---------- */
 
 .sortbar {

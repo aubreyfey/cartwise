@@ -952,6 +952,8 @@ export default function App() {
 
           <VaultPanel
             vault={vault}
+            stores={stores}
+            aisleOrder={aisleOrder}
             activeStoreId={activeStoreId}
             onQuickAdd={quickAddFromVault}
             onRemove={(id) => setVault((prev) => removeVaultItem(prev, id))}

@@ -1,26 +1,44 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CATEGORY_BY_ID } from '../categories.js'
 import { formatMoney } from '../money.js'
-import { byPopularity, priceFor } from '../vault.js'
+import { priceFor, priceSource, searchVault, vaultCategories } from '../vault.js'
 import Sticker from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
+/**
+ * Everything you have bought before, searchable.
+ *
+ * Rows rather than the chip cloud this used to be: once the Vault is a few
+ * dozen items, a wall of chips is something you scan rather than read, and it
+ * has nowhere to put the price, the unit or the size — which are the whole
+ * reason to add from here rather than typing the name again.
+ */
 export default function VaultPanel({
   vault,
+  stores = [],
   activeStoreId,
+  aisleOrder,
   onQuickAdd,
   onRemove,
   onList,
 }) {
   const [open, setOpen] = useState(false)
   const [managing, setManaging] = useState(false)
+  const [query, setQuery] = useState('')
+  const [category, setCategory] = useState(null)
+
+  const aisles = useMemo(() => vaultCategories(vault, aisleOrder), [vault, aisleOrder])
+  const results = useMemo(
+    () => searchVault(vault, { query, category }),
+    [vault, query, category],
+  )
 
   if (vault.length === 0) return null
 
-  const items = byPopularity(vault)
-  // Names already on the list — their chips show as added rather than
-  // inviting a second tap.
+  // Names already on the list — their rows show as added rather than inviting
+  // a second tap.
   const onListNames = new Set(onList.map((n) => n.toLowerCase()))
+  const storeName = (id) => stores.find((s) => s.id === id)?.name ?? null
 
   return (
     <section className="vault">
@@ -41,55 +59,140 @@ export default function VaultPanel({
 
       {open && (
         <div className="vault__body">
-          <p className="vault__hint">
-            Everything you've bought before, with the last price you paid. Tap
-            to add it to the list.
-          </p>
+          <div className="vault__search">
+            <Icon name="search" size={16} />
+            <input
+              className="vault__search-input"
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={`Search ${vault.length} ${vault.length === 1 ? 'item' : 'items'} in your Vault`}
+              aria-label="Search your Vault"
+              autoComplete="off"
+            />
+            {query && (
+              <button
+                className="vault__clear"
+                type="button"
+                onClick={() => setQuery('')}
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            )}
+          </div>
 
-          <ul className="vault__chips">
-            {items.map((item) => {
-              const added = onListNames.has(item.name.toLowerCase())
-              const price = priceFor(item, activeStoreId)
-              return (
-                <li key={item.id}>
-                  <span className={`chip ${added ? 'chip--added' : ''}`}>
+          {aisles.length > 1 && (
+            <ul className="vault__aisles">
+              <li>
+                <button
+                  type="button"
+                  className={`vaisle ${category === null ? 'vaisle--on' : ''}`}
+                  onClick={() => setCategory(null)}
+                  aria-pressed={category === null}
+                >
+                  <span className="vaisle__tile vaisle__tile--all">All</span>
+                  <span className="vaisle__count">{vault.length}</span>
+                </button>
+              </li>
+              {aisles.map(({ id, count }) => {
+                const cat = CATEGORY_BY_ID[id] ?? CATEGORY_BY_ID.other
+                return (
+                  <li key={id}>
                     <button
-                      className="chip__add"
                       type="button"
-                      onClick={() => onQuickAdd(item)}
-                      disabled={added}
-                      title={
-                        added
-                          ? `${item.name} is already on the list`
-                          : `Add ${item.name}`
-                      }
+                      className={`vaisle ${category === id ? 'vaisle--on' : ''}`}
+                      onClick={() => setCategory(category === id ? null : id)}
+                      aria-pressed={category === id}
+                      title={cat.label}
                     >
-                      <Sticker
-                        id={(CATEGORY_BY_ID[item.category] ?? CATEGORY_BY_ID.other).sticker}
-                        size={15}
-                        className="chip__icon"
-                      />
-                      <span className="chip__name">{item.name}</span>
-                      {price > 0 && (
-                        <span className="chip__price">{formatMoney(price)}</span>
-                      )}
+                      <span className={`vaisle__tile vaisle__tile--${id}`}>
+                        <Sticker id={cat.sticker} size={22} />
+                      </span>
+                      <span className="vaisle__count">{count}</span>
+                      <span className="sr-only">{cat.label}</span>
                     </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
 
-                    {managing && (
+          {results.length === 0 ? (
+            <p className="vault__empty">
+              Nothing in your Vault matches “{query}”
+              {category && ' in this aisle'}.
+            </p>
+          ) : (
+            <ul className="vault__rows">
+              {results.map((item) => {
+                const added = onListNames.has(item.name.toLowerCase())
+                const price = priceFor(item, activeStoreId)
+                const source = priceSource(item, activeStoreId)
+                const cat = CATEGORY_BY_ID[item.category] ?? CATEGORY_BY_ID.other
+                const from = source && source !== 'anywhere' ? storeName(source) : null
+
+                return (
+                  <li className={`vrow ${added ? 'vrow--added' : ''}`} key={item.id}>
+                    <span className="vrow__thumb" aria-hidden="true">
+                      <Sticker id={cat.sticker} size={20} />
+                    </span>
+
+                    <span className="vrow__text">
+                      <span className="vrow__name">
+                        {item.brand && <span className="vrow__brand">{item.brand} </span>}
+                        {item.name}
+                        {item.packageSize && (
+                          <span className="vrow__size"> ({item.packageSize})</span>
+                        )}
+                      </span>
+                      <span className="vrow__price">
+                        {price > 0 ? (
+                          <>
+                            {formatMoney(price)} / {item.unit ?? 'pc'}
+                            {/* The price we have is from somewhere else, so say
+                                so rather than passing it off as this shop's. */}
+                            {activeStoreId && source === 'anywhere' && (
+                              <span className="vrow__elsewhere"> · last paid elsewhere</span>
+                            )}
+                            {!activeStoreId && from && (
+                              <span className="vrow__store"> · {from}</span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="vrow__unpriced">No price yet</span>
+                        )}
+                      </span>
+                    </span>
+
+                    {managing ? (
                       <button
-                        className="chip__remove"
+                        className="vrow__remove"
                         type="button"
                         onClick={() => onRemove(item.id)}
                         aria-label={`Forget ${item.name}`}
                       >
                         ×
                       </button>
+                    ) : (
+                      <button
+                        className="vrow__add"
+                        type="button"
+                        onClick={() => onQuickAdd(item)}
+                        disabled={added}
+                        aria-label={
+                          added ? `${item.name} is already on the list` : `Add ${item.name}`
+                        }
+                        title={added ? 'Already on the list' : 'Add to the list'}
+                      >
+                        {added ? '✓' : '+'}
+                      </button>
                     )}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
 
           <button
             className="btn btn--ghost vault__manage"
