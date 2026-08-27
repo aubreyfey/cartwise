@@ -33,6 +33,9 @@ export default function SettingsScreen({
   onRestore,
   onShowTour,
   onOpenCategories,
+  contributing,
+  onContributingChange,
+  syncReady,
 }) {
   return (
     <div className="settings">
@@ -148,6 +151,27 @@ export default function SettingsScreen({
       <button className="tour__open" type="button" onClick={onShowTour}>
         <Icon name="sparkle" size={17} /> What CartWise does
       </button>
+
+      <section className="setting">
+        <span className="setting__label">Community prices</span>
+        <span className="setting__hint">
+          {syncReady
+            ? "Share the prices you confirm, with no name, no account and no list attached — just the product, the shop and the day. It helps other CartWise shoppers see what things cost, and their reports help you."
+            : "Not switched on for this build. CartWise has no price server configured, so nothing can be shared or received — the comparison uses only prices you have recorded yourself."}
+        </span>
+        <label className="look__toggle contribute">
+          <span className="look__toggle-label">
+            {contributing ? 'Contributing' : 'Not contributing'}
+          </span>
+          <input
+            type="checkbox"
+            checked={Boolean(contributing) && syncReady}
+            disabled={!syncReady}
+            onChange={(e) => onContributingChange(e.target.checked)}
+          />
+          <span className="look__switch" aria-hidden="true" />
+        </label>
+      </section>
 
       {/* Which build this actually is. Without it, "the feature is missing"
           and "you are looking at last week's bundle" are indistinguishable. */}

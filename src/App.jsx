@@ -80,7 +80,13 @@ import {
   writeListPhotos,
 } from './listPhotos.js'
 import { addStore, compareStores, removeStore } from './stores.js'
-import { reportsFromPurchases } from './community.js'
+import { productKey, reportsFromPurchases } from './community.js'
+import {
+  CONTRIBUTE_KEY,
+  fetchCommunityPrices,
+  publishTripPrices,
+} from './sync/prices.js'
+import { syncAvailable } from './sync/config.js'
 import { guessCategory } from './categories.js'
 import { DEFAULT_UNIT } from './units.js'
 import { readStored, removeStored, useLocalStorage } from './useLocalStorage.js'
@@ -190,10 +196,21 @@ export default function App() {
     for (const item of pantry) bump(item.category)
     return counts
   }, [carts, vault, pantry])
-  const priceReports = useMemo(
+  // Opt-in, off by default. A price leaving the device is the one thing here
+  // that is not purely local, so it happens because someone said yes.
+  const [contributing, setContributing] = useLocalStorage(CONTRIBUTE_KEY, false)
+  // What other shoppers have reported. Empty until a backend is configured.
+  const [communityPrices, setCommunityPrices] = useState([])
+
+  const ownReports = useMemo(
     () => reportsFromPurchases(purchases, vault),
     [purchases, vault],
   )
+  const priceReports = useMemo(
+    () => [...ownReports, ...communityPrices],
+    [ownReports, communityPrices],
+  )
+
 
   // "Aug 27 Today" while shopping, so the header says which trip this is.
   const tripDateLabel = useMemo(() => {
@@ -389,6 +406,21 @@ export default function App() {
   const activeCart = findCart(carts, activeCartId) ?? carts[0]
   const activeStoreId = activeCart?.storeId ?? null
   const items = useMemo(() => activeCart?.items ?? [], [activeCart])
+
+  // Ask the pool about the things on this list. No-ops entirely when Supabase
+  // is not configured, so an unconfigured build makes no requests at all.
+  useEffect(() => {
+    if (!syncAvailable() || items.length === 0) return undefined
+    let cancelled = false
+    const keys = items.map((i) => productKey(i)?.key).filter(Boolean)
+    fetchCommunityPrices(keys).then((rows) => {
+      if (!cancelled) setCommunityPrices(rows)
+    })
+    return () => {
+      cancelled = true
+    }
+    // Keyed on what is actually asked for, not the array identity.
+  }, [items.map((i) => i.name).join('|')])
 
   const { listTotal, unpriced, cartTotal, checkedCount, grouped, names } = useMemo(() => {
     const { total: listTotal, unpriced } = sumLines(items)
@@ -797,6 +829,9 @@ export default function App() {
     // The Vault already knows the latest price; this is the record of every
     // price, which is what a history can be drawn from.
     setPurchases((prev) => recordTripPurchases(prev, pendingTrip, vault))
+    // Fire and forget: a failed contribution must never interrupt finishing a
+    // shop, and publishTripPrices reports rather than throws.
+    publishTripPrices(pendingTrip, vault, { currency })
 
     if (toTrack.length > 0) {
       setPantry((prev) =>
@@ -1074,6 +1109,9 @@ export default function App() {
         onRestore={restoreBackup}
         onShowTour={() => setShowTour(true)}
         onOpenCategories={() => setView('categories')}
+        contributing={contributing}
+        onContributingChange={setContributing}
+        syncReady={syncAvailable()}
       />,
     )
   }
