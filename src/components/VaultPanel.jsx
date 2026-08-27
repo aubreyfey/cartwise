@@ -196,9 +196,11 @@ export default function VaultPanel({
 
                     {/* Perishables get the fridge button inline; anything can
                         still be tracked from the product receipt. */}
-                    {!managing && onTrackExpiry && isPerishable(item.category) && (
+                    {!managing && onTrackExpiry && (
                       <button
-                        className="vrow__track"
+                        className={`vrow__track ${
+                          isPerishable(item.category) ? 'vrow__track--likely' : ''
+                        }`}
                         type="button"
                         onClick={() => onTrackExpiry(item)}
                         aria-label={`Track expiry for ${item.name}`}

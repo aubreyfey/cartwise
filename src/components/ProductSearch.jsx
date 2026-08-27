@@ -29,6 +29,7 @@ export default function ProductSearch({
   onScan,
   onManual,
   onOpenVault,
+  purpose = 'list',
   onClose,
 }) {
   const [query, setQuery] = useState('')
@@ -84,6 +85,11 @@ export default function ProductSearch({
         onMouseDown={(e) => e.stopPropagation()}
       >
         <span className="psearch__grip" aria-hidden="true" />
+        {purpose === 'expiry' && (
+          <p className="psearch__purpose">
+            Pick something to track the expiry of
+          </p>
+        )}
 
         <div className="psearch__field">
           <Icon name="search" size={18} />

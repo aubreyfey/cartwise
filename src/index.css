@@ -1891,6 +1891,71 @@ textarea {
   color: var(--text-faint);
 }
 
+/* ---------- track expiry entry point ---------- */
+
+/* The way in, at the top of the screen someone opens when they want exactly
+   this. It was previously reachable only through a small icon inside a
+   collapsed panel, which is the same as not being there. */
+.trackcta {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  margin-bottom: 0.7rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--primary-soft);
+  text-align: left;
+}
+
+.trackcta__icon {
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--primary);
+}
+
+.trackcta__text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.trackcta__text strong { font-size: 0.95rem; }
+
+.trackcta__text span {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+.trackcta__chevron {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+.psearch__purpose {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* A perishable is the likely case, so it leads; everything else can still
+   be tracked, just more quietly. */
+.vrow__track--likely {
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  color: var(--primary);
+}
+
 /* ---------- buying sheet ---------- */
 
 .buying {

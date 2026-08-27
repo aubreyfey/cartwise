@@ -41,6 +41,7 @@ export default function ExpiryScreen({
   onResolve,
   onUpdate,
   onPhoto,
+  onTrackPurchased,
 }) {
   const [name, setName] = useState('')
   const [qty, setQty] = useState('1')
@@ -99,6 +100,21 @@ export default function ExpiryScreen({
           ))}
         </div>
       </header>
+
+      {onTrackPurchased && (
+        <button className="trackcta" type="button" onClick={onTrackPurchased}>
+          <span className="trackcta__icon" aria-hidden="true">
+            <Icon name="calendar" size={20} />
+          </span>
+          <span className="trackcta__text">
+            <strong>Track item expiry</strong>
+            <span>Pick something you've bought and say when it goes off</span>
+          </span>
+          <span className="trackcta__chevron" aria-hidden="true">
+            ›
+          </span>
+        </button>
+      )}
 
       {notifyState !== 'granted' && pantry.length > 0 && (
         <button className="notifycard" type="button" onClick={onEnableNotifications}>

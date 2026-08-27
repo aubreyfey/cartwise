@@ -227,6 +227,9 @@ export default function App() {
   // The item being confirmed at the shelf, and the product being put away.
   const [buying, setBuying] = useState(null)
   const [trackTarget, setTrackTarget] = useState(null)
+  // Search is reused as the product picker for expiry tracking; this says
+  // which of the two jobs it is doing.
+  const [searchFor, setSearchFor] = useState('list')
   // Lifted out of AddItemForm and VaultPanel so the search sheet's buttons can
   // actually open them. Both components still manage themselves by default.
   const [scanRequested, setScanRequested] = useState(false)
@@ -538,8 +541,12 @@ export default function App() {
 
   /** Add from search, then close — the point of searching was to add it. */
   function addFromSearch(vaultItem) {
-    quickAddFromVault(vaultItem)
     setSearching(false)
+    if (searchFor === 'expiry') {
+      setTrackTarget(vaultItem)
+      return
+    }
+    quickAddFromVault(vaultItem)
   }
 
   /**
@@ -871,6 +878,80 @@ export default function App() {
     </div>
   )
 
+  /**
+   * Sheets that any screen can raise. They used to live inside the list view's
+   * JSX, which meant the Expiry screen could set `searching` and have nothing
+   * appear — the flag was fine, the component was simply not mounted.
+   */
+  const overlays = () => (
+    <>
+    {searching && (
+      <ProductSearch
+        vault={vault}
+        purchases={purchases}
+        stores={stores}
+        activeStoreId={activeStoreId}
+        categoryFor={categoryFor}
+        purpose={searchFor}
+        onAdd={addFromSearch}
+        onScan={() => {
+          setSearching(false)
+          setScanRequested(true)
+        }}
+        onManual={manualFromSearch}
+        onOpenVault={() => {
+          setSearching(false)
+          setVaultOpen(true)
+        }}
+        onClose={() => setSearching(false)}
+      />
+    )}
+
+    {whyVault && <VaultWhySheet onClose={() => setWhyVault(false)} />}
+
+    {buying && (
+      <BuyingSheet
+        item={buying}
+        stores={stores}
+        activeStoreId={activeStoreId}
+        categoryFor={categoryFor}
+        onConfirm={confirmBuying}
+        onCancel={() => setBuying(null)}
+      />
+    )}
+
+    {trackTarget && (
+      <TrackExpirySheet
+        product={trackTarget}
+        storeName={activeStore?.name ?? null}
+        categoryFor={categoryFor}
+        notifyState={notifyState}
+        onEnableNotifications={enableNotifications}
+        onAdd={trackExpiry}
+        onCancel={() => setTrackTarget(null)}
+      />
+    )}
+
+    {detailId && vault.find((v) => v.id === detailId) && (
+      <ProductDetail
+        item={vault.find((v) => v.id === detailId)}
+        purchases={purchases}
+        stores={stores}
+        categories={categories}
+        onSave={(patch) => saveProduct(detailId, patch)}
+        onTrackExpiry={() => {
+          const product = vault.find((v) => v.id === detailId)
+          setDetailId(null)
+          setTrackTarget(product)
+        }}
+        onDelete={() => forgetProduct(detailId)}
+        onClose={() => setDetailId(null)}
+      />
+    )}
+
+    </>
+  )
+
   const chrome = (children) => {
     const atHome = view === 'home'
     return (
@@ -897,6 +978,7 @@ export default function App() {
         {atHome && (
           <NavBar view={view} onNavigate={setView} alerts={needsAttention(pantry)} />
         )}
+        {overlays()}
       </>
     )
   }
@@ -914,6 +996,10 @@ export default function App() {
         onResolve={(id, status) => setPantry((prev) => resolvePantryItem(prev, id, status))}
         onUpdate={(id, patch) => setPantry((prev) => updatePantryItem(prev, id, patch))}
         onPhoto={(name, category) => setPhotoTarget({ name, category })}
+        onTrackPurchased={() => {
+          setSearchFor('expiry')
+          setSearching(true)
+        }}
       />,
     )
   }
@@ -1077,7 +1163,10 @@ export default function App() {
           <button
             className="searchbtn"
             type="button"
-            onClick={() => setSearching(true)}
+            onClick={() => {
+              setSearchFor('list')
+              setSearching(true)
+            }}
             aria-label="Search for a product"
             title="Search for a product to add"
           >
@@ -1294,68 +1383,7 @@ export default function App() {
         />
       )}
 
-      {searching && (
-        <ProductSearch
-          vault={vault}
-          purchases={purchases}
-          stores={stores}
-          activeStoreId={activeStoreId}
-          categoryFor={categoryFor}
-          onAdd={addFromSearch}
-          onScan={() => {
-            setSearching(false)
-            setScanRequested(true)
-          }}
-          onManual={manualFromSearch}
-          onOpenVault={() => {
-            setSearching(false)
-            setVaultOpen(true)
-          }}
-          onClose={() => setSearching(false)}
-        />
-      )}
-
-      {whyVault && <VaultWhySheet onClose={() => setWhyVault(false)} />}
-
-      {buying && (
-        <BuyingSheet
-          item={buying}
-          stores={stores}
-          activeStoreId={activeStoreId}
-          categoryFor={categoryFor}
-          onConfirm={confirmBuying}
-          onCancel={() => setBuying(null)}
-        />
-      )}
-
-      {trackTarget && (
-        <TrackExpirySheet
-          product={trackTarget}
-          storeName={activeStore?.name ?? null}
-          categoryFor={categoryFor}
-          notifyState={notifyState}
-          onEnableNotifications={enableNotifications}
-          onAdd={trackExpiry}
-          onCancel={() => setTrackTarget(null)}
-        />
-      )}
-
-      {detailId && vault.find((v) => v.id === detailId) && (
-        <ProductDetail
-          item={vault.find((v) => v.id === detailId)}
-          purchases={purchases}
-          stores={stores}
-          categories={categories}
-          onSave={(patch) => saveProduct(detailId, patch)}
-          onTrackExpiry={() => {
-            const product = vault.find((v) => v.id === detailId)
-            setDetailId(null)
-            setTrackTarget(product)
-          }}
-          onDelete={() => forgetProduct(detailId)}
-          onClose={() => setDetailId(null)}
-        />
-      )}
+      {overlays()}
 
       {sheetItem && (
         <ItemSheet
