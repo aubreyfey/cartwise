@@ -6882,3 +6882,101 @@ button.card:hover {
     align-self: start;
   }
 }
+
+/* ---------- phase 1: tap targets ---------- */
+
+/* An audit at 390px found 110 of 128 controls on the list screen under the
+   44px minimum, and the very smallest were the destructive ones: the item
+   delete was 16x20 and the quantity steppers 18x18. Those are used
+   one-handed, in a shop, often while holding something.
+
+   The fix is not "44px everywhere" — three adjacent steppers with 44px hit
+   areas overlap, and you end up hitting the wrong one. Instead: grow the
+   controls that get used constantly, and give the rest a real hit area
+   through padding, keeping the drawn size and the layout intact. */
+
+/* Quantity steppers: the most-tapped controls in the app. 18px was a
+   liability. */
+.qty__btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.95rem;
+}
+
+.qty__row {
+  gap: 0.3rem;
+}
+
+/* Row delete. Still visually quiet — it should not compete with the item —
+   but now with a thumb-sized area behind it. Padding rather than width so
+   the glyph does not move. */
+.item__remove,
+.history__remove {
+  padding: 0.6rem 0.5rem;
+  margin: -0.6rem -0.35rem -0.6rem 0;
+}
+
+/* The look button and the aisle-order button sat at 32px. */
+.lookbtn,
+.aislebtn,
+.searchbtn,
+.vrow__add,
+.vrow__remove,
+.vrow__track,
+.catrow__act,
+.aisles__move {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+/* The nav rail was 26px wide — that is the app's primary navigation, and it
+   was the narrowest thing on the screen. */
+.rail__tab {
+  padding: 0.85rem 0.5rem 0.85rem 0.45rem;
+}
+
+/* Accent and place chips were 29px tall. */
+.accent,
+.trackx__chip,
+.look__pattern,
+.vault__clear,
+.psearch__clear {
+  min-height: 2.4rem;
+}
+
+.accent {
+  padding: 0.45rem 0.8rem 0.45rem 0.55rem;
+}
+
+.trackx__chip {
+  padding: 0.5rem 0.85rem;
+}
+
+/* The receipt's tick chips and the segmented controls. */
+.track__row,
+.segmented__btn {
+  min-height: 2.3rem;
+}
+
+/* Expiry row actions sat at 24px tall in a row of three. */
+.expiry__resolve {
+  min-height: 2.2rem;
+  padding: 0.35rem 0.6rem;
+}
+
+/* Sheet close and small round controls. */
+.buying__qty,
+.buying__price {
+  min-height: 2.75rem;
+}
+
+/* ---------- phase 1: focus ---------- */
+
+/* Every interactive element gets a visible focus ring. The app had focus
+   styles in three places and nothing everywhere else, which makes keyboard
+   use a guessing game. :focus-visible so it never shows on a mouse tap. */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
