@@ -30,6 +30,8 @@ export default function HomeScreen({
   lastBackupAt = null,
   durable = null,
   onOpenSettings,
+  backupSnoozedUntil = 0,
+  onSnoozeBackup,
 }) {
   const [adding, setAdding] = useState(null) // purpose id being added to
   const [draft, setDraft] = useState('')
@@ -124,23 +126,35 @@ export default function HomeScreen({
         </span>
       </button>
 
-      {backup.level === 'overdue' && onOpenSettings && (
-        <button className="expiry-card expiry-card--alert" type="button" onClick={onOpenSettings}>
-          <span className="expiry-card__icon" aria-hidden="true">
-            <Icon name="save" size={22} />
-          </span>
-          <span className="expiry-card__text">
-            <strong>Save a copy of your data</strong>
-            <span className="expiry-card__sub">
-              {backup.days === null
-                ? 'It lives on this device only, and nothing has been backed up yet'
-                : `Last copy was ${backup.days} days ago`}
+      {backup.level === 'overdue' && onOpenSettings && Date.now() > backupSnoozedUntil && (
+        <div className="backup-card">
+          <button className="backup-card__main" type="button" onClick={onOpenSettings}>
+            <span className="expiry-card__icon" aria-hidden="true">
+              <Icon name="save" size={22} />
             </span>
-          </span>
-          <span className="expiry-card__chevron" aria-hidden="true">
-            ›
-          </span>
-        </button>
+            <span className="expiry-card__text">
+              <strong>Save a copy of your data</strong>
+              <span className="expiry-card__sub">
+                {backup.days === null
+                  ? 'It lives on this device only and has never been backed up'
+                  : `Last copy was ${backup.days} days ago`}
+              </span>
+            </span>
+            <span className="expiry-card__chevron" aria-hidden="true">
+              ›
+            </span>
+          </button>
+          {onSnoozeBackup && (
+            <button
+              className="backup-card__later"
+              type="button"
+              onClick={() => onSnoozeBackup(Date.now() + 30 * 86400000)}
+              aria-label="Remind me about backups later"
+            >
+              Later
+            </button>
+          )}
+        </div>
       )}
 
       {onOpenVault && vaultStats.products > 0 && (

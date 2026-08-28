@@ -19,15 +19,16 @@
          carries a safe-area inset. -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>CartWise</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Instrument Serif for display moments, Inter for everything else. A
          serif wordmark against a grotesque UI reads as considered; the marker
-         face this replaced read as a craft app. -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+         face this replaced read as a craft app.
+
+         Served from here rather than fonts.googleapis.com. Google saw the IP
+         of everyone who opened CartWise, which is hard to square with a
+         privacy page promising no third parties, and the app fell back to
+         system fonts whenever it was offline. Both families are SIL Open Font
+         License 1.1. Refresh them with `npm run fonts`. -->
+    <link href="./fonts/fonts.css" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>

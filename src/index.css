@@ -7985,3 +7985,38 @@ button.card:hover {
   line-height: 1.5;
   color: var(--text);
 }
+
+/* The backup nudge. Deliberately not the amber of the expiry alert: two
+   urgent-looking cards in a row make neither of them urgent. */
+.backup-card {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.backup-card__main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.4rem 0.7rem 0.9rem;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+.backup-card__later {
+  flex: 0 0 auto;
+  padding: 0 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-left: 1px dashed var(--border);
+}

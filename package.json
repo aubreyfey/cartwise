@@ -12,7 +12,8 @@
     "tour:images": "node scripts/build-tour-images.mjs",
     "icons": "node scripts/icons.mjs",
     "catalogue": "node scripts/build-catalogue.mjs",
-    "catalogue:loop": "node scripts/catalogue-loop.mjs"
+    "catalogue:loop": "node scripts/catalogue-loop.mjs",
+    "fonts": "node scripts/fonts.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",

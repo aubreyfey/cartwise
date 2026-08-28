@@ -8,7 +8,7 @@
 // All state lives in localStorage, which needs no help from here — this is
 // purely about the app shell loading without a connection.
 
-const VERSION = 'cartwise-v1'
+const VERSION = 'cartwise-v2'
 const SHELL = `${VERSION}-shell`
 
 // Derived from the worker's own scope rather than hard-coded, so the same
@@ -49,14 +49,15 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-const isHashedAsset = (url) => url.pathname.startsWith(at('assets/'))
+const isHashedAsset = (url) =>
+  url.pathname.startsWith(at('assets/')) || url.pathname.startsWith(at('fonts/'))
 
 self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET') return
 
   const url = new URL(request.url)
-  // Google Fonts and anything else off-origin is left to the browser.
+  // Anything off-origin — only map tiles now — is left to the browser.
   if (url.origin !== self.location.origin) return
 
   // Navigations: try the network, fall back to the cached shell offline.

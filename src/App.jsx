@@ -241,6 +241,10 @@ export default function App() {
   // When a copy was last saved, so the app can say so instead of guessing.
   const [lastBackupAt, setLastBackupAt] = useLocalStorage('cartwise.lastBackup', null)
   const [durable, setDurable] = useState(null)
+  const [backupSnoozedUntil, setBackupSnoozedUntil] = useLocalStorage(
+    'cartwise.backupSnooze',
+    0,
+  )
   // Mirrors the module-level currency so changing it re-renders every price.
   const [currency, setCurrencyState] = useState(getCurrency)
   // Photo cut-outs live outside useLocalStorage: they're the one thing big
@@ -1302,6 +1306,8 @@ export default function App() {
         lastBackupAt={lastBackupAt}
         durable={durable}
         onOpenSettings={() => setView('settings')}
+        backupSnoozedUntil={backupSnoozedUntil}
+        onSnoozeBackup={setBackupSnoozedUntil}
       />
       </>,
     )
