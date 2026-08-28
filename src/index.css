@@ -8033,3 +8033,43 @@ button.card:hover {
   border: 1px solid var(--danger);
   border-radius: var(--radius);
 }
+
+/* ------------------------------------------------------------- the mascot
+
+   A slow bob on the resting faces only. Fast enough to read as alive, slow
+   enough that it never becomes a loading spinner in the corner of the eye. */
+.gs__mascot {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin: -0.35rem 0;
+}
+
+@keyframes mascot-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.gs__mascot--breathe .mascot {
+  animation: mascot-bob 3.6s ease-in-out infinite;
+}
+
+/* The loading dots pulse in sequence rather than all at once. */
+@keyframes mascot-dot {
+  0%, 70%, 100% { opacity: .3; }
+  35% { opacity: 1; }
+}
+.mascot__dots circle { animation: mascot-dot 1.1s ease-in-out infinite; }
+.mascot__dots circle:nth-child(2) { animation-delay: .15s; }
+.mascot__dots circle:nth-child(3) { animation-delay: .3s; }
+
+/* Some people get motion sickness from exactly this. A grocery list is not
+   worth that. */
+@media (prefers-reduced-motion: reduce) {
+  .gs__mascot--breathe .mascot,
+  .mascot__dots circle {
+    animation: none;
+  }
+}

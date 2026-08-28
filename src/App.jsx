@@ -87,6 +87,7 @@ import {
 import { addStore, compareStores, removeStore, setStoreLocation } from './stores.js'
 import { currentLocation, formatDistance, isLocation, storesByDistance } from './geo.js'
 import { backupUrgency, requestPersistence } from './persistence.js'
+import { homeMascotState } from './mascotState.js'
 import { contributionEnabled } from './sync/prices.js'
 import { excludeOnList, restockDue } from './restock.js'
 import { productKey, reportsFromPurchases } from './community.js'
@@ -99,7 +100,7 @@ import { syncAvailable } from './sync/config.js'
 import { guessCategory } from './categories.js'
 import { DEFAULT_UNIT } from './units.js'
 import { readStored, removeStored, useLocalStorage, STORAGE_FAILED } from './useLocalStorage.js'
-import { completeTrip } from './trips.js'
+import { completeTrip, insights } from './trips.js'
 import {
   forgetTripPurchases,
   lastPurchasedAt,
@@ -467,6 +468,22 @@ export default function App() {
   // A stored id can point at a cart that's since been deleted.
   const activeCart = findCart(carts, activeCartId) ?? carts[0]
   const activeStoreId = activeCart?.storeId ?? null
+
+  // Which face the character wears. Driven by real events — see mascotState.js
+  // for why none of it is a timer or a random pick.
+  const tripStats = useMemo(() => insights(trips), [trips])
+  const mascotFace = useMemo(
+    () =>
+      homeMascotState({
+        carts,
+        trips,
+        savedVsBudget: tripStats?.savedVsBudget ?? 0,
+        shopping: mode === 'shopping',
+        overBudgetNow:
+          (activeCart?.budget ?? 0) > 0 && sumLines(activeCart?.items ?? []).total > activeCart.budget,
+      }),
+    [carts, trips, tripStats, mode, activeCart],
+  )
   const items = useMemo(() => activeCart?.items ?? [], [activeCart])
 
   // Ask the pool about the things on this list. No-ops entirely when Supabase
@@ -1309,7 +1326,7 @@ export default function App() {
     return chrome(
       <>
       <InstallHint />
-      <GettingStarted carts={carts} trips={trips} purchases={purchases} vault={vault} />
+      <GettingStarted carts={carts} trips={trips} purchases={purchases} vault={vault} mascot={mascotFace} />
       <HomeScreen
         carts={carts}
         trips={trips}

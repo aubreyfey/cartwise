@@ -1,5 +1,6 @@
 import { gettingStarted } from '../gettingStarted.js'
-import Icon from '../icons.jsx'
+import Mascot from './Mascot.jsx'
+import { breathes } from '../mascotState.js'
 
 /**
  * What CartWise can do yet, and what it needs to do more.
@@ -9,7 +10,7 @@ import Icon from '../icons.jsx'
  * is more coming. This says so — each step naming what it unlocks rather than
  * just being a chore — and takes itself off the screen once they are done.
  */
-export default function GettingStarted({ carts, trips, purchases, vault }) {
+export default function GettingStarted({ carts, trips, purchases, vault, mascot = 'idle' }) {
   const state = gettingStarted({ carts, trips, purchases, vault })
   if (!state) return null
 
@@ -18,8 +19,11 @@ export default function GettingStarted({ carts, trips, purchases, vault }) {
   return (
     <section className="gs" aria-labelledby="gs-title">
       <div className="gs__head">
-        <span className="gs__icon" aria-hidden="true">
-          <Icon name="sparkle" size={18} />
+        {/* The character, rather than a sparkle. This card is the one place
+            that explicitly promises the app gets better as you use it, so it
+            is the right place for something with a face. */}
+        <span className={`gs__mascot ${breathes(mascot) ? 'gs__mascot--breathe' : ''}`}>
+          <Mascot state={mascot} size={54} />
         </span>
         <span className="gs__headtext">
           <h2 className="gs__title" id="gs-title">

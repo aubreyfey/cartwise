@@ -2,6 +2,8 @@ import { trackViewport } from './viewport.js'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
+// Development-only contact sheet for the mascot: ?mascots=1
+import MascotSheet from './dev/MascotSheet.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { StickerDefs } from './stickers.jsx'
 import './index.css'
@@ -14,7 +16,13 @@ createRoot(document.getElementById('root')).render(
         at these by id rather than carrying its own copy. */}
     <StickerDefs />
     <ErrorBoundary>
-      <App />
+      {/* ?mascots=1 renders the character contact sheet instead of the app.
+          Development only — stripped from production builds. */}
+      {import.meta.env.DEV && new URLSearchParams(location.search).has('mascots') ? (
+        <MascotSheet />
+      ) : (
+        <App />
+      )}
     </ErrorBoundary>
   </StrictMode>,
 )
