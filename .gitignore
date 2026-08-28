@@ -14,3 +14,6 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# Fetch logs from the catalogue builder.
+catalogue.log*
