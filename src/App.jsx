@@ -41,6 +41,7 @@ import TourScreen from './components/TourScreen.jsx'
 import StoreBar from './components/StoreBar.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import BasketCompare from './components/BasketCompare.jsx'
+import BeforeYouGo from './components/BeforeYouGo.jsx'
 import TripReceipt from './components/TripReceipt.jsx'
 import VaultPanel from './components/VaultPanel.jsx'
 import {
@@ -80,6 +81,7 @@ import {
   writeListPhotos,
 } from './listPhotos.js'
 import { addStore, compareStores, removeStore } from './stores.js'
+import { excludeOnList, restockDue } from './restock.js'
 import { productKey, reportsFromPurchases } from './community.js'
 import {
   CONTRIBUTE_KEY,
@@ -471,6 +473,24 @@ export default function App() {
   )
 
   const split = useMemo(() => splitShop(stores, vault, items), [stores, vault, items])
+
+  // The one-line version of everything in "Before you go". Computed here
+  // because this is where the data already is; the card only renders it.
+  const planningSummary = useMemo(() => {
+    const lines = []
+    // `cheapest` wraps the store rather than being it — reading .name off the
+    // row printed "undefined saves ₱91.75" until it was looked at.
+    if (comparison?.cheapest?.store && comparison.savings > 0) {
+      lines.push(`${comparison.cheapest.store.name} saves ${formatMoney(comparison.savings)}`)
+    }
+    if (split?.saving > 0) {
+      lines.push(`split and save ${formatMoney(split.saving)}`)
+    }
+    const due = excludeOnList(restockDue(trips), items).length
+    if (due > 0) lines.push(`${due} due a restock`)
+    return lines
+  }, [comparison, split, trips, items])
+
 
   // --- cart plumbing -------------------------------------------------------
 
@@ -1310,30 +1330,32 @@ export default function App() {
             onList={names}
           />
 
-          <BasketCompare items={items} reports={priceReports} currency={currency} />
+          <BeforeYouGo summary={planningSummary}>
+            <BasketCompare items={items} reports={priceReports} currency={currency} />
 
-          <StoreCompare
-            comparison={comparison}
-            stores={stores}
-            activeId={activeStoreId}
-            onSelect={selectStore}
-          />
+            <StoreCompare
+              comparison={comparison}
+              stores={stores}
+              activeId={activeStoreId}
+              onSelect={selectStore}
+            />
 
-          <SplitShop plan={split} stores={stores} />
+            <SplitShop plan={split} stores={stores} />
 
-          <RestockPanel
-            trips={trips}
-            items={items}
-            onAdd={(suggestion) =>
-              addItem({
-                name: suggestion.name,
-                qty: 1,
-                price: priceFor(findVaultItem(vault, suggestion.name), activeStoreId),
-                unit: suggestion.unit ?? DEFAULT_UNIT,
-                category: suggestion.category,
-              })
-            }
-          />
+            <RestockPanel
+              trips={trips}
+              items={items}
+              onAdd={(suggestion) =>
+                addItem({
+                  name: suggestion.name,
+                  qty: 1,
+                  price: priceFor(findVaultItem(vault, suggestion.name), activeStoreId),
+                  unit: suggestion.unit ?? DEFAULT_UNIT,
+                  category: suggestion.category,
+                })
+              }
+            />
+          </BeforeYouGo>
         </>
       )}
 

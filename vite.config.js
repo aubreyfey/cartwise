@@ -7,8 +7,15 @@ import { execSync } from 'node:child_process'
 // someone reports a feature missing, the first question is which build they
 // are looking at, and this answers it without guessing.
 const stamp = (() => {
+  // CI provides the SHA, so the build does not have to shell out at all.
+  const fromEnv = process.env.GITHUB_SHA || process.env.VITE_BUILD_STAMP
+  if (fromEnv) return fromEnv.slice(0, 7)
   try {
-    return execSync('git rev-parse --short HEAD').toString().trim()
+    // Bounded: a slow or wedged git must not hang the whole build, which is
+    // exactly what it did once.
+    return execSync('git rev-parse --short HEAD', { timeout: 5000, stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim()
   } catch {
     return 'dev'
   }

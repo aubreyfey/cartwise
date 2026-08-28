@@ -6980,3 +6980,74 @@ button.card:hover {
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
+
+/* ---------- before you go ---------- */
+
+.byg {
+  margin-top: 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.byg--open {
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+.byg__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.6rem 0.8rem;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+
+.byg__icon {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.byg__text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.byg__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.byg__summary {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+/* The four panels inside lose their own card chrome — nesting a bordered card
+   inside a bordered card is the visual noise this change exists to remove. */
+.byg__body {
+  padding: 0 0.55rem 0.6rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.byg__body > .compare,
+.byg__body > .split,
+.byg__body > .restock,
+.byg__body > .basket {
+  margin-top: 0;
+  border-color: var(--hairline);
+}
