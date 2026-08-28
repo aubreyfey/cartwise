@@ -127,6 +127,40 @@ grant insert (
 
 grant select on public.price_consensus to anon, authenticated;
 
+-- The view must run with its owner's rights, because anon has no privilege
+-- on price_reports at all. That is the default, but it is the kind of default
+-- that is worth stating: on a project where views are created security_invoker,
+-- this returns zero rows to every reader, silently. No error, no broken screen —
+-- community prices simply never appear and there is nothing to debug.
+--
+-- Wrapped because the option only exists on Postgres 15 and later, where older
+-- versions are definer-by-default anyway.
+do $$
+begin
+  execute 'alter view public.price_consensus set (security_invoker = false)';
+exception
+  when others then null;
+end $$;
+
+-- ------------------------------------------------------------ smoke test
+--
+-- Run this after the rest. It should return one row saying ok, and it fails
+-- loudly if the view is unreadable rather than leaving you to notice later
+-- that the app is quietly empty.
+--   insert into public.price_reports
+--     (product_key, exact_match, product_name, store_key, store_name,
+--      price, unit, currency, reported_on)
+--   values ('ean:0000000000000', true, 'Smoke Test', 'store:test', 'Test Store',
+--           1.00, 'pc', 'PHP', current_date);
+--
+--   select case when count(*) > 0 then 'ok — the view is readable'
+--               else 'BROKEN — the view returned nothing' end as result
+--   from public.price_consensus
+--   where product_key = 'ean:0000000000000';
+--
+-- Then clear it:
+--   delete from public.price_reports where product_key = 'ean:0000000000000';
+
 -- --------------------------------------------------------------- retention
 
 -- Reports older than a year are neither useful nor ours to keep. Schedule
