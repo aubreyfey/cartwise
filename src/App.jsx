@@ -1408,8 +1408,19 @@ export default function App() {
     )
   }
 
+  // The list photo, behind the whole screen rather than only the header. The
+  // panels go translucent over it, so the picture reads as the backdrop of
+  // this list rather than as decoration stuck to one bar.
+  const listPhoto =
+    backgroundOf(activeCart, listPhotos[activeCart.id]) === PHOTO_BACKGROUND
+      ? listPhotos[activeCart.id]
+      : null
+
   return (
-    <div className="app">
+    <div
+      className={`app ${listPhoto ? 'app--photo' : ''}`}
+      style={listPhoto ? { '--list-photo': `url("${listPhoto}")` } : undefined}
+    >
       <header className="app__header">
         <button className="backbtn" type="button" onClick={() => setView('home')}>
           <span className="backbtn__chevron" aria-hidden="true">

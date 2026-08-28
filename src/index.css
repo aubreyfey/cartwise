@@ -8648,3 +8648,125 @@ button.card:hover {
   grid-row: 1;
   grid-column: 2;
 }
+
+
+/* --------------------------------------------------- the list photo, behind
+
+   The photo used to sit on the budget bar only, so it read as decoration
+   stuck to one component rather than as the backdrop of the list. It now
+   fills the screen, and the panels go translucent over it.
+
+   Fixed attachment so it stays put while the list scrolls. iOS Safari has
+   never honoured background-attachment: fixed and scrolls it instead, which
+   is a fine thing to lose — the picture is still there and still readable. */
+
+.app--photo {
+  background:
+    linear-gradient(
+      to bottom,
+      rgb(12 10 18 / 0.55) 0%,
+      rgb(12 10 18 / 0.35) 40%,
+      rgb(12 10 18 / 0.55) 100%
+    ),
+    var(--list-photo) center / cover no-repeat fixed;
+  background-color: #201d28;
+}
+
+/* Panels let the picture through. The blur is what keeps prices readable over
+   a busy photograph — without it, text on a photo is a gamble on the photo. */
+.app--photo .section,
+.app--photo .add-form,
+.app--photo .vault,
+.app--photo .compare,
+.app--photo .insights,
+.app--photo .carts,
+.app--photo .storebar,
+.app--photo .gs,
+.app--photo .byg,
+.app--photo .restock,
+.app--photo .split,
+.app--photo .storecompare {
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-color: color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+
+/* The chrome sitting directly on the photo, rather than on a panel. */
+.app--photo .app__header,
+.app--photo .app__breadcrumb,
+.app--photo .backbtn,
+.app--photo .listtools {
+  color: #fff;
+}
+
+.app--photo .backbtn {
+  color: #fff;
+}
+
+.app--photo .app__breadcrumb {
+  color: rgb(255 255 255 / 0.85);
+}
+
+/* Where a photo is set, the section headings sit over glass rather than over
+   paper, so they need a touch more weight to hold up. */
+.app--photo .section__tag {
+  font-weight: 700;
+}
+
+/* Browsers without color-mix get a solid panel rather than an unreadable one.
+   Losing the translucency is a much smaller loss than losing the text. */
+@supports not (background: color-mix(in srgb, white 50%, transparent)) {
+  .app--photo .section,
+  .app--photo .add-form,
+  .app--photo .vault,
+  .app--photo .compare,
+  .app--photo .insights,
+  .app--photo .carts,
+  .app--photo .storebar,
+  .app--photo .gs,
+.app--photo .byg,
+.app--photo .restock,
+.app--photo .split,
+.app--photo .storecompare {
+    background: var(--surface);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .app--photo .section,
+  .app--photo .add-form,
+  .app--photo .vault,
+  .app--photo .compare,
+  .app--photo .insights,
+  .app--photo .carts,
+  .app--photo .storebar,
+  .app--photo .gs,
+.app--photo .byg,
+.app--photo .restock,
+.app--photo .split,
+.app--photo .storecompare {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Ghost buttons are drawn in muted grey on paper. On glass over a photograph
+   that is not enough separation, so they take the full text colour and a
+   solid-enough backing to sit on. */
+.app--photo .btn--ghost,
+.app--photo .storebar__add,
+.app--photo .storebar__edit {
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  border-color: color-mix(in srgb, var(--text) 22%, transparent);
+}
+
+/* Secondary text inside a glass panel needs a little more weight than it does
+   on paper, where nothing is competing with it. */
+.app--photo .section__count,
+.app--photo .item__meta,
+.app--photo .vrow__meta {
+  color: color-mix(in srgb, var(--text) 72%, transparent);
+}
