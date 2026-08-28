@@ -8,6 +8,7 @@ import CategorySection from './components/CategorySection.jsx'
 import DataPanel from './components/DataPanel.jsx'
 import ExpiryScreen from './components/ExpiryScreen.jsx'
 import HomeScreen from './components/HomeScreen.jsx'
+import GettingStarted from './components/GettingStarted.jsx'
 import Insights from './components/Insights.jsx'
 import ItemSheet from './components/ItemSheet.jsx'
 import NavBar from './components/NavBar.jsx'
@@ -1094,7 +1095,15 @@ export default function App() {
         <header className="screen-head">
           <h1 className="screen-head__title">Trips</h1>
         </header>
-        <Insights trips={trips} onDeleteTrip={deleteTrip} startOpen />
+        {trips.length === 0 ? (
+          <p className="empty">
+            Your shopping history starts here. Finish a trip and CartWise keeps
+            what you bought, what it cost, and how it landed against your
+            budget — which is what everything else here is built from.
+          </p>
+        ) : (
+          <Insights trips={trips} onDeleteTrip={deleteTrip} startOpen />
+        )}
       </div>,
     )
   }
@@ -1138,6 +1147,8 @@ export default function App() {
 
   if (view === 'home') {
     return chrome(
+      <>
+      <GettingStarted carts={carts} trips={trips} purchases={purchases} vault={vault} />
       <HomeScreen
         carts={carts}
         trips={trips}
@@ -1147,7 +1158,8 @@ export default function App() {
         onOpenCart={openCart}
         onNewCart={createCart}
         onOpenExpiry={() => setView('expiry')}
-      />,
+      />
+      </>,
     )
   }
 
