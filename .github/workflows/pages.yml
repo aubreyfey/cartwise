@@ -4,9 +4,17 @@ name: GitHub Pages
 #
 # Only useful on a public repo (Pages from a private repo needs a paid plan),
 # and only once Pages is switched on with "GitHub Actions" as the source.
-# Manual trigger by default so it never fights another host for the same push.
+#
+# Runs on every push to main. It used to be manual-only, to avoid fighting
+# another host for the same push — but the Cloudflare workflow skips itself
+# when its secrets are absent, so there is nothing to fight, and "manual only"
+# meant a day of work sat undeployed behind a green tick from a workflow that
+# had skipped. If a second host is ever wired up, gate them on each other
+# rather than making this one manual again.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
