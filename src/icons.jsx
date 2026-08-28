@@ -10,6 +10,16 @@
 // of the app that are not products.
 
 const PATHS = {
+  check: (
+    <path d="m4.5 12.5 5 5 10-11" />
+  ),
+  trash: (
+    <>
+      <path d="M4.5 7h15" />
+      <path d="M9 7V5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 5v2" />
+      <path d="M6.5 7l1 12a2 2 0 0 0 2 1.8h5a2 2 0 0 0 2-1.8l1-12" />
+    </>
+  ),
   cart: (
     <>
       <path d="M4 7h16l-1.6 9a2 2 0 0 1-2 1.7H7.6a2 2 0 0 1-2-1.7z" />

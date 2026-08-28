@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import ExpiryTimeline from './ExpiryTimeline.jsx'
 import { CATEGORY_BY_ID, guessCategory } from '../categories.js'
 import { UNITS, DEFAULT_UNIT, formatQty, normalizeQty } from '../units.js'
 import {
@@ -48,11 +49,13 @@ export default function ExpiryScreen({
   const [unit, setUnit] = useState(DEFAULT_UNIT)
   const [expiresAt, setExpiresAt] = useState('')
   const [place, setPlace] = useState(DEFAULT_PLACE)
-  const [grouping, setGrouping] = useState('urgency')
+  const [grouping, setGrouping] = useState('timeline')
 
   const groups = useMemo(
     () =>
-      grouping === 'place'
+      grouping === 'timeline'
+        ? []
+        : grouping === 'place'
         ? byPlace(pantry).map((g) => ({ key: g.place.id, head: g.place, items: g.items, kind: 'place' }))
         : byUrgency(pantry).map((g) => ({ key: g.bucket.id, head: g.bucket, items: g.items, kind: 'bucket' })),
     [pantry, grouping],
@@ -85,6 +88,7 @@ export default function ExpiryScreen({
         <h1 className="screen-head__title">Expiry</h1>
         <div className="segmented" role="group" aria-label="Group by">
           {[
+            ['timeline', 'Timeline'],
             ['urgency', 'By date'],
             ['place', 'By place'],
           ].map(([id, label]) => (
@@ -100,6 +104,22 @@ export default function ExpiryScreen({
           ))}
         </div>
       </header>
+
+      {grouping === 'timeline' ? (
+        pantry.length === 0 ? (
+          <p className="empty">
+            Nothing tracked yet. Add what is in the fridge and CartWise will tell
+            you what needs eating first.
+          </p>
+        ) : (
+          <ExpiryTimeline
+            pantry={pantry}
+            photos={photos}
+            onResolve={onResolve}
+            onRemove={onRemove}
+          />
+        )
+      ) : null}
 
       {onTrackPurchased && (
         <button className="trackcta" type="button" onClick={onTrackPurchased}>
@@ -264,7 +284,7 @@ export default function ExpiryScreen({
         </button>
       </form>
 
-      {groups.length === 0 ? (
+      {grouping !== 'timeline' && (groups.length === 0 ? (
         <p className="empty">
           Nothing tracked yet. Add what is in the fridge and CartWise will tell
           you what needs eating first.
@@ -409,7 +429,7 @@ export default function ExpiryScreen({
             </ul>
           </section>
         ))
-      )}
+      ))}
     </div>
   )
 }

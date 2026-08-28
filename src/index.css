@@ -8127,3 +8127,218 @@ button.card:hover {
 .greeting__vault:hover {
   text-decoration: underline;
 }
+
+/* ---------------------------------------------------------- expiry timeline
+
+   A rail of days rather than a static list. Scroll-snapped so a swipe lands
+   on a day rather than between two; the selected chip springs forward on an
+   overshoot curve, which is what makes it feel physical rather than merely
+   animated. One spring and one stagger, both native — no animation library. */
+
+.etl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.etl__rail {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.3rem 0.15rem 0.55rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.etl__rail::-webkit-scrollbar { display: none; }
+
+.etl__day {
+  flex: 0 0 3.9rem;
+  scroll-snap-align: center;
+  min-height: 60px;
+  padding: 0.45rem 0.25rem;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm, 10px);
+  transition:
+    transform 0.34s cubic-bezier(0.22, 1.4, 0.36, 1),
+    background 0.2s,
+    border-color 0.2s;
+}
+
+/* Tone on the chip, so the rail is scannable without reading a word. */
+.etl__day[data-tone="over"] { background: var(--danger-soft); border-color: var(--danger); }
+.etl__day[data-tone="soon"] { background: var(--amber-soft, var(--surface)); border-color: var(--amber); }
+
+.etl__day[aria-selected="true"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-ink, #fff);
+  transform: scale(1.08) translateY(-2px);
+}
+
+.etl__day:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.etl__wd {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.etl__n {
+  display: block;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+}
+
+.etl__c {
+  display: block;
+  font-size: 0.58rem;
+  opacity: 0.8;
+}
+
+.etl__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.etl__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.etl__sub {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.etl__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.etl__item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--hairline);
+  border-radius: var(--radius-sm, 10px);
+  animation: etl-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.etl__item--over { border-left-color: var(--danger); }
+.etl__item--soon { border-left-color: var(--amber); }
+.etl__item--ok { border-left-color: var(--money); }
+
+@keyframes etl-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.etl__thumb {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper-sunk, rgba(0, 0, 0, 0.04));
+}
+
+.etl__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.etl__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.etl__name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.etl__meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.etl__acts {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.etl__act {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  font: inherit;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+}
+
+.etl__act--ate { color: var(--money); }
+.etl__act--binned { color: var(--danger); }
+
+.etl__empty {
+  margin: 0;
+  padding: 1.6rem 0.5rem;
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--text-faint, var(--text-muted));
+}
+
+.etl__undated {
+  margin-top: 0.4rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--hairline);
+}
+
+.etl__undated-head {
+  margin: 0 0 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .etl__day { transition: background 0.2s, border-color 0.2s; }
+  .etl__item { animation: none; }
+}
