@@ -6,6 +6,7 @@ const TABS = [
   { id: 'home', label: 'Home', icon: 'house' },
   { id: 'recipes', label: 'Recipes', icon: 'book' },
   { id: 'expiry', label: 'Expiry', icon: 'calendar' },
+  { id: 'shops', label: 'Shops', icon: 'shelf' },
   { id: 'trips', label: 'Trips', icon: 'chart' },
   { id: 'settings', label: 'Settings', icon: 'gear' },
 ]

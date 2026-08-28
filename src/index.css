@@ -7598,3 +7598,128 @@ button.card:hover {
   color: var(--primary);
   font-weight: 800;
 }
+
+/* ---------- shops and the map ---------- */
+
+.mapbox {
+  position: relative;
+  margin-bottom: 0.7rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.mapbox__canvas {
+  height: 14rem;
+  background: var(--surface-2);
+}
+
+/* Standard OpenStreetMap tiles are busy and colourful. Desaturating them
+   gives the pale, quiet canvas this screen wants without reaching for a tile
+   service that watermarks its output or whose licence is unclear. */
+.mapbox__canvas .leaflet-tile-pane {
+  filter: saturate(0.32) contrast(0.92) brightness(1.06);
+}
+
+/* Dark mode inverts and re-inverts the hues so roads stay light-on-dark
+   rather than the whole map turning into a negative. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .mapbox__canvas .leaflet-tile-pane {
+    filter: invert(0.92) hue-rotate(180deg) saturate(0.3) brightness(0.95);
+  }
+}
+
+/* Leaflet paints its own white; keep it from fighting a dark theme. */
+.mapbox__canvas .leaflet-container {
+  height: 100%;
+  background: var(--surface-2);
+  font: inherit;
+}
+
+.mapbox__canvas .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  font-size: 0.6rem;
+  color: var(--text-faint);
+}
+
+.mapbox__note {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-faint);
+}
+
+.mapbox__note--offline {
+  color: var(--text-muted);
+}
+
+/* A pin in the CartWise accent rather than Leaflet's blue teardrop. */
+.mapmark__pin {
+  display: block;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin: -0.42rem 0 0 -0.42rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgb(20 20 25 / 0.4);
+}
+
+.mapmark__label {
+  position: absolute;
+  left: 0.7rem;
+  top: -0.65rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.mapmark__you {
+  display: block;
+  width: 0.8rem;
+  height: 0.8rem;
+  margin: -0.4rem 0 0 -0.4rem;
+  border-radius: 50%;
+  background: #2f6fa8;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 4px rgb(47 111 168 / 0.25);
+}
+
+.shoplist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.shoprow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+}
+
+.shoprow__text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.shoprow__name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.shoprow__meta {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}

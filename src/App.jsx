@@ -41,6 +41,7 @@ import SettingsScreen from './components/SettingsScreen.jsx'
 import PhotoCapture from './components/PhotoCapture.jsx'
 import TourScreen from './components/TourScreen.jsx'
 import StoreBar from './components/StoreBar.jsx'
+import StoreMap from './components/StoreMap.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import BasketCompare from './components/BasketCompare.jsx'
 import BeforeYouGo from './components/BeforeYouGo.jsx'
@@ -81,7 +82,8 @@ import {
   readImage,
   writeListPhotos,
 } from './listPhotos.js'
-import { addStore, compareStores, removeStore } from './stores.js'
+import { addStore, compareStores, removeStore, setStoreLocation } from './stores.js'
+import { currentLocation, formatDistance, isLocation, storesByDistance } from './geo.js'
 import { excludeOnList, restockDue } from './restock.js'
 import { productKey, reportsFromPurchases } from './community.js'
 import {
@@ -260,8 +262,41 @@ export default function App() {
   // actually open them. Both components still manage themselves by default.
   const [scanRequested, setScanRequested] = useState(false)
   const [vaultOpen, setVaultOpen] = useState(false)
+  // Where you are, asked for only when you tap something that needs it — a
+  // permission prompt nobody invited is how an app loses that permission.
+  const [here, setHere] = useState(null)
+  const [geoNote, setGeoNote] = useState(null)
   // The add form starts closed; the floating + opens it.
   const [addOpen, setAddOpen] = useState(false)
+
+  /** Save the shop you are standing in. */
+  async function saveStoreLocation(storeId) {
+    setGeoNote(null)
+    try {
+      const location = await currentLocation()
+      setStores((prev) => setStoreLocation(prev, storeId, location))
+      setHere(location)
+    } catch (error) {
+      setGeoNote(
+        error.message === 'denied'
+          ? 'Location is switched off for CartWise in your browser settings.'
+          : "Couldn't get a location fix. Try again outdoors or near a window.",
+      )
+    }
+  }
+
+  async function locateMe() {
+    setGeoNote(null)
+    try {
+      setHere(await currentLocation())
+    } catch (error) {
+      setGeoNote(
+        error.message === 'denied'
+          ? 'Location is switched off for CartWise in your browser settings.'
+          : "Couldn't get a location fix.",
+      )
+    }
+  }
 
   function savePhoto(dataUrl) {
     const key = photoKey(photoTarget.name)
@@ -1129,6 +1164,56 @@ export default function App() {
         ) : (
           <Insights trips={trips} onDeleteTrip={deleteTrip} startOpen />
         )}
+      </div>,
+    )
+  }
+
+  if (view === 'shops') {
+    const rows = storesByDistance(stores, here)
+    return chrome(
+      <div className="shopsview">
+        <header className="screen-head">
+          <h1 className="screen-head__title">Shops</h1>
+          <button className="btn btn--ghost btn--small" type="button" onClick={locateMe}>
+            {here ? 'Update my location' : 'Where am I?'}
+          </button>
+        </header>
+
+        {geoNote && <p className="mapbox__note mapbox__note--offline">{geoNote}</p>}
+
+        <StoreMap stores={stores} here={here} />
+
+        <ul className="shoplist">
+          {rows.map(({ store, km }) => (
+            <li className="shoprow" key={store.id}>
+              <span className="shoprow__text">
+                <span className="shoprow__name">{store.name}</span>
+                <span className="shoprow__meta">
+                  {km !== null ? formatDistance(km) : isLocation(store.location) ? 'Location saved' : 'No location yet'}
+                </span>
+              </span>
+              <button
+                className="btn btn--ghost btn--small"
+                type="button"
+                onClick={() => saveStoreLocation(store.id)}
+              >
+                {isLocation(store.location) ? 'Update' : 'Save this location'}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {stores.length === 0 && (
+          <p className="empty">
+            No shops yet. Add one on a list and it will appear here, ready to
+            remember where it is.
+          </p>
+        )}
+
+        <p className="mapbox__note">
+          Locations are saved per shop and never leave this device. Community
+          price reports carry the shop name and the day, never a coordinate.
+        </p>
       </div>,
     )
   }

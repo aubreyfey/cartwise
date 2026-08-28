@@ -143,3 +143,19 @@ export function compareStores(stores, vault, items) {
     total: items.length,
   }
 }
+
+/**
+ * Remember where a shop is.
+ *
+ * Per shop, not per trip. "Savemore is at these coordinates" is a fact about a
+ * supermarket and makes every future visit useful; a coordinate stamped on
+ * each trip would be a record of where you were and when, which CartWise has
+ * no use for and should not hold.
+ */
+export function setStoreLocation(stores, id, location) {
+  return stores.map((s) => (s.id === id ? { ...s, location } : s))
+}
+
+/** Forget it again. */
+export const clearStoreLocation = (stores, id) =>
+  stores.map((s) => (s.id === id ? { ...s, location: null } : s))
