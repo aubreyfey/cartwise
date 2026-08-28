@@ -8934,6 +8934,7 @@ button.card:hover {
   opacity: 0.55;
 }
 
-.presult--added .presult__add::after {
-  content: '✓';
+.presult--added .presult__add {
+  color: var(--money);
 }
+

@@ -51,18 +51,21 @@ export default function ProductSearch({
   )
 
   /**
-   * Add, then get out of the way of the next one.
+   * Add, and leave everything where it is.
    *
-   * Clearing the query and refocusing is the difference between adding six
-   * things and adding one thing six times. Expiry is the exception — there,
-   * picking a product opens the track sheet, so the parent closes this.
+   * The query stays and so do the results: one search usually answers for
+   * more than one thing — you look up "apple" and want two of what comes
+   * back. Clearing the field after every tap threw away the list you had just
+   * asked for. What was added is marked instead, and the field's own × is
+   * there when you do want a different search.
+   *
+   * Expiry is the exception — there, picking a product opens the track sheet,
+   * so the parent closes this.
    */
   function addAndStay(name, add) {
     add()
     if (purpose === 'expiry') return
     setAdded((prev) => (prev.includes(name) ? prev : [...prev, name]))
-    setQuery('')
-    inputRef.current?.focus()
   }
 
   // Opening a search screen and having to tap the field is a wasted step.
@@ -276,7 +279,7 @@ export default function ProductSearch({
                         </span>
                       </span>
                       <span className="presult__add" aria-hidden="true">
-                        +
+                        {already ? '✓' : '+'}
                       </span>
                     </button>
                   </li>
@@ -288,17 +291,17 @@ export default function ProductSearch({
             <>
               <p className="psearch__online-head">Groceries · you set the price</p>
               <ul className="psearch__results">
-                {staples.map((item) => (
+                {staples.map((item) => {
+                  const already = onListNames.has(item.name.toLowerCase())
+                  return (
                   <li key={item.name}>
                     <button
-                      className={`presult ${
-                        onListNames.has(item.name.toLowerCase()) ? 'presult--added' : ''
-                      }`}
+                      className={`presult ${already ? 'presult--added' : ''}`}
                       type="button"
                       onClick={() =>
                         addAndStay(item.name, () => onAddCatalogue(stapleToListItem(item)))
                       }
-                      disabled={onListNames.has(item.name.toLowerCase())}
+                      disabled={already}
                     >
                       <span className="presult__thumb" aria-hidden="true">
                         <Sticker id={categoryFor(item.category).sticker} size={22} />
@@ -310,11 +313,11 @@ export default function ProductSearch({
                         </span>
                       </span>
                       <span className="presult__add" aria-hidden="true">
-                        +
+                        {already ? '✓' : '+'}
                       </span>
                     </button>
                   </li>
-                ))}
+                )})}
               </ul>
             </>
           )}
@@ -325,17 +328,17 @@ export default function ProductSearch({
                 From the product catalogue · you set the price
               </p>
               <ul className="psearch__results">
-                {found.map((row) => (
+                {found.map((row) => {
+                  const already = onListNames.has(row.name.toLowerCase())
+                  return (
                   <li key={row.barcode}>
                     <button
-                      className={`presult ${
-                        onListNames.has(row.name.toLowerCase()) ? 'presult--added' : ''
-                      }`}
+                      className={`presult ${already ? 'presult--added' : ''}`}
                       type="button"
                       onClick={() =>
                         addAndStay(row.name, () => onAddCatalogue(toListItem(row, guessCategory)))
                       }
-                      disabled={onListNames.has(row.name.toLowerCase())}
+                      disabled={already}
                     >
                       <span className="presult__thumb" aria-hidden="true">
                         <Sticker
@@ -352,11 +355,11 @@ export default function ProductSearch({
                         <span className="presult__meta">No price yet — you set it</span>
                       </span>
                       <span className="presult__add" aria-hidden="true">
-                        +
+                        {already ? '✓' : '+'}
                       </span>
                     </button>
                   </li>
-                ))}
+                )})}
               </ul>
             </>
           )}
