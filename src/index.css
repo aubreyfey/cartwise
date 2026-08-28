@@ -8771,3 +8771,68 @@ button.card:hover {
   transform: translateX(-50%);
   margin: 0;
 }
+
+/* ------------------------------------------------- the photo on the products
+
+   The picture belongs to what is on the list. It goes behind the aisle
+   sections, and those sections go translucent so it shows through the rows
+   themselves rather than framing them.
+
+   Both this and the header card use background-attachment: fixed, which
+   positions the image against the viewport rather than against each element.
+   Two separate boxes then show two parts of one photograph, lined up, instead
+   of two independent crops of it — which is what made them look mismatched.
+   iOS Safari ignores fixed attachment and falls back to two crops, which is
+   no worse than having no photo here at all. */
+
+.app__list--photo {
+  padding: 0.55rem;
+  margin: 0 -0.55rem;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(rgb(12 10 18 / 0.3), rgb(12 10 18 / 0.3)),
+    var(--list-photo) center / cover no-repeat fixed;
+  background-color: #201d28;
+}
+
+/* The blur is what keeps prices readable over a busy photograph. Without it,
+   text on a photo is a gamble on which photo. */
+.app__list--photo .section {
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-color: color-mix(in srgb, var(--hairline) 55%, transparent);
+}
+
+/* Secondary text needs a little more weight on glass than on paper, where
+   nothing is competing with it. */
+.app__list--photo .section__count,
+.app__list--photo .item__meta {
+  color: color-mix(in srgb, var(--text) 74%, transparent);
+}
+
+.app__list--photo .empty {
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+}
+
+/* Two ways out, because translucency fails quietly. Losing the glass is a far
+   smaller loss than losing the text. */
+@supports not (background: color-mix(in srgb, white 50%, transparent)) {
+  .app__list--photo .section {
+    background: var(--surface);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .app__list--photo .section {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Same fixed attachment on the header, so the two share one image. */
+.budget--photo {
+  background-attachment: fixed;
+}
