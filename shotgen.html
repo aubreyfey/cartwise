@@ -182,9 +182,13 @@
         x.fillStyle = g; x.fillRect(0, 0, 600, 400)
         x.fillStyle = 'rgba(255,255,255,.55)'
         for (let i = 0; i < 60; i++) x.fillRect((i * 97) % 600, (i * 61) % 400, 40, 26)
-        if (!COLD) localStorage.setItem('cartwise.listPhotos', JSON.stringify({ c1: c.toDataURL('image/webp', 0.7) }))
+        // Both targets: the header card and the products now store their
+        // photos separately, so seeding one no longer covers both.
+        const url = c.toDataURL('image/webp', 0.7)
+        if (!COLD) localStorage.setItem('cartwise.listPhotos', JSON.stringify({ c1: url, 'c1:items': url }))
         const carts = JSON.parse(localStorage.getItem('cartwise.carts'))
         carts[0].background = 'photo'
+        carts[0].itemsBackground = 'photo'
         if (!COLD) localStorage.setItem('cartwise.carts', JSON.stringify(carts))
         if (!COLD) localStorage.setItem('cartwise.aisleOrder', JSON.stringify(
           ['dairy', 'produce', 'bakery', 'meat', 'frozen', 'pantry', 'snacks', 'drinks', 'household', 'other']))
