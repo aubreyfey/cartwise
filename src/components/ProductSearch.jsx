@@ -5,6 +5,8 @@ import { lastPurchasedAt } from '../purchases.js'
 import Sticker from '../stickers.jsx'
 import Icon from '../icons.jsx'
 import { searchProducts } from '../lookup.js'
+import { loadCatalogue, searchCatalogue, toListItem } from '../catalogue.js'
+import { guessCategory } from '../categories.js'
 
 const when = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' })
 
@@ -29,6 +31,8 @@ export default function ProductSearch({
   onScan,
   onManual,
   onOpenVault,
+  onAddCatalogue,
+  base = '/',
   purpose = 'list',
   onClose,
 }) {
@@ -56,8 +60,32 @@ export default function ProductSearch({
   const searching = query.trim().length > 0
   const storeName = (id) => stores.find((s) => s.id === id)?.name ?? null
 
-  // Open Food Facts, on a tap and never automatically. CartWise ships no
-  // catalogue of its own; this is the honest alternative to inventing one.
+  // The bundled catalogue: real products with barcodes and pack sizes, but no
+  // prices — Open Food Facts has none, and the shelf is the only honest source
+  // for that. Fetched once, on the first search, so nobody who only types
+  // their own list ever downloads it.
+  const [catalogue, setCatalogue] = useState([])
+  useEffect(() => {
+    let alive = true
+    loadCatalogue(base).then((rows) => {
+      if (alive) setCatalogue(rows)
+    })
+    return () => {
+      alive = false
+    }
+  }, [base])
+
+  const found = useMemo(() => {
+    if (!query.trim()) return []
+    // Anything already in the Vault is shown from there, with its price.
+    const known = new Set(vault.map((v) => String(v.name).trim().toLowerCase()))
+    return searchCatalogue(catalogue, query).filter(
+      (row) => !known.has(row.name.trim().toLowerCase()),
+    )
+  }, [catalogue, query, vault])
+
+  // Open Food Facts live, on a tap and never automatically — for anything the
+  // bundled catalogue does not have.
   const [online, setOnline] = useState({ state: 'idle', results: [] })
 
   async function searchOnline() {
@@ -99,9 +127,7 @@ export default function ProductSearch({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={`${vault.length.toLocaleString()} ${
-              vault.length === 1 ? 'item' : 'items'
-            } to browse`}
+            placeholder={`${(vault.length + catalogue.length).toLocaleString()} items to browse`}
             aria-label="Search for a product"
             autoComplete="off"
           />
@@ -133,7 +159,7 @@ export default function ProductSearch({
             </div>
           )}
 
-          {searching && results.length === 0 && (
+          {searching && results.length === 0 && found.length === 0 && (
             <div className="psearch__state">
               <Icon name="search" size={44} strokeWidth={1.3} />
               <p className="psearch__state-title">No results</p>
@@ -198,6 +224,43 @@ export default function ProductSearch({
               })}
             </ul>
           )}
+          {searching && found.length > 0 && (
+            <>
+              <p className="psearch__online-head">
+                From the product catalogue · you set the price
+              </p>
+              <ul className="psearch__results">
+                {found.map((row) => (
+                  <li key={row.barcode}>
+                    <button
+                      className="presult"
+                      type="button"
+                      onClick={() => onAddCatalogue(toListItem(row, guessCategory))}
+                    >
+                      <span className="presult__thumb" aria-hidden="true">
+                        <Sticker
+                          id={categoryFor(guessCategory(row.name)).sticker}
+                          size={22}
+                        />
+                      </span>
+                      <span className="presult__text">
+                        <span className="presult__name">
+                          {row.brand && <span className="presult__brand">{row.brand} </span>}
+                          {row.name}
+                          {row.size && <span className="presult__size"> ({row.size})</span>}
+                        </span>
+                        <span className="presult__meta">No price yet — you set it</span>
+                      </span>
+                      <span className="presult__add" aria-hidden="true">
+                        +
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
           {searching && (
             <div className="psearch__online">
               {online.state === 'idle' && (

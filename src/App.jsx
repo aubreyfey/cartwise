@@ -601,6 +601,30 @@ export default function App() {
   /* ------------------------------------------------ product search + detail */
 
   /** Add from search, then close — the point of searching was to add it. */
+  /**
+   * A product picked from the bundled catalogue. Everything the catalogue
+   * knows goes in — name, brand, barcode, pack size, guessed aisle — and the
+   * price stays unknown, because Open Food Facts has none and the shelf is the
+   * only honest source. Scanning that barcode later will now recognise it.
+   */
+  function addFromCatalogue(draft) {
+    setSearching(false)
+    if (searchFor === 'expiry') {
+      setTrackTarget({ ...draft, id: null })
+      return
+    }
+    addItem({
+      name: draft.name,
+      qty: draft.qty,
+      price: null,
+      unit: DEFAULT_UNIT,
+      category: draft.category,
+      barcode: draft.barcode,
+      brand: draft.brand,
+      packageSize: draft.packageSize,
+    })
+  }
+
   function addFromSearch(vaultItem) {
     setSearching(false)
     if (searchFor === 'expiry') {
