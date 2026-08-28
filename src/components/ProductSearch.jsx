@@ -35,10 +35,35 @@ export default function ProductSearch({
   onAddCatalogue,
   base = '/',
   purpose = 'list',
+  onList = [],
   onClose,
 }) {
   const [query, setQuery] = useState('')
+  // What has been added while this sheet has been open. Nobody shops for one
+  // thing, so the sheet stays and keeps a tally rather than closing on the
+  // first tap and making you reopen it for the second.
+  const [added, setAdded] = useState([])
   const inputRef = useRef(null)
+
+  const onListNames = useMemo(
+    () => new Set([...onList, ...added].map((n) => String(n).toLowerCase())),
+    [onList, added],
+  )
+
+  /**
+   * Add, then get out of the way of the next one.
+   *
+   * Clearing the query and refocusing is the difference between adding six
+   * things and adding one thing six times. Expiry is the exception — there,
+   * picking a product opens the track sheet, so the parent closes this.
+   */
+  function addAndStay(name, add) {
+    add()
+    if (purpose === 'expiry') return
+    setAdded((prev) => (prev.includes(name) ? prev : [...prev, name]))
+    setQuery('')
+    inputRef.current?.focus()
+  }
 
   // Opening a search screen and having to tap the field is a wasted step.
   useEffect(() => {
@@ -140,6 +165,17 @@ export default function ProductSearch({
           </p>
         )}
 
+        {added.length > 0 && (
+          <p className="psearch__added" role="status">
+            <Icon name="check" size={14} />
+            <strong>{added[added.length - 1]}</strong> added
+            {added.length > 1 && ` · ${added.length} this time`}
+            <button className="psearch__done" type="button" onClick={onClose}>
+              Done
+            </button>
+          </p>
+        )}
+
         <div className="psearch__field">
           <Icon name="search" size={18} />
           <input
@@ -199,12 +235,15 @@ export default function ProductSearch({
                 const bought = lastPurchasedAt(purchases, item.id)
                 const from = source && source !== 'anywhere' ? storeName(source) : null
 
+                const already = onListNames.has(item.name.toLowerCase())
+
                 return (
                   <li key={item.id}>
                     <button
-                      className="presult"
+                      className={`presult ${already ? 'presult--added' : ''}`}
                       type="button"
-                      onClick={() => onAdd(item)}
+                      onClick={() => addAndStay(item.name, () => onAdd(item))}
+                      disabled={already}
                     >
                       <span className="presult__thumb" aria-hidden="true">
                         <Sticker id={categoryFor(item.category).sticker} size={22} />
@@ -252,9 +291,14 @@ export default function ProductSearch({
                 {staples.map((item) => (
                   <li key={item.name}>
                     <button
-                      className="presult"
+                      className={`presult ${
+                        onListNames.has(item.name.toLowerCase()) ? 'presult--added' : ''
+                      }`}
                       type="button"
-                      onClick={() => onAddCatalogue(stapleToListItem(item))}
+                      onClick={() =>
+                        addAndStay(item.name, () => onAddCatalogue(stapleToListItem(item)))
+                      }
+                      disabled={onListNames.has(item.name.toLowerCase())}
                     >
                       <span className="presult__thumb" aria-hidden="true">
                         <Sticker id={categoryFor(item.category).sticker} size={22} />
@@ -284,9 +328,14 @@ export default function ProductSearch({
                 {found.map((row) => (
                   <li key={row.barcode}>
                     <button
-                      className="presult"
+                      className={`presult ${
+                        onListNames.has(row.name.toLowerCase()) ? 'presult--added' : ''
+                      }`}
                       type="button"
-                      onClick={() => onAddCatalogue(toListItem(row, guessCategory))}
+                      onClick={() =>
+                        addAndStay(row.name, () => onAddCatalogue(toListItem(row, guessCategory)))
+                      }
+                      disabled={onListNames.has(row.name.toLowerCase())}
                     >
                       <span className="presult__thumb" aria-hidden="true">
                         <Sticker

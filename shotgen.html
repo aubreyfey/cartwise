@@ -226,6 +226,20 @@
             input.dispatchEvent(new f.contentWindow.Event('input', { bubbles: true }))
           }, delay + 300)
         }
+        // ?after=Label clicks something once typeq's results have rendered,
+        // which is the only way to reach a search result from a URL.
+        const after = (S.get('after') || '').split('|').filter(Boolean)
+        let adelay = delay + 900
+        after.forEach((label) => {
+          setTimeout(() => {
+            const d = f.contentDocument
+            const scope = d.querySelector('.psearch') || d
+            const btn = [...scope.querySelectorAll('button')].find((b) =>
+              ((b.textContent || '') + ' ' + (b.getAttribute('aria-label') || '')).includes(label))
+            if (btn) btn.click()
+          }, adelay)
+          adelay += 700
+        })
         if (scroll) {
           setTimeout(() => { f.contentWindow.scrollTo(0, scroll) }, delay + 400)
         }

@@ -8897,3 +8897,43 @@ button.card:hover {
   color: color-mix(in srgb, var(--text) 78%, transparent);
   font-weight: 700;
 }
+
+/* What was just added, and a way out. The sheet no longer closes on the first
+   tap, so it has to say something happened and offer a Done. */
+.psearch__added {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.5rem;
+  padding: 0.45rem 0.5rem 0.45rem 0.65rem;
+  font-size: 0.82rem;
+  color: var(--money);
+  background: var(--money-soft, rgba(0, 0, 0, 0.04));
+  border-radius: 999px;
+}
+
+.psearch__added strong {
+  font-weight: 650;
+}
+
+.psearch__done {
+  margin-left: auto;
+  padding: 0.25rem 0.75rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--surface);
+  border: none;
+  border-radius: 999px;
+}
+
+/* Already on the list: still visible, so you can see you got it, but not
+   offering a second tap that would silently do nothing. */
+.presult--added {
+  opacity: 0.55;
+}
+
+.presult--added .presult__add::after {
+  content: '✓';
+}

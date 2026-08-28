@@ -725,8 +725,8 @@ export default function App() {
    * only honest source. Scanning that barcode later will now recognise it.
    */
   function addFromCatalogue(draft) {
-    setSearching(false)
     if (searchFor === 'expiry') {
+      setSearching(false)
       setTrackTarget({ ...draft, id: null })
       return
     }
@@ -745,9 +745,19 @@ export default function App() {
     })
   }
 
+  /**
+   * Add from search — and stay open.
+   *
+   * Closing after one item meant reopening the sheet for the second, and
+   * again for the third. Nobody shops for one thing. The sheet now stays,
+   * clears the query and refocuses, so the next name can just be typed.
+   *
+   * Expiry is the exception: picking a product there is choosing what to
+   * track, and the track sheet opens straight after, so the search closes.
+   */
   function addFromSearch(vaultItem) {
-    setSearching(false)
     if (searchFor === 'expiry') {
+      setSearching(false)
       setTrackTarget(vaultItem)
       return
     }
@@ -1120,7 +1130,15 @@ export default function App() {
         activeStoreId={activeStoreId}
         categoryFor={categoryFor}
         purpose={searchFor}
+        onList={items.map((i) => i.name)}
         onAdd={addFromSearch}
+        // Both of these were missing. Without onAddCatalogue, tapping any
+        // staple or catalogue result called undefined and threw, so only Vault
+        // results ever added anything. Without base, the catalogue is fetched
+        // from /catalogue/ph.json, which 404s wherever the app is served from a
+        // subpath — which is where it is deployed.
+        onAddCatalogue={addFromCatalogue}
+        base={import.meta.env.BASE_URL}
         onScan={() => {
           setSearching(false)
           setScanRequested(true)
