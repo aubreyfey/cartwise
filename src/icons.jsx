@@ -10,6 +10,13 @@
 // of the app that are not products.
 
 const PATHS = {
+  image: (
+    <>
+      <rect x="3.2" y="4.8" width="17.6" height="14.4" rx="2.4" />
+      <circle cx="8.6" cy="9.6" r="1.5" />
+      <path d="m3.6 16.4 4.3-3.8 3.5 3 3.4-3.4 5.6 5" />
+    </>
+  ),
   check: (
     <path d="m4.5 12.5 5 5 10-11" />
   ),

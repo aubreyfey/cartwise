@@ -8770,3 +8770,12 @@ button.card:hover {
 .app--photo .vrow__meta {
   color: color-mix(in srgb, var(--text) 72%, transparent);
 }
+
+/* Adding the background button made this row too wide for a phone. .toolbar
+   already wraps, but .sortbar was shrinking and overflowing off the right
+   edge instead — taking Abc with it. Refusing to shrink makes it wrap onto
+   its own line on narrow screens and stay inline on wider ones. */
+.sortbar {
+  flex-shrink: 0;
+  margin-left: auto;
+}

@@ -1488,6 +1488,18 @@ export default function App() {
           >
             <Icon name="search" size={16} />
           </button>
+          {/* The background picker also lives on the budget bar, behind a
+              small sparkle that is easy to miss. This is the row people
+              actually reach for when they want to change how the list looks. */}
+          <button
+            className="searchbtn"
+            type="button"
+            onClick={() => setPickingBackground(true)}
+            aria-label="Change this list's background"
+            title="Background"
+          >
+            <Icon name="image" size={16} />
+          </button>
           <div className="segmented segmented--sort" role="group" aria-label="Sort">
             <button
               type="button"
