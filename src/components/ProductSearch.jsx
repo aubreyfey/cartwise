@@ -6,6 +6,7 @@ import Sticker from '../stickers.jsx'
 import Icon from '../icons.jsx'
 import { searchProducts } from '../lookup.js'
 import { loadCatalogue, searchCatalogue, toListItem } from '../catalogue.js'
+import { searchStaples, stapleCount, stapleToListItem } from '../staples.js'
 import { guessCategory } from '../categories.js'
 
 const when = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' })
@@ -75,14 +76,25 @@ export default function ProductSearch({
     }
   }, [base])
 
+  // Generic groceries — rice, eggs, onions — which the packaged-food
+  // catalogue simply does not contain. Bundled, so they work offline and from
+  // the first keystroke.
+  const staples = useMemo(() => {
+    if (!query.trim()) return []
+    const known = new Set(vault.map((v) => String(v.name).trim().toLowerCase()))
+    return searchStaples(query).filter((item) => !known.has(item.name.toLowerCase()))
+  }, [query, vault])
+
   const found = useMemo(() => {
     if (!query.trim()) return []
     // Anything already in the Vault is shown from there, with its price.
     const known = new Set(vault.map((v) => String(v.name).trim().toLowerCase()))
+    const asStaple = new Set(staples.map((s) => s.name.toLowerCase()))
     return searchCatalogue(catalogue, query).filter(
-      (row) => !known.has(row.name.trim().toLowerCase()),
+      (row) =>
+        !known.has(row.name.trim().toLowerCase()) && !asStaple.has(row.name.trim().toLowerCase()),
     )
-  }, [catalogue, query, vault])
+  }, [catalogue, query, vault, staples])
 
   // Open Food Facts live, on a tap and never automatically — for anything the
   // bundled catalogue does not have.
@@ -127,7 +139,7 @@ export default function ProductSearch({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={`${(vault.length + catalogue.length).toLocaleString()} items to browse`}
+            placeholder={`${(vault.length + catalogue.length + stapleCount()).toLocaleString()} items to browse`}
             aria-label="Search for a product"
             autoComplete="off"
           />
@@ -224,6 +236,36 @@ export default function ProductSearch({
               })}
             </ul>
           )}
+          {searching && staples.length > 0 && (
+            <>
+              <p className="psearch__online-head">Groceries · you set the price</p>
+              <ul className="psearch__results">
+                {staples.map((item) => (
+                  <li key={item.name}>
+                    <button
+                      className="presult"
+                      type="button"
+                      onClick={() => onAddCatalogue(stapleToListItem(item))}
+                    >
+                      <span className="presult__thumb" aria-hidden="true">
+                        <Sticker id={categoryFor(item.category).sticker} size={22} />
+                      </span>
+                      <span className="presult__text">
+                        <span className="presult__name">{item.name}</span>
+                        <span className="presult__meta">
+                          {categoryFor(item.category).label} · per {item.unit}
+                        </span>
+                      </span>
+                      <span className="presult__add" aria-hidden="true">
+                        +
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
           {searching && found.length > 0 && (
             <>
               <p className="psearch__online-head">

@@ -208,6 +208,20 @@
           }, delay)
           delay += 700
         })
+        // ?typeq=rice types into the first search box, so search results can
+        // be screenshotted without a human at the keyboard.
+        const typeq = S.get('typeq')
+        if (typeq) {
+          setTimeout(() => {
+            const d = f.contentDocument
+            const input = d.querySelector('input[type=search]')
+            if (!input) return
+            const setter = Object.getOwnPropertyDescriptor(
+              f.contentWindow.HTMLInputElement.prototype, 'value').set
+            setter.call(input, typeq)
+            input.dispatchEvent(new f.contentWindow.Event('input', { bubbles: true }))
+          }, delay + 300)
+        }
         if (scroll) {
           setTimeout(() => { f.contentWindow.scrollTo(0, scroll) }, delay + 400)
         }

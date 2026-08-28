@@ -675,7 +675,10 @@ export default function App() {
       name: draft.name,
       qty: draft.qty,
       price: null,
-      unit: DEFAULT_UNIT,
+      // A staple carries the unit you would actually buy it in — rice by the
+      // kilo, milk by the litre. Open Food Facts rows carry none, so those
+      // still fall back to the default.
+      unit: draft.unit ?? DEFAULT_UNIT,
       category: draft.category,
       barcode: draft.barcode,
       brand: draft.brand,
