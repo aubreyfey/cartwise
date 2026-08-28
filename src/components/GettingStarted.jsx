@@ -10,7 +10,7 @@ import { breathes } from '../mascotState.js'
  * is more coming. This says so — each step naming what it unlocks rather than
  * just being a chore — and takes itself off the screen once they are done.
  */
-export default function GettingStarted({ carts, trips, purchases, vault, mascot = 'idle' }) {
+export default function GettingStarted({ carts, trips, purchases, vault, mascot = 'idle', onDismiss }) {
   const state = gettingStarted({ carts, trips, purchases, vault })
   if (!state) return null
 
@@ -38,6 +38,20 @@ export default function GettingStarted({ carts, trips, purchases, vault, mascot 
         <span className="gs__count" aria-label={`${done} of ${total} done`}>
           {done}/{total}
         </span>
+
+        {/* Somewhere to put it. A card that tells you the app gets better as
+            you use it should not be the one thing you cannot get rid of. */}
+        {onDismiss && (
+          <button
+            className="gs__close"
+            type="button"
+            onClick={onDismiss}
+            aria-label="Hide this"
+            title="Hide this"
+          >
+            ×
+          </button>
+        )}
       </div>
 
       <ol className="gs__steps">

@@ -91,6 +91,7 @@ import { addStore, compareStores, removeStore, setStoreLocation } from './stores
 import { currentLocation, formatDistance, isLocation, storesByDistance } from './geo.js'
 import { backupUrgency, requestPersistence } from './persistence.js'
 import { homeMascotState } from './mascotState.js'
+import { useEdgeSwipe } from './useEdgeSwipe.js'
 import { isPlus, setPlus } from './plus.js'
 import { contributionEnabled } from './sync/prices.js'
 import { excludeOnList, restockDue } from './restock.js'
@@ -135,6 +136,10 @@ import { TOUR_SEEN_KEY } from './tour.js'
 import Icon from './icons.jsx'
 
 const ALL = { id: 'all', label: 'All items', sticker: 'basket' }
+
+// The top-level screens. Anything else — a list, the category library, the
+// privacy page — is deeper than the tabs and gets a back button instead.
+const TAB_VIEWS = new Set(['home', 'recipes', 'vault', 'expiry', 'trips', 'settings'])
 
 export default function App() {
   // Carts hold the lists; the Vault, stores and trip history are shared
@@ -256,6 +261,9 @@ export default function App() {
   const [plus, setPlusState] = useState(() => isPlus())
   const [wantPlus, setWantPlus] = useState(false)
   const [newList, setNewList] = useState(false)
+  // Whether the getting-started card has been dismissed. Kept separately from
+  // whether its steps are done, so closing it is a decision that sticks.
+  const [gsDismissed, setGsDismissed] = useLocalStorage('cartwise.gsDismissed', false)
   const [backupSnoozedUntil, setBackupSnoozedUntil] = useLocalStorage(
     'cartwise.backupSnooze',
     0,
@@ -1147,11 +1155,16 @@ export default function App() {
     </>
   )
 
+  // Swipe in from the left edge to go back, which every phone does and this
+  // app did not. Disabled on Home, which is already the root.
+  useEdgeSwipe(() => setView('home'), { enabled: view !== 'home' })
+
   const chrome = (children) => {
     const atHome = view === 'home'
+    const isTab = TAB_VIEWS.has(view)
     return (
       <>
-        <div className={`app ${atHome ? 'app--tabbed' : 'app--inner'}`} key={view}>
+        <div className={`app ${isTab ? 'app--tabbed' : 'app--inner'}`} key={view}>
           <header className="app__header">
             {atHome ? (
               <>
@@ -1168,6 +1181,10 @@ export default function App() {
                   +
                 </button>
               </>
+            ) : isTab ? (
+              <span className="app__brand app__brand--quiet">
+                <Icon name="cart" size={20} strokeWidth={1.9} /> CartWise
+              </span>
             ) : (
               <button className="backbtn" type="button" onClick={() => setView('home')}>
                 <span className="backbtn__chevron" aria-hidden="true">
@@ -1189,7 +1206,7 @@ export default function App() {
           )}
           {children}
         </div>
-        {atHome && (
+        {isTab && (
           <NavBar view={view} onNavigate={setView} alerts={needsAttention(pantry)} />
         )}
         {overlays()}
@@ -1369,7 +1386,16 @@ export default function App() {
     return chrome(
       <>
       <InstallHint />
-      <GettingStarted carts={carts} trips={trips} purchases={purchases} vault={vault} mascot={mascotFace} />
+      {!gsDismissed && (
+        <GettingStarted
+          carts={carts}
+          trips={trips}
+          purchases={purchases}
+          vault={vault}
+          mascot={mascotFace}
+          onDismiss={() => setGsDismissed(true)}
+        />
+      )}
       <HomeScreen
         carts={carts}
         trips={trips}
@@ -1418,7 +1444,7 @@ export default function App() {
 
   return (
     <div
-      className={`app ${listPhoto ? 'app--photo' : ''}`}
+      className="app"
       style={listPhoto ? { '--list-photo': `url("${listPhoto}")` } : undefined}
     >
       <header className="app__header">
@@ -1488,19 +1514,18 @@ export default function App() {
           >
             <Icon name="search" size={16} />
           </button>
-          {/* The background picker also lives on the budget bar, behind a
-              small sparkle that is easy to miss. This is the row people
-              actually reach for when they want to change how the list looks. */}
-          <button
-            className="searchbtn"
-            type="button"
-            onClick={() => setPickingBackground(true)}
-            aria-label="Change this list's background"
-            title="Background"
-          >
-            <Icon name="image" size={16} />
-          </button>
-          <div className="segmented segmented--sort" role="group" aria-label="Sort">
+          <div className="segmented segmented--sort" role="group" aria-label="List view">
+            {/* An action, not a choice — so no pressed state, and a hairline
+                separating it from the three that are a choice. */}
+            <button
+              type="button"
+              className="segmented__btn segmented__btn--action"
+              onClick={() => setPickingBackground(true)}
+              aria-label="Change this list's background"
+              title="Background"
+            >
+              <Icon name="image" size={16} />
+            </button>
             <button
               type="button"
               className={`segmented__btn ${sortMode === 'aisle' ? 'segmented__btn--on' : ''}`}
@@ -1607,7 +1632,7 @@ export default function App() {
         </>
       )}
 
-      <main className="app__list">
+      <main className={`app__list ${listPhoto ? 'app__list--photo' : ''}`}>
         {grouped.length === 0 ? (
           <p className="empty">
             Nothing on this list yet. Add your first item above — CartWise sorts

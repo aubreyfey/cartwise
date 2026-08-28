@@ -8650,127 +8650,6 @@ button.card:hover {
 }
 
 
-/* --------------------------------------------------- the list photo, behind
-
-   The photo used to sit on the budget bar only, so it read as decoration
-   stuck to one component rather than as the backdrop of the list. It now
-   fills the screen, and the panels go translucent over it.
-
-   Fixed attachment so it stays put while the list scrolls. iOS Safari has
-   never honoured background-attachment: fixed and scrolls it instead, which
-   is a fine thing to lose — the picture is still there and still readable. */
-
-.app--photo {
-  background:
-    linear-gradient(
-      to bottom,
-      rgb(12 10 18 / 0.55) 0%,
-      rgb(12 10 18 / 0.35) 40%,
-      rgb(12 10 18 / 0.55) 100%
-    ),
-    var(--list-photo) center / cover no-repeat fixed;
-  background-color: #201d28;
-}
-
-/* Panels let the picture through. The blur is what keeps prices readable over
-   a busy photograph — without it, text on a photo is a gamble on the photo. */
-.app--photo .section,
-.app--photo .add-form,
-.app--photo .vault,
-.app--photo .compare,
-.app--photo .insights,
-.app--photo .carts,
-.app--photo .storebar,
-.app--photo .gs,
-.app--photo .byg,
-.app--photo .restock,
-.app--photo .split,
-.app--photo .storecompare {
-  background: color-mix(in srgb, var(--surface) 78%, transparent);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  backdrop-filter: blur(14px) saturate(1.15);
-  border-color: color-mix(in srgb, var(--hairline) 60%, transparent);
-}
-
-/* The chrome sitting directly on the photo, rather than on a panel. */
-.app--photo .app__header,
-.app--photo .app__breadcrumb,
-.app--photo .backbtn,
-.app--photo .listtools {
-  color: #fff;
-}
-
-.app--photo .backbtn {
-  color: #fff;
-}
-
-.app--photo .app__breadcrumb {
-  color: rgb(255 255 255 / 0.85);
-}
-
-/* Where a photo is set, the section headings sit over glass rather than over
-   paper, so they need a touch more weight to hold up. */
-.app--photo .section__tag {
-  font-weight: 700;
-}
-
-/* Browsers without color-mix get a solid panel rather than an unreadable one.
-   Losing the translucency is a much smaller loss than losing the text. */
-@supports not (background: color-mix(in srgb, white 50%, transparent)) {
-  .app--photo .section,
-  .app--photo .add-form,
-  .app--photo .vault,
-  .app--photo .compare,
-  .app--photo .insights,
-  .app--photo .carts,
-  .app--photo .storebar,
-  .app--photo .gs,
-.app--photo .byg,
-.app--photo .restock,
-.app--photo .split,
-.app--photo .storecompare {
-    background: var(--surface);
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .app--photo .section,
-  .app--photo .add-form,
-  .app--photo .vault,
-  .app--photo .compare,
-  .app--photo .insights,
-  .app--photo .carts,
-  .app--photo .storebar,
-  .app--photo .gs,
-.app--photo .byg,
-.app--photo .restock,
-.app--photo .split,
-.app--photo .storecompare {
-    background: var(--surface);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
-/* Ghost buttons are drawn in muted grey on paper. On glass over a photograph
-   that is not enough separation, so they take the full text colour and a
-   solid-enough backing to sit on. */
-.app--photo .btn--ghost,
-.app--photo .storebar__add,
-.app--photo .storebar__edit {
-  color: var(--text);
-  background: color-mix(in srgb, var(--surface) 72%, transparent);
-  border-color: color-mix(in srgb, var(--text) 22%, transparent);
-}
-
-/* Secondary text inside a glass panel needs a little more weight than it does
-   on paper, where nothing is competing with it. */
-.app--photo .section__count,
-.app--photo .item__meta,
-.app--photo .vrow__meta {
-  color: color-mix(in srgb, var(--text) 72%, transparent);
-}
-
 /* Adding the background button made this row too wide for a phone. .toolbar
    already wraps, but .sortbar was shrinking and overflowing off the right
    edge instead — taking Abc with it. Refusing to shrink makes it wrap onto
@@ -8779,3 +8658,98 @@ button.card:hover {
   flex-shrink: 0;
   margin-left: auto;
 }
+
+/* Somewhere to close the getting-started card. */
+.gs__close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  margin: -0.35rem -0.3rem -0.35rem 0.1rem;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--text-faint, var(--text-muted));
+  background: none;
+  border: none;
+  border-radius: 999px;
+}
+
+.gs__close:hover { color: var(--text); background: var(--surface-2, rgba(0,0,0,.05)); }
+
+/* The wordmark on a tab screen that is not Home: present, but not competing
+   with the screen title just below it. */
+.app__brand--quiet {
+  opacity: 0.55;
+  font-size: 0.95rem;
+}
+
+
+/* ------------------------------------------------------ the list photo
+
+   Scoped to the items, not the whole screen. The photo belongs to what is on
+   the list — the cabbage, the bread — not to the shop chips or the
+   Planning/Shopping switch, which are controls and read worse over a picture.
+
+   The picture sits behind the aisle sections and the sections go translucent
+   over it, so it shows through the rows themselves rather than framing them. */
+
+.app__list--photo {
+  position: relative;
+  padding: 0.55rem;
+  margin: 0 -0.55rem;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(rgb(12 10 18 / 0.28), rgb(12 10 18 / 0.28)),
+    var(--list-photo) center / cover no-repeat;
+  background-color: #201d28;
+}
+
+/* The panels inside let the picture through. The blur is what keeps prices
+   readable over a busy photograph — without it, text on a photo is a gamble
+   on which photo. */
+.app__list--photo .section {
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-color: color-mix(in srgb, var(--hairline) 55%, transparent);
+}
+
+/* Secondary text needs a little more weight on glass than it does on paper,
+   where nothing is competing with it. */
+.app__list--photo .section__count,
+.app__list--photo .item__meta {
+  color: color-mix(in srgb, var(--text) 74%, transparent);
+}
+
+.app__list--photo .empty {
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+}
+
+/* Two ways out, because translucency is the kind of thing that fails quietly.
+   Losing the glass is a far smaller loss than losing the text. */
+@supports not (background: color-mix(in srgb, white 50%, transparent)) {
+  .app__list--photo .section {
+    background: var(--surface);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .app__list--photo .section {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* The background button sits in the same pill as the sort options but is not
+   one of them, so a hairline keeps the action apart from the choices. */
+.segmented__btn--action {
+  border-right: 1px solid var(--hairline);
+  border-radius: 0;
+  margin-right: 0.15rem;
+  color: var(--text-muted);
+}
+
+.segmented__btn--action:hover { color: var(--text); }
