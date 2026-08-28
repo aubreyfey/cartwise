@@ -7219,3 +7219,121 @@ button.card:hover {
   line-height: 1;
   color: var(--text-muted);
 }
+
+/* ---------- motion ---------- */
+
+/* A wave on arrival, three times, then still. A hand that waves forever stops
+   reading as a greeting and starts reading as a spinner. */
+.wave {
+  display: inline-block;
+  margin-left: 0.3rem;
+  font-size: 0.85em;
+  transform-origin: 70% 80%;
+  animation: wave-hand 1.5s ease-in-out 300ms 3;
+}
+
+@keyframes wave-hand {
+  0%, 55%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(16deg); }
+  20% { transform: rotate(-10deg); }
+  30% { transform: rotate(16deg); }
+  40% { transform: rotate(-6deg); }
+  50% { transform: rotate(10deg); }
+}
+
+/* The home cards deal themselves in rather than all appearing at once. Small
+   distance, quick, and staggered only across the first handful — past that it
+   is a queue you are waiting on rather than a flourish. */
+.home .card,
+.home .expiry-card {
+  animation: deal-in 380ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+
+.home .purpose:nth-of-type(1) .cards li:nth-child(1) .card { animation-delay: 40ms; }
+.home .purpose:nth-of-type(1) .cards li:nth-child(2) .card { animation-delay: 90ms; }
+.home .purpose:nth-of-type(1) .cards li:nth-child(3) .card { animation-delay: 140ms; }
+.home .purpose:nth-of-type(1) .cards li:nth-child(4) .card { animation-delay: 180ms; }
+
+@keyframes deal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Ticking something off should feel like it landed. */
+.item__check:active {
+  transform: scale(0.9);
+}
+
+.item__check {
+  transition: transform 140ms cubic-bezier(0.3, 0.9, 0.3, 1.4);
+}
+
+/* The budget bar grows to its value instead of appearing at it. */
+.budget__fill {
+  transition: width 520ms cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+/* Sheets rise from the foot rather than blinking on. */
+.psearch,
+.trackx,
+.buying,
+.whysheet,
+.pdetail {
+  animation: sheet-rise 280ms cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+@keyframes sheet-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The floating + arrives after the page has settled, so it reads as an offer
+   rather than as part of the furniture. */
+.fab {
+  animation: fab-pop 320ms cubic-bezier(0.3, 1.2, 0.4, 1) 260ms both;
+}
+
+@keyframes fab-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Everything above is decoration. Anyone who has asked their device to stop
+   moving things gets none of it — including the wave, which is the most
+   movement on the screen. */
+@media (prefers-reduced-motion: reduce) {
+  .wave,
+  .home .card,
+  .home .expiry-card,
+  .psearch,
+  .trackx,
+  .buying,
+  .whysheet,
+  .pdetail,
+  .fab {
+    animation: none;
+  }
+
+  .item__check,
+  .budget__fill {
+    transition: none;
+  }
+}

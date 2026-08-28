@@ -6,6 +6,7 @@
 
 export const STICKER_IDS = [
   'banana', 'apple', 'broccoli', 'carrot', 'tomato', 'leaf',
+  'mango', 'citrus', 'grapes', 'melon', 'berry', 'avocado', 'pineapple',
   'bread', 'baguette',
   'drumstick', 'fish',
   'milk', 'egg', 'cheese', 'yogurt',
@@ -19,9 +20,23 @@ export const STICKER_IDS = [
 
 // name keyword -> sticker. Checked before the category fallback, so
 // "olive oil" gets the bottle rather than a generic tin.
+//
+// Order matters and so do word boundaries. These are substring tests, so
+// "watermelon" used to match `water` and come back a drinks cup, and
+// "pineapple" matched `apple`. Anything whose word is a prefix of another
+// word is anchored with \b, and the compound fruit sit above the words they
+// contain.
 const KEYWORDS = [
+  // Compound names first: each of these contains a shorter keyword below it.
+  [/watermelon|honeydew|cantaloupe|\bmelon/, 'melon'],
+  [/pineapple/, 'pineapple'],
   [/banana/, 'banana'],
-  [/apple/, 'apple'],
+  [/\bapple/, 'apple'],
+  [/mango/, 'mango'],
+  [/orange|lemon|lime|calamansi|dalandan|pomelo|citrus|grapefruit|mandarin/, 'citrus'],
+  [/grape(?!fruit)|raisin/, 'grapes'],
+  [/strawberr|blueberr|raspberr|blackberr|\bberry|berries|cherry|cherries/, 'berry'],
+  [/avocado|guacamole/, 'avocado'],
   [/broccoli|cauliflower|cabbage/, 'broccoli'],
   [/carrot|parsnip/, 'carrot'],
   [/tomato/, 'tomato'],
@@ -34,14 +49,14 @@ const KEYWORDS = [
   [/egg/, 'egg'],
   [/cheese|cheddar|mozzarella|parmesan|feta/, 'cheese'],
   [/yogurt|yoghurt|kefir/, 'yogurt'],
-  [/frozen|ice/, 'ice'],
+  [/frozen|\bice\b/, 'ice'],
   [/pasta|spaghetti|linguine|noodle|macaroni/, 'pasta'],
   [/oil|vinegar/, 'oil'],
   [/jam|honey|peanut butter|spread|sauce/, 'jar'],
   [/chip|crisp|pretzel|popcorn|snack/, 'chips'],
   [/cookie|biscuit|chocolate|candy|sweet/, 'cookie'],
   [/coffee|tea|latte/, 'cup'],
-  [/water|juice|soda|cola|beer|wine|drink|seltzer/, 'bottle'],
+  [/\bwater|juice|soda|cola|beer|wine|drink|seltzer/, 'bottle'],
   [/paper|towel|tissue|toilet|napkin/, 'paper'],
   [/soap|detergent|cleaner|bleach|shampoo|spray/, 'spray'],
 ]
@@ -69,6 +84,13 @@ export const STICKER_EMOJI = {
   broccoli: '🥦',
   carrot: '🥕',
   tomato: '🍅',
+  mango: '🥭',
+  citrus: '🍊',
+  grapes: '🍇',
+  melon: '🍉',
+  berry: '🍓',
+  avocado: '🥑',
+  pineapple: '🍍',
   leaf: '🥬',
   bread: '🍞',
   baguette: '🥖',

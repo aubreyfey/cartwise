@@ -44,6 +44,12 @@ export default function HomeScreen({
       <section className="greeting">
         <h1 className="greeting__hi">
           Hey{name ? `, ${name}` : ''}
+          {/* Waves once when the screen arrives, then stops. A hand that never
+              stops waving stops reading as a greeting and starts reading as a
+              loading spinner. */}
+          <span className="wave" aria-hidden="true">
+            👋
+          </span>
         </h1>
 
         {stats ? (

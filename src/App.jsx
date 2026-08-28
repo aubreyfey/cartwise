@@ -67,7 +67,6 @@ import {
 import { askForNotifications, notificationPermission, showReminder } from './notify.js'
 import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from './backgrounds.js'
 import { AISLE_ORDER_KEY, defaultAisleOrder, orderedCategories } from './aisleOrder.js'
-import AislePanel from './components/AislePanel.jsx'
 import ProductSearch from './components/ProductSearch.jsx'
 import BuyingSheet from './components/BuyingSheet.jsx'
 import TrackExpirySheet from './components/TrackExpirySheet.jsx'
@@ -180,7 +179,6 @@ export default function App() {
   }
   const [sortMode, setSortMode] = useLocalStorage('cartwise.sort', 'aisle')
   const [aisleOrder, setAisleOrder] = useLocalStorage(AISLE_ORDER_KEY, defaultAisleOrder)
-  const [aislesOpen, setAislesOpen] = useState(false)
   // The aisles as configured: renamed, reordered, archived ones dropped.
   const categories = useMemo(
     () => activeCategories(categoryLibrary, aisleOrder),
@@ -1269,28 +1267,6 @@ export default function App() {
             </button>
           </div>
 
-          {/* Only means anything while the list is actually in aisles. */}
-          {sortMode === 'aisle' && (
-            <div className="sortbar__reorder">
-              <button
-                className={`aislebtn ${aislesOpen ? 'aislebtn--on' : ''}`}
-                type="button"
-                onClick={() => setAislesOpen((open) => !open)}
-                aria-label="Aisle order"
-                aria-expanded={aislesOpen}
-                title="Rearrange the aisles"
-              >
-                ⇅
-              </button>
-              {aislesOpen && (
-                <AislePanel
-                  order={aisleOrder}
-                  onChange={setAisleOrder}
-                  onClose={() => setAislesOpen(false)}
-                />
-              )}
-            </div>
-          )}
         </div>
       </div>
 
