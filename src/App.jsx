@@ -9,6 +9,7 @@ import DataPanel from './components/DataPanel.jsx'
 import ExpiryScreen from './components/ExpiryScreen.jsx'
 import HomeScreen from './components/HomeScreen.jsx'
 import GettingStarted from './components/GettingStarted.jsx'
+import InstallHint from './components/InstallHint.jsx'
 import Insights from './components/Insights.jsx'
 import ItemSheet from './components/ItemSheet.jsx'
 import NavBar from './components/NavBar.jsx'
@@ -1148,6 +1149,7 @@ export default function App() {
   if (view === 'home') {
     return chrome(
       <>
+      <InstallHint />
       <GettingStarted carts={carts} trips={trips} purchases={purchases} vault={vault} />
       <HomeScreen
         carts={carts}
