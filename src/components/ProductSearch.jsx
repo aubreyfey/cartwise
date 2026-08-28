@@ -125,6 +125,15 @@ export default function ProductSearch({
         onMouseDown={(e) => e.stopPropagation()}
       >
         <span className="psearch__grip" aria-hidden="true" />
+        <button
+          className="psearch__close"
+          type="button"
+          onClick={onClose}
+          aria-label="Close search"
+          title="Close"
+        >
+          ×
+        </button>
         {purpose === 'expiry' && (
           <p className="psearch__purpose">
             Pick something to track the expiry of

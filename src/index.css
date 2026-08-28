@@ -1837,7 +1837,18 @@ textarea {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: rgb(12 10 18 / 0.55);
+  /* Heavier at top and bottom, where the title, the labels and the amounts
+     sit; lighter across the middle, which is mostly the progress track. A
+     flat wash protected the same text but dulled the whole photograph to do
+     it. Dark enough at both ends that white type holds up over anything
+     someone uploads, including a white-out beach or a snow scene. */
+  background: linear-gradient(
+    to bottom,
+    rgb(12 10 18 / 0.72) 0%,
+    rgb(12 10 18 / 0.46) 42%,
+    rgb(12 10 18 / 0.5) 68%,
+    rgb(12 10 18 / 0.76) 100%
+  );
 }
 
 .budget--photo .budget__title,
@@ -2320,7 +2331,7 @@ textarea {
   /* The visible height, keyboard excluded. See viewport.js — 92vh here put
      the results and the Scan / Manual / Vault row underneath the keyboard
      the moment anyone typed. */
-  max-height: calc(var(--vvh, 92vh) - var(--vvb, 0px) - 1.5rem);
+  max-height: calc(var(--vvh, 92vh) - 1.5rem);
   overflow-y: auto;
   padding: 0.7rem 1rem 1.2rem;
   background: var(--surface);
@@ -2584,7 +2595,7 @@ textarea {
   /* The visible height, keyboard excluded. See viewport.js — 92vh here put
      the results and the Scan / Manual / Vault row underneath the keyboard
      the moment anyone typed. */
-  max-height: calc(var(--vvh, 92vh) - var(--vvb, 0px) - 1.5rem);
+  max-height: calc(var(--vvh, 92vh) - 1.5rem);
   padding: 0.5rem 0.9rem env(safe-area-inset-bottom);
   background: var(--surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -2880,7 +2891,7 @@ textarea {
   /* The visible height, keyboard excluded. See viewport.js — 92vh here put
      the results and the Scan / Manual / Vault row underneath the keyboard
      the moment anyone typed. */
-  max-height: calc(var(--vvh, 92vh) - var(--vvb, 0px) - 1.5rem);
+  max-height: calc(var(--vvh, 92vh) - 1.5rem);
   overflow-y: auto;
   padding: 0.6rem 0.9rem 1rem;
   background: var(--bg);
@@ -5856,16 +5867,33 @@ button.card:hover {
   display: grid;
   place-items: center;
   padding: 1rem;
+  /* --vvb is how much of the window the keyboard covers. Every sheet already
+     used it to shrink its max-height, so they all got shorter when the
+     keyboard opened — and not one of them moved, because this backdrop is
+     inset: 0, the whole window, including the strip behind the keyboard. A
+     sheet pinned to its bottom was pinned underneath the keyboard.
+
+     Padding the backdrop instead of each sheet fixes both shapes at once:
+     the bottom-pinned search sheet rises, and the centred sheets re-centre
+     on what is actually visible. */
+  padding-bottom: calc(1rem + var(--vvb, 0px));
   background: rgb(28 20 40 / 0.45);
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   overflow-y: auto;
+  transition: padding-bottom 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    transition: none;
+  }
 }
 
 .receipt {
   position: relative;
   width: min(26rem, 100%);
-  max-height: calc(var(--vvh, 100vh) - var(--vvb, 0px) - 2rem);
+  max-height: calc(var(--vvh, 100vh) - 2rem);
   overflow-y: auto;
   background: var(--surface);
   filter: drop-shadow(0 12px 32px rgb(20 10 40 / 0.35));
@@ -8358,7 +8386,7 @@ button.card:hover {
 
 .plussheet {
   width: min(23rem, 100%);
-  max-height: calc(var(--vvh, 92vh) - var(--vvb, 0px) - 2rem);
+  max-height: calc(var(--vvh, 92vh) - 2rem);
   overflow-y: auto;
   padding: 1.3rem 1.1rem 1rem;
   background: var(--surface);
@@ -8530,7 +8558,7 @@ button.card:hover {
 /* ------------------------------------------------------------- cookbook */
 .cookbook {
   width: min(26rem, 100%);
-  max-height: calc(var(--vvh, 92vh) - var(--vvb, 0px) - 2rem);
+  max-height: calc(var(--vvh, 92vh) - 2rem);
   overflow-y: auto;
   padding: 1.2rem 1.1rem 1rem;
   background: var(--surface);
@@ -8685,64 +8713,6 @@ button.card:hover {
 }
 
 
-/* ------------------------------------------------------ the list photo
-
-   Scoped to the items, not the whole screen. The photo belongs to what is on
-   the list — the cabbage, the bread — not to the shop chips or the
-   Planning/Shopping switch, which are controls and read worse over a picture.
-
-   The picture sits behind the aisle sections and the sections go translucent
-   over it, so it shows through the rows themselves rather than framing them. */
-
-.app__list--photo {
-  position: relative;
-  padding: 0.55rem;
-  margin: 0 -0.55rem;
-  border-radius: var(--radius);
-  background:
-    linear-gradient(rgb(12 10 18 / 0.28), rgb(12 10 18 / 0.28)),
-    var(--list-photo) center / cover no-repeat;
-  background-color: #201d28;
-}
-
-/* The panels inside let the picture through. The blur is what keeps prices
-   readable over a busy photograph — without it, text on a photo is a gamble
-   on which photo. */
-.app__list--photo .section {
-  background: color-mix(in srgb, var(--surface) 76%, transparent);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  backdrop-filter: blur(14px) saturate(1.15);
-  border-color: color-mix(in srgb, var(--hairline) 55%, transparent);
-}
-
-/* Secondary text needs a little more weight on glass than it does on paper,
-   where nothing is competing with it. */
-.app__list--photo .section__count,
-.app__list--photo .item__meta {
-  color: color-mix(in srgb, var(--text) 74%, transparent);
-}
-
-.app__list--photo .empty {
-  color: #fff;
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
-}
-
-/* Two ways out, because translucency is the kind of thing that fails quietly.
-   Losing the glass is a far smaller loss than losing the text. */
-@supports not (background: color-mix(in srgb, white 50%, transparent)) {
-  .app__list--photo .section {
-    background: var(--surface);
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .app__list--photo .section {
-    background: var(--surface);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
 /* The background button sits in the same pill as the sort options but is not
    one of them, so a hairline keeps the action apart from the choices. */
 .segmented__btn--action {
@@ -8753,3 +8723,51 @@ button.card:hover {
 }
 
 .segmented__btn--action:hover { color: var(--text); }
+
+/* An obvious way out of the search sheet. The grip above it reads as a drag
+   handle to people who already know the gesture and as decoration to everyone
+   else, and tapping the backdrop is invisible until you try it. */
+.psearch__close {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.6rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: var(--surface-2, rgba(0, 0, 0, 0.05));
+  border: none;
+  border-radius: 999px;
+}
+
+.psearch__close:hover {
+  color: var(--text);
+}
+
+.psearch__close:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* The close button is absolutely positioned against the sheet. */
+.psearch {
+  position: relative;
+}
+
+/* The grip and the close button share a strip above the field. Left in flow,
+   the 34px button sat on top of the search input's right-hand corner. */
+.psearch {
+  padding-top: 2.5rem;
+}
+
+.psearch__grip {
+  position: absolute;
+  top: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}

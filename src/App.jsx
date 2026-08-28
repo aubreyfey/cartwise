@@ -1434,19 +1434,9 @@ export default function App() {
     )
   }
 
-  // The list photo, behind the whole screen rather than only the header. The
-  // panels go translucent over it, so the picture reads as the backdrop of
-  // this list rather than as decoration stuck to one bar.
-  const listPhoto =
-    backgroundOf(activeCart, listPhotos[activeCart.id]) === PHOTO_BACKGROUND
-      ? listPhotos[activeCart.id]
-      : null
-
   return (
     <div
-      className="app"
-      style={listPhoto ? { '--list-photo': `url("${listPhoto}")` } : undefined}
-    >
+      className="app">
       <header className="app__header">
         <button className="backbtn" type="button" onClick={() => setView('home')}>
           <span className="backbtn__chevron" aria-hidden="true">
@@ -1632,7 +1622,7 @@ export default function App() {
         </>
       )}
 
-      <main className={`app__list ${listPhoto ? 'app__list--photo' : ''}`}>
+      <main className="app__list">
         {grouped.length === 0 ? (
           <p className="empty">
             Nothing on this list yet. Add your first item above — CartWise sorts
