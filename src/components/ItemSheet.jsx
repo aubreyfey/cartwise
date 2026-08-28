@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { CATEGORIES, guessCategory } from '../categories.js'
+import { CATEGORIES as BUILT_IN_CATEGORIES, guessCategory } from '../categories.js'
 import { currencySymbol } from '../currency.js'
 import { parsePrice } from '../money.js'
 import {
@@ -21,6 +21,7 @@ import Thumb from './Thumb.jsx'
  * item's details are defined rather than two that can drift apart.
  */
 export default function ItemSheet({
+  categories = BUILT_IN_CATEGORIES,
   item,
   stores,
   activeStoreId,
@@ -208,7 +209,7 @@ export default function ItemSheet({
                   setPinnedCategory(true)
                 }}
               >
-                {CATEGORIES.map((c) => (
+                {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.label}
                   </option>

@@ -260,6 +260,8 @@ export default function App() {
   // actually open them. Both components still manage themselves by default.
   const [scanRequested, setScanRequested] = useState(false)
   const [vaultOpen, setVaultOpen] = useState(false)
+  // The add form starts closed; the floating + opens it.
+  const [addOpen, setAddOpen] = useState(false)
 
   function savePhoto(dataUrl) {
     const key = photoKey(photoTarget.name)
@@ -1293,8 +1295,13 @@ export default function App() {
       </div>
 
       {/* Available in both modes: forgetting something is exactly what happens
-          mid-shop, and those additions are what impulse tracking measures. */}
+          mid-shop, and those additions are what impulse tracking measures.
+          Collapsed by default now — it was ~200px of form above every list,
+          and the floating + is the way in. */}
       <AddItemForm
+        collapsed={!addOpen}
+        onCollapsedChange={(next) => setAddOpen(!next)}
+        categories={categories}
         openScanner={scanRequested}
         onScannerHandled={() => setScanRequested(false)}
         onAdd={addItem}
@@ -1313,6 +1320,7 @@ export default function App() {
             onRemove={deleteStore}
           />
 
+          {vaultOpen && (
           <VaultPanel
             open={vaultOpen}
             onOpenChange={setVaultOpen}
@@ -1329,6 +1337,7 @@ export default function App() {
             onRemove={(id) => setVault((prev) => removeVaultItem(prev, id))}
             onList={names}
           />
+          )}
 
           <BeforeYouGo summary={planningSummary}>
             <BasketCompare items={items} reports={priceReports} currency={currency} />
@@ -1409,6 +1418,21 @@ export default function App() {
 
       {mode === 'planning' && <Insights trips={trips} onDeleteTrip={deleteTrip} />}
 
+      {/* One obvious way to add something, in the corner a thumb reaches.
+          Opens the search sheet, which already carries Scan, Manual and Vault
+          — so nothing that used to be on this screen became unreachable. */}
+      <button
+        className={`fab ${items.length > 0 ? 'fab--raised' : ''}`}
+        type="button"
+        onClick={() => {
+          setSearchFor('list')
+          setSearching(true)
+        }}
+        aria-label="Add an item"
+      >
+        <span aria-hidden="true">+</span>
+      </button>
+
       {items.length > 0 && (
         <div className="basket">
           <span className="basket__count" aria-hidden="true">
@@ -1456,6 +1480,7 @@ export default function App() {
 
       {sheetItem && (
         <ItemSheet
+          categories={categories}
           item={sheetItem}
           stores={stores}
           activeStoreId={activeStoreId}

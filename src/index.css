@@ -7145,3 +7145,77 @@ button.card:hover {
 }
 
 /* The sheet scrim gets the prefix too — same bug, same one-line cause. */
+
+/* ---------- add button ---------- */
+
+/* The add-item form used to sit open above every list — roughly 200px of
+   inputs you scrolled past to reach your shopping. It is behind this now.
+ *
+ * Same glass as the nav bar, because they are the same kind of thing: a
+ * control floating over the page rather than part of it. Bottom right, where
+ * a thumb naturally rests. */
+.fab {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 41;
+
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.9rem;
+  font-weight: 300;
+  line-height: 1;
+
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.3),
+    0 2px 6px -2px rgb(20 20 25 / 0.28),
+    0 12px 28px -8px color-mix(in srgb, var(--primary) 55%, transparent);
+
+  transition: transform 160ms cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+.fab:active {
+  transform: scale(0.94);
+}
+
+/* Clear of the sticky basket bar when there is one to clear. */
+.fab--raised {
+  bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab {
+    transition: none;
+  }
+}
+
+/* The add form, now that it is a panel you opened on purpose rather than
+   something permanently in the way. */
+.add-form {
+  position: relative;
+}
+
+.add-form__close {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text-muted);
+}

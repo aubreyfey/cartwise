@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CATEGORIES, guessCategory } from '../categories.js'
+import { CATEGORIES as BUILT_IN_CATEGORIES, guessCategory } from '../categories.js'
 import { formatMoney } from '../money.js'
 import { findByBarcode, priceFor, suggest } from '../vault.js'
 import { DEFAULT_UNIT, UNITS, normalizeQty } from '../units.js'
@@ -11,6 +11,15 @@ import Icon from '../icons.jsx'
 const EMPTY = { name: '', qty: '1', price: '', unit: DEFAULT_UNIT }
 
 export default function AddItemForm({
+  // The aisles as configured — renamed, reordered, with archived ones gone
+  // and custom ones present. Defaulting to the built-ins keeps this usable if
+  // it is ever rendered without the prop.
+  categories = BUILT_IN_CATEGORIES,
+  // Closed by default. The scanner still lives in here and the search sheet
+  // still asks it to open, so the component stays mounted either way — it
+  // just does not occupy the top of the list any more.
+  collapsed = false,
+  onCollapsedChange,
   openScanner = false,
   onScannerHandled, onAdd, onOpenSheet, vault, activeStoreId, onVaultPick }) {
   const [fields, setFields] = useState(EMPTY)
@@ -26,6 +35,7 @@ export default function AddItemForm({
   useEffect(() => {
     if (!openScanner) return
     setScanning(true)
+    onCollapsedChange?.(false)
     onScannerHandled?.()
   }, [openScanner, onScannerHandled])
   // A scanned code we don't recognise yet — attached to whatever you name it.
@@ -152,8 +162,24 @@ export default function AddItemForm({
     nameRef.current?.focus()
   }
 
+  // Collapsed: nothing but the scanner, which can be summoned from elsewhere.
+  if (collapsed) {
+    return scanning ? (
+      <BarcodeScanner onScan={handleScan} onCancel={() => setScanning(false)} />
+    ) : null
+  }
+
   return (
     <form className="add-form" onSubmit={handleSubmit}>
+      <button
+        className="add-form__close"
+        type="button"
+        onClick={() => onCollapsedChange?.(true)}
+        aria-label="Close the add form"
+      >
+        ×
+      </button>
+
       {scanning && (
         <BarcodeScanner onScan={handleScan} onCancel={() => setScanning(false)} />
       )}
@@ -312,7 +338,7 @@ export default function AddItemForm({
               setPinned(true)
             }}
           >
-            {CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.label}
               </option>
