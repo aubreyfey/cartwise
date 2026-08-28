@@ -46,6 +46,13 @@ export default function HomeScreen({
   })
   const groups = useMemo(() => byPurpose(carts), [carts])
 
+  // Which advisory card, if any, earns the single slot above your lists.
+  // Food going off beats a backup reminder: one is a thing to do today, the
+  // other is a thing to do this month. Neither beats seeing your own lists.
+  const backupDue =
+    backup.level === 'overdue' && onOpenSettings && Date.now() > backupSnoozedUntil
+  const advisory = attention > 0 ? 'expiry' : backupDue ? 'backup' : null
+
   const since = trips.length
     ? dateFormat.format(new Date(Math.min(...trips.map((t) => t.completedAt))))
     : null
@@ -92,10 +99,24 @@ export default function HomeScreen({
               : 'Add your name in Settings and finish a trip — your savings show up here.'}
           </p>
         )}
+        {onOpenVault && vaultStats.products > 0 && (
+          <p className="greeting__line greeting__line--sub">
+            <button className="greeting__vault" type="button" onClick={onOpenVault}>
+              {vaultStats.products} {vaultStats.products === 1 ? 'product' : 'products'} in your
+              Vault
+              {vaultStats.pricesRecorded > 0 &&
+                `, ${vaultStats.pricesRecorded} ${
+                  vaultStats.pricesRecorded === 1 ? 'price' : 'prices'
+                } kept`}
+              <span aria-hidden="true"> ›</span>
+            </button>
+          </p>
+        )}
       </section>
 
+      {advisory === 'expiry' && (
       <button
-        className={`expiry-card ${attention > 0 ? 'expiry-card--alert' : ''}`}
+        className="expiry-card expiry-card--alert"
         type="button"
         onClick={onOpenExpiry}
       >
@@ -125,8 +146,9 @@ export default function HomeScreen({
           ›
         </span>
       </button>
+      )}
 
-      {backup.level === 'overdue' && onOpenSettings && Date.now() > backupSnoozedUntil && (
+      {advisory === 'backup' && (
         <div className="backup-card">
           <button className="backup-card__main" type="button" onClick={onOpenSettings}>
             <span className="expiry-card__icon" aria-hidden="true">
@@ -155,29 +177,6 @@ export default function HomeScreen({
             </button>
           )}
         </div>
-      )}
-
-      {onOpenVault && vaultStats.products > 0 && (
-        <button className="vault-card" type="button" onClick={onOpenVault}>
-          <span className="expiry-card__icon" aria-hidden="true">
-            <Icon name="vault" size={22} />
-          </span>
-          <span className="expiry-card__text">
-            <strong>
-              {vaultStats.products} {vaultStats.products === 1 ? 'product' : 'products'} remembered
-            </strong>
-            <span className="expiry-card__sub">
-              {vaultStats.pricesRecorded > 0
-                ? `${vaultStats.pricesRecorded} ${
-                    vaultStats.pricesRecorded === 1 ? 'price' : 'prices'
-                  } kept across ${vaultStats.shops} ${vaultStats.shops === 1 ? 'shop' : 'shops'}`
-                : 'Finish a trip and their prices land here'}
-            </span>
-          </span>
-          <span className="expiry-card__chevron" aria-hidden="true">
-            ›
-          </span>
-        </button>
       )}
 
       {groups.map(({ purpose, carts: group }) => (

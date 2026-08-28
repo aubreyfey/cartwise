@@ -8073,3 +8073,57 @@ button.card:hover {
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ motion
+
+   Three small things, all of which exist to make an action feel like it
+   landed. Nothing here loops, and nothing here runs on scroll. */
+
+/* A squeeze when a row is checked off. 3.5% for 420ms: enough to feel the
+   tap, not enough to notice on the fortieth item. */
+@keyframes item-pop {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(0.965); }
+  100% { transform: scale(1); }
+}
+
+.item--pop {
+  animation: item-pop 0.42s cubic-bezier(0.3, 1.5, 0.4, 1);
+}
+
+/* The running total is animated in JS, so all the stylesheet owes it is a
+   figure width that does not jiggle while the digits change. */
+.budget__spent {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item--pop { animation: none; }
+}
+
+/* ------------------------------------------------------- home, less dense
+
+   More room between lists, less padding inside them: breathing room belongs
+   between things, not within them. */
+.home {
+  gap: 1.35rem;
+}
+
+.home .cards {
+  gap: 0.85rem;
+}
+
+/* The Vault as a line under the greeting rather than a card of its own. */
+.greeting__vault {
+  padding: 0;
+  font: inherit;
+  color: var(--primary);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.greeting__vault:hover {
+  text-decoration: underline;
+}

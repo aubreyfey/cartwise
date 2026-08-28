@@ -55,7 +55,7 @@ export default function ItemRow({
 
   return (
     <li
-      className={`item ${item.checked ? 'item--checked' : ''} ${
+      className={`item ${item.checked ? 'item--checked item--pop' : ''} ${
         shopping ? 'item--shopping' : ''
       }`}
     >

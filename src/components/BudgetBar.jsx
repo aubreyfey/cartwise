@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useCountUp } from '../useCountUp.js'
 import { formatMoney, parseMoney } from '../money.js'
 import Icon from '../icons.jsx'
 
@@ -13,6 +14,9 @@ export default function BudgetBar({
   onPhoto,
   onPickBackground,
 }) {
+  // The spent figure is the one that changes as you shop, so it rolls. The
+  // budget beside it is fixed and rolling it would look unstable.
+  const rollingTotal = useCountUp(listTotal)
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   // Escape closes the input, which fires blur — this stops blur committing
@@ -68,7 +72,7 @@ export default function BudgetBar({
             className={`budget__fill ${over ? 'budget__fill--over' : ''}`}
             style={{ width: hasBudget ? `${over ? 100 : Math.max(pct, 18)}%` : '100%' }}
           >
-            <span className="budget__spent">{formatMoney(listTotal)}</span>
+            <span className="budget__spent">{formatMoney(rollingTotal)}</span>
           </div>
         </div>
 
