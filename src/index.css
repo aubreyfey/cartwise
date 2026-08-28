@@ -1763,7 +1763,7 @@ textarea {
    card switches to white type over a dark wash rather than trusting the
    picture. The wash is heaviest at the foot, where the totals and the progress
    bar sit. */
-.card--photo {
+.card.card--photo {
   position: relative;
   color: #fff;
   border-color: transparent;
@@ -3527,13 +3527,19 @@ textarea {
 }
 
 
-.card--tinted,
+/* .card { background: var(--surface) } is declared further down this file.
+   Both selectors are a single class, so source order decided it and the plain
+   surface won — which meant no list background, colour or photo, ever
+   reached a Home card. .budget--tinted was fine only because .budget happens
+   to sit above it. Doubling the class settles it by specificity instead of
+   by position, so moving these rules around cannot quietly break it again. */
+.card.card--tinted,
 .budget--tinted {
   background: var(--card-bg, var(--surface));
 }
 
 @media (prefers-color-scheme: dark) {
-  .card--tinted,
+  .card.card--tinted,
   .budget--tinted {
     background: var(--card-bg-dark, var(--surface));
   }
