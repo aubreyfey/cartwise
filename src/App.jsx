@@ -296,6 +296,14 @@ export default function App() {
   const [tourSeen, setTourSeen] = useLocalStorage(TOUR_SEEN_KEY, false)
   const [showTour, setShowTour] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
+
+  // Swipe in from the left edge to go back, which every phone does and this
+  // app did not. Disabled on Home, which is already the root.
+  //
+  // Declared here rather than beside the render branches it affects: those
+  // branches return early, and a hook below them runs on some renders and not
+  // others. That is exactly the bug this line caused.
+  useEdgeSwipe(() => setView('home'), { enabled: view !== 'home' })
   const [searching, setSearching] = useState(false)
   const [whyVault, setWhyVault] = useState(false)
   // The Vault product open in the receipt view, by id.
@@ -1207,9 +1215,6 @@ export default function App() {
     </>
   )
 
-  // Swipe in from the left edge to go back, which every phone does and this
-  // app did not. Disabled on Home, which is already the root.
-  useEdgeSwipe(() => setView('home'), { enabled: view !== 'home' })
 
   const chrome = (children) => {
     const atHome = view === 'home'

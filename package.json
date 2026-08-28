@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "node --test",
+    "test": "node scripts/hooks-check.mjs && node --test",
     "build": "vite build",
     "preview": "vite preview",
     "shots": "node scripts/shots.mjs",
@@ -15,7 +15,8 @@
     "catalogue:loop": "node scripts/catalogue-loop.mjs",
     "fonts": "node scripts/fonts.mjs",
     "check:console": "node scripts/console-check.mjs",
-    "check:keyboard": "node scripts/keyboard-check.mjs"
+    "check:keyboard": "node scripts/keyboard-check.mjs",
+    "check:hooks": "node scripts/hooks-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
