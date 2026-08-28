@@ -31,6 +31,9 @@ export default function SettingsScreen({
   stickerStyle,
   onStickerStyleChange,
   onRestore,
+  lastBackupAt,
+  onBackedUp,
+  onOpenAbout,
   onShowTour,
   onOpenCategories,
   contributing,
@@ -181,7 +184,14 @@ export default function SettingsScreen({
       </p>
 
       <AccountPanel />
-      <DataPanel onRestore={onRestore} />
+      <DataPanel onRestore={onRestore} lastBackupAt={lastBackupAt} onBackedUp={onBackedUp} />
+
+      {onOpenAbout && (
+        <button className="settings__about" type="button" onClick={onOpenAbout}>
+          <span>Privacy &amp; credits</span>
+          <span aria-hidden="true">›</span>
+        </button>
+      )}
     </div>
   )
 }

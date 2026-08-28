@@ -43,6 +43,7 @@ import TourScreen from './components/TourScreen.jsx'
 import StoreBar from './components/StoreBar.jsx'
 import StoreMap from './components/StoreMap.jsx'
 import VaultScreen from './components/VaultScreen.jsx'
+import AboutScreen from './components/AboutScreen.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import BasketCompare from './components/BasketCompare.jsx'
 import BeforeYouGo from './components/BeforeYouGo.jsx'
@@ -85,6 +86,8 @@ import {
 } from './listPhotos.js'
 import { addStore, compareStores, removeStore, setStoreLocation } from './stores.js'
 import { currentLocation, formatDistance, isLocation, storesByDistance } from './geo.js'
+import { backupUrgency, requestPersistence } from './persistence.js'
+import { contributionEnabled } from './sync/prices.js'
 import { excludeOnList, restockDue } from './restock.js'
 import { productKey, reportsFromPurchases } from './community.js'
 import {
@@ -235,6 +238,9 @@ export default function App() {
   // 'home' | 'list' | 'expiry' | 'trips' | 'settings'
   const [view, setView] = useState('home')
   const [displayName, setDisplayName] = useLocalStorage('cartwise.name', '')
+  // When a copy was last saved, so the app can say so instead of guessing.
+  const [lastBackupAt, setLastBackupAt] = useLocalStorage('cartwise.lastBackup', null)
+  const [durable, setDurable] = useState(null)
   // Mirrors the module-level currency so changing it re-renders every price.
   const [currency, setCurrencyState] = useState(getCurrency)
   // Photo cut-outs live outside useLocalStorage: they're the one thing big
@@ -371,6 +377,10 @@ export default function App() {
     removeStored('cartwise.activeStore')
     // Days that have been and gone, so the plan does not grow forever.
     setMealPlan((prev) => prunePast(prev))
+    // Browsers treat site storage as disposable. Nothing was asking them not
+    // to, which for an app whose whole value is a year of accumulated prices
+    // is the most likely way someone loses everything.
+    requestPersistence().then(setDurable)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -1228,6 +1238,10 @@ export default function App() {
     )
   }
 
+  if (view === 'about') {
+    return chrome(<AboutScreen contributing={contributionEnabled()} />)
+  }
+
   if (view === 'categories') {
     return chrome(
       <CategoryLibrary
@@ -1256,6 +1270,9 @@ export default function App() {
         stickerStyle={stickerStyle}
         onStickerStyleChange={setStickerStyle}
         onRestore={restoreBackup}
+        lastBackupAt={lastBackupAt}
+        onBackedUp={setLastBackupAt}
+        onOpenAbout={() => setView('about')}
         onShowTour={() => setShowTour(true)}
         onOpenCategories={() => setView('categories')}
         contributing={contributing}
@@ -1282,6 +1299,9 @@ export default function App() {
         vault={vault}
         purchases={purchases}
         onOpenVault={() => setView('vault')}
+        lastBackupAt={lastBackupAt}
+        durable={durable}
+        onOpenSettings={() => setView('settings')}
       />
       </>,
     )

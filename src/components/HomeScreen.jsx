@@ -3,6 +3,7 @@ import { formatMoney, sumLines } from '../money.js'
 import { insights } from '../trips.js'
 import { needsAttention } from '../pantry.js'
 import { vaultSummary } from '../vaultStats.js'
+import { backupUrgency } from '../persistence.js'
 import { PURPOSES, byPurpose } from '../carts.js'
 import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from '../backgrounds.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
@@ -26,12 +27,21 @@ export default function HomeScreen({
   vault = [],
   purchases = [],
   onOpenVault,
+  lastBackupAt = null,
+  durable = null,
+  onOpenSettings,
 }) {
   const [adding, setAdding] = useState(null) // purpose id being added to
   const [draft, setDraft] = useState('')
   const stats = useMemo(() => insights(trips), [trips])
   const attention = needsAttention(pantry)
   const vaultStats = useMemo(() => vaultSummary(vault, purchases), [vault, purchases])
+  const backup = backupUrgency({
+    lastBackupAt,
+    purchases: purchases.length,
+    trips: trips.length,
+    persisted: durable === 'granted',
+  })
   const groups = useMemo(() => byPurpose(carts), [carts])
 
   const since = trips.length
@@ -113,6 +123,25 @@ export default function HomeScreen({
           ›
         </span>
       </button>
+
+      {backup.level === 'overdue' && onOpenSettings && (
+        <button className="expiry-card expiry-card--alert" type="button" onClick={onOpenSettings}>
+          <span className="expiry-card__icon" aria-hidden="true">
+            <Icon name="save" size={22} />
+          </span>
+          <span className="expiry-card__text">
+            <strong>Save a copy of your data</strong>
+            <span className="expiry-card__sub">
+              {backup.days === null
+                ? 'It lives on this device only, and nothing has been backed up yet'
+                : `Last copy was ${backup.days} days ago`}
+            </span>
+          </span>
+          <span className="expiry-card__chevron" aria-hidden="true">
+            ›
+          </span>
+        </button>
+      )}
 
       {onOpenVault && vaultStats.products > 0 && (
         <button className="vault-card" type="button" onClick={onOpenVault}>

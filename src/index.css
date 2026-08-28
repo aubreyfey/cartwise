@@ -7899,3 +7899,89 @@ button.card:hover {
   color: var(--text-muted);
   font-weight: 500;
 }
+
+/* --------------------------------------------------------- Privacy & credits
+
+   Long-form prose, which nothing else in this app is. Wider measure, looser
+   leading, and headings that separate without shouting. */
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.about__section p {
+  margin: 0 0 0.7rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.about__head {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 600;
+}
+
+.about__sub {
+  margin: 1rem 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.about__list {
+  margin: 0 0 0.7rem;
+  padding-left: 1.15rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.about__list li {
+  margin-bottom: 0.2rem;
+}
+
+.about__build code {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.settings__about {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+/* Durable-storage state in the backup panel. */
+.durable {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm, 10px);
+  background: var(--surface);
+}
+
+.durable--denied {
+  border-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, var(--surface));
+}
+
+.durable__line {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text);
+}
