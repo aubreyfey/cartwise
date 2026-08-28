@@ -79,6 +79,9 @@
         { id: 'c3', name: 'School Supplies', budget: 5000, storeId: null, createdAt: Date.now(), items: [] },
       ]))
       if (!COLD) localStorage.setItem('cartwise.activeCart', JSON.stringify('c1'))
+      // ?expect=1 puts a price range on Bananas, so the over-budget flag on a
+      // list row can be photographed.
+      const EXPECT = S.has('expect')
       if (!COLD) localStorage.setItem('cartwise.vault', JSON.stringify([
         v('Bananas', 'produce', 'pc', 12, { s1: 12, s2: 10 }, {}, 22),
         v('Broccoli', 'produce', 'kg', 220, { s1: 220, s2: 195 }, {}, 9),
@@ -192,6 +195,14 @@
         if (!COLD) localStorage.setItem('cartwise.carts', JSON.stringify(carts))
         if (!COLD) localStorage.setItem('cartwise.aisleOrder', JSON.stringify(
           ['dairy', 'produce', 'bakery', 'meat', 'frozen', 'pantry', 'snacks', 'drinks', 'household', 'other']))
+      }
+      // ?expect=1 sets a price range on Bananas so the over-range flag on a
+      // list row can be photographed. Bananas are ₱12 on the seeded list.
+      if (!COLD && S.has('expect')) {
+        const applyExpect = JSON.parse(localStorage.getItem('cartwise.vault'))
+        const b = applyExpect.find((v) => v.name === 'Bananas')
+        if (b) { b.expectedLow = 8; b.expectedHigh = 10 }
+        localStorage.setItem('cartwise.vault', JSON.stringify(applyExpect))
       }
       if (!COLD) localStorage.setItem('cartwise.sort', JSON.stringify('aisle'))
 

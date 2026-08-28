@@ -8938,3 +8938,103 @@ button.card:hover {
   color: var(--money);
 }
 
+
+/* ------------------------------------------------------------ price ranges
+
+   Two ranges that must never be mistaken for each other: what you have
+   actually been charged, and what you say you expect. The first is a record,
+   the second an opinion, so they are labelled and coloured differently. */
+
+.prange {
+  margin: 0 0 1rem;
+  padding: 0.85rem 0.9rem;
+  background: var(--paper-sunk, rgba(0, 0, 0, 0.03));
+  border-radius: var(--radius-sm, 10px);
+}
+
+.prange__head {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.prange__paid {
+  margin: 0 0 0.7rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.prange__paid strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.prange__paid--none,
+.prange__where,
+.prange__count {
+  color: var(--text-muted);
+}
+
+.prange__where,
+.prange__count {
+  font-size: 0.78rem;
+}
+
+.prange__fields {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prange__fields .field {
+  flex: 1;
+}
+
+.prange__hint {
+  margin: 0 0 0.6rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* On a Vault row, stacked under the name. */
+.vrow__range {
+  display: block;
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.vrow__range--expected {
+  color: var(--primary);
+}
+
+/* The flag on a list row while shopping. Spans the row rather than squeezing
+   in beside the total: a badge that narrow could only be a symbol, and a
+   symbol cannot say how far out the price is. */
+.item__flag {
+  grid-column: 1 / -1;
+  margin: 0.1rem 0 0.35rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  border-radius: var(--radius-sm, 10px);
+}
+
+.item__flag strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.item__flag--above {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+/* Under what you expected is good news, and reads as such. */
+.item__flag--below {
+  color: var(--money);
+  background: var(--money-soft, rgba(0, 0, 0, 0.04));
+}

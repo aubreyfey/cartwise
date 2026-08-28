@@ -7,6 +7,7 @@ export default function CategorySection({
   category,
   items,
   deltas,
+  expectedFor,
   shopping,
   photos,
   onPhoto,
@@ -44,6 +45,7 @@ export default function CategorySection({
             key={item.id}
             item={item}
             priceDelta={deltas?.get(item.id) ?? null}
+            expected={expectedFor?.(item) ?? null}
             shopping={shopping}
             photo={photos?.[photoKey(item.name)]}
             onPhoto={onPhoto}

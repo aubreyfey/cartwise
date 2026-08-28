@@ -197,7 +197,8 @@ export default function VaultScreen({
       ) : (
         <ul className="vault__rows vaultview__rows">
           {rows.map((row) => {
-            const { item, stats, cheapest, shopCount, lastPaid, lastStore, change } = row
+            const { item, stats, cheapest, shopCount, lastPaid, lastStore, change, paid, expected } =
+              row
             const cat = categoryFor
               ? categoryFor(item.category)
               : (CATEGORY_BY_ID[item.category] ?? CATEGORY_BY_ID.other)
@@ -254,6 +255,20 @@ export default function VaultScreen({
                           </span>
                         )}
                       </span>
+                      {/* The spread you have actually been charged. Only shown
+                          when there is one — a single price is not a range. */}
+                      {paid?.spread && (
+                        <span className="vrow__range">
+                          {formatMoney(paid.low)}–{formatMoney(paid.high)} paid
+                        </span>
+                      )}
+
+                      {expected && (
+                        <span className="vrow__range vrow__range--expected">
+                          you expect {formatMoney(expected.low)}–{formatMoney(expected.high)}
+                        </span>
+                      )}
+
                       <span className="vrow__meta">
                         {/* Repeating the price here when it is the only one we
                             have would just be the same number twice. */}

@@ -95,6 +95,7 @@ import {
 import { addStore, compareStores, removeStore, setStoreLocation } from './stores.js'
 import { currentLocation, formatDistance, isLocation, storesByDistance } from './geo.js'
 import { backupUrgency, requestPersistence } from './persistence.js'
+import { expectedRange } from './priceRange.js'
 import { homeMascotState } from './mascotState.js'
 import { useEdgeSwipe } from './useEdgeSwipe.js'
 import { isPlus, setPlus } from './plus.js'
@@ -705,6 +706,15 @@ export default function App() {
       return barcode ? rememberBarcode(remembered, name, barcode) : remembered
     })
   }
+
+  /**
+   * The expected price range for a row on a list, looked up in the Vault.
+   *
+   * A list row carries a name, not a product id, so this is the join. Returns
+   * null when the product is not in the Vault or has no range set — and null
+   * means "no opinion", never "this price is fine".
+   */
+  const expectedFor = (row) => expectedRange(findVaultItem(vault, row.name))
 
   const quickAddFromVault = (vaultItem) =>
     addItem({
@@ -1696,6 +1706,7 @@ export default function App() {
               category={category}
               items={groupItems}
               deltas={deltas}
+              expectedFor={expectedFor}
               shopping={mode === 'shopping'}
               photos={photos}
               onPhoto={(name, category) => setPhotoTarget({ name, category })}

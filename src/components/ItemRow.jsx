@@ -9,10 +9,12 @@ import {
   stepFor,
   unitLabel,
 } from '../units.js'
+import { overBy, rangeVerdict } from '../priceRange.js'
 import Thumb from './Thumb.jsx'
 
 export default function ItemRow({
   item,
+  expected = null,
   priceDelta,
   shopping,
   photo,
@@ -22,6 +24,12 @@ export default function ItemRow({
   onUpdate,
   onRemove,
 }) {
+  // Where this price sits against the range set for the product. null means
+  // no range was set, which is not the same as being inside one — an unset
+  // range must never look like approval.
+  const verdict = rangeVerdict(item.price, expected)
+  const outBy = overBy(item.price, expected)
+
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const priceRef = useRef(null)
@@ -200,6 +208,22 @@ export default function ItemRow({
           ×
         </button>
       )}
+      {verdict && verdict !== 'within' && (
+        <p className={`item__flag item__flag--${verdict}`}>
+          {verdict === 'above' ? (
+            <>
+              <strong>{formatMoney(outBy)} over</strong> what you expect to pay
+              ({formatMoney(expected.low)}–{formatMoney(expected.high)})
+            </>
+          ) : (
+            <>
+              <strong>{formatMoney(outBy)} under</strong> your usual
+              ({formatMoney(expected.low)}–{formatMoney(expected.high)})
+            </>
+          )}
+        </p>
+      )}
+
     </li>
   )
 }

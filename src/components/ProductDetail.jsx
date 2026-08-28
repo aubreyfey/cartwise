@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { formatMoney, parsePrice } from '../money.js'
 import { UNITS } from '../units.js'
 import { historyFor, priceStats, storeComparison } from '../purchases.js'
+import { expectedRange, paidRange, suggestExpected } from '../priceRange.js'
 import Sticker from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -39,6 +40,11 @@ export default function ProductDetail({
     price: item.price != null ? String(item.price) : '',
     packageValue: item.packageSize?.value ? String(item.packageSize.value) : '',
     packageUnit: item.packageSize?.unit ?? 'g',
+    // What you expect this to cost. Kept apart from every other price here,
+    // because those are records of what happened and this is your opinion
+    // about what should.
+    expectedLow: item.expectedLow != null ? String(item.expectedLow) : '',
+    expectedHigh: item.expectedHigh != null ? String(item.expectedHigh) : '',
   }))
 
   useEffect(() => {
@@ -52,6 +58,8 @@ export default function ProductDetail({
   const history = useMemo(() => historyFor(purchases, item.id), [purchases, item.id])
   const stats = useMemo(() => priceStats(purchases, item.id), [purchases, item.id])
   const byStore = useMemo(() => storeComparison(purchases, item.id), [purchases, item.id])
+  const paid = useMemo(() => paidRange(purchases, item.id), [purchases, item.id])
+  const expected = expectedRange(item)
 
   const set = (patch) => setFields((f) => ({ ...f, ...patch }))
   const sticker =
@@ -65,6 +73,8 @@ export default function ProductDetail({
       category: fields.category,
       unit: fields.unit,
       price: parsePrice(fields.price),
+      expectedLow: parsePrice(fields.expectedLow),
+      expectedHigh: parsePrice(fields.expectedHigh),
       packageSize:
         Number.isFinite(value) && value > 0
           ? { value, unit: fields.packageUnit }
@@ -126,6 +136,90 @@ export default function ProductDetail({
               aria-label="Brand"
               maxLength={40}
             />
+
+            {/* The two ranges, side by side and clearly labelled. One is what
+                you have been charged; the other is what you think it should
+                cost. Showing them together is the point — the second is much
+                easier to set once you can see the first. */}
+            <section className="prange">
+              <h3 className="prange__head">Price range</h3>
+
+              {paid ? (
+                <p className="prange__paid">
+                  You have paid{' '}
+                  <strong>
+                    {paid.spread
+                      ? `${formatMoney(paid.low)}–${formatMoney(paid.high)}`
+                      : formatMoney(paid.low)}
+                  </strong>
+                  {/* Naming both ends is only worth it when they are different
+                      shops. "lowest at Savemore, highest at Savemore" is noise. */}
+                  {paid.spread && paid.lowStore && paid.highStore && paid.lowStore !== paid.highStore && (
+                    <span className="prange__where">
+                      {' '}
+                      · lowest at {paid.lowStore}, highest at {paid.highStore}
+                    </span>
+                  )}
+                  <span className="prange__count">
+                    {' '}
+                    · from {paid.count} {paid.count === 1 ? 'price' : 'prices'}
+                  </span>
+                </p>
+              ) : (
+                <p className="prange__paid prange__paid--none">
+                  No prices recorded yet, so there is nothing to draw a range
+                  from.
+                </p>
+              )}
+
+              <div className="prange__fields">
+                <label className="field">
+                  <span className="field__label">Expect from</span>
+                  <input
+                    className="field__input"
+                    type="number"
+                    min="0"
+                    step="any"
+                    inputMode="decimal"
+                    value={fields.expectedLow}
+                    onChange={(e) => set({ expectedLow: e.target.value })}
+                    placeholder="—"
+                  />
+                </label>
+                <label className="field">
+                  <span className="field__label">to</span>
+                  <input
+                    className="field__input"
+                    type="number"
+                    min="0"
+                    step="any"
+                    inputMode="decimal"
+                    value={fields.expectedHigh}
+                    onChange={(e) => set({ expectedHigh: e.target.value })}
+                    placeholder="—"
+                  />
+                </label>
+              </div>
+
+              <p className="prange__hint">
+                {expected || fields.expectedLow || fields.expectedHigh
+                  ? 'A price outside this is flagged on your list while you shop.'
+                  : 'Set one and CartWise will flag a shelf price outside it while you shop.'}
+              </p>
+
+              {paid && (
+                <button
+                  className="btn btn--ghost btn--small"
+                  type="button"
+                  onClick={() => {
+                    const s = suggestExpected(paid)
+                    if (s) set({ expectedLow: String(s.low), expectedHigh: String(s.high) })
+                  }}
+                >
+                  Use what I have paid
+                </button>
+              )}
+            </section>
 
             <dl className="pdetail__rows">
               <div className="pdetail__row">

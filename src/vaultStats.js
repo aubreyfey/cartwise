@@ -11,6 +11,7 @@
 
 import { isKnownPrice } from './money.js'
 import { historyFor, priceStats, storeComparison } from './purchases.js'
+import { expectedRange, paidRange } from './priceRange.js'
 
 const DAY = 86_400_000
 
@@ -71,6 +72,10 @@ export function vaultRows(vault = [], purchases = [], { now = Date.now() } = {})
       daysSince: last ? Math.floor((now - last.purchasedAt) / DAY) : null,
       // Positive means dearer than the first time.
       change: stats?.change ?? null,
+      // What you have actually been charged, and what you said you expect.
+      // Kept apart because one is a record and the other is an opinion.
+      paid: paidRange(purchases, item.id),
+      expected: expectedRange(item),
     }
   })
 }
