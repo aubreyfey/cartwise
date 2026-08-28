@@ -44,6 +44,7 @@ import StoreBar from './components/StoreBar.jsx'
 import StoreMap from './components/StoreMap.jsx'
 import VaultScreen from './components/VaultScreen.jsx'
 import AboutScreen from './components/AboutScreen.jsx'
+import PlusSheet from './components/PlusSheet.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import BasketCompare from './components/BasketCompare.jsx'
 import BeforeYouGo from './components/BeforeYouGo.jsx'
@@ -88,6 +89,7 @@ import { addStore, compareStores, removeStore, setStoreLocation } from './stores
 import { currentLocation, formatDistance, isLocation, storesByDistance } from './geo.js'
 import { backupUrgency, requestPersistence } from './persistence.js'
 import { homeMascotState } from './mascotState.js'
+import { isPlus, setPlus } from './plus.js'
 import { contributionEnabled } from './sync/prices.js'
 import { excludeOnList, restockDue } from './restock.js'
 import { productKey, reportsFromPurchases } from './community.js'
@@ -246,6 +248,11 @@ export default function App() {
   // memory, but nothing from this session will survive a reload, and staying
   // quiet about that would be silent data loss.
   const [storageFailure, setStorageFailure] = useState(null)
+  // Whether to *offer* the Plus features, not whether someone may consume
+  // server resources — see plus.js. Anything that costs money to serve has to
+  // be checked server-side against a real receipt.
+  const [plus, setPlusState] = useState(() => isPlus())
+  const [wantPlus, setWantPlus] = useState(false)
   const [backupSnoozedUntil, setBackupSnoozedUntil] = useLocalStorage(
     'cartwise.backupSnooze',
     0,
@@ -1051,6 +1058,16 @@ export default function App() {
    */
   const overlays = () => (
     <>
+    {wantPlus && (
+      <PlusSheet
+        onClose={() => setWantPlus(false)}
+        onDevGrant={() => {
+          setPlus(true)
+          setPlusState(true)
+          setWantPlus(false)
+        }}
+      />
+    )}
     {searching && (
       <ProductSearch
         vault={vault}
@@ -1641,6 +1658,8 @@ export default function App() {
           photo={listPhotos[activeCart.id]}
           note={photoNote}
           onPick={(background) => patchCart({ background })}
+          plus={plus}
+          onWantPlus={() => setWantPlus(true)}
           onPickPhoto={(file) => saveListPhoto(activeCart.id, file)}
           onRemovePhoto={() => removeListPhoto(activeCart.id)}
           onClose={() => {

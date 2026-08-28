@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { BACKGROUNDS, PHOTO_BACKGROUND, backgroundStyle } from '../backgrounds.js'
+import { photoGateState } from '../plus.js'
 import Icon from '../icons.jsx'
 
 export default function BackgroundPicker({
@@ -11,9 +12,15 @@ export default function BackgroundPicker({
   onPickPhoto,
   onRemovePhoto,
   onClose,
+  plus = false,
+  onWantPlus,
 }) {
   const fileRef = useRef(null)
   const [busy, setBusy] = useState(false)
+  // A list that already had a photo keeps it: photo backgrounds were free
+  // before Plus existed, and removing something that worked yesterday is the
+  // fastest way to lose the users you have.
+  const gate = photoGateState({ plus, existingPhoto: photo })
 
   useEffect(() => {
     const onKey = (e) => {
@@ -59,15 +66,19 @@ export default function BackgroundPicker({
                 current === PHOTO_BACKGROUND ? 'swatch--on' : ''
               }`}
               style={photo ? backgroundStyle(PHOTO_BACKGROUND, photo) : undefined}
-              onClick={() =>
-                photo ? onPick(PHOTO_BACKGROUND) : fileRef.current?.click()
-              }
+              onClick={() => {
+                if (photo) return onPick(PHOTO_BACKGROUND)
+                if (gate === 'locked') return onWantPlus?.()
+                fileRef.current?.click()
+              }}
               aria-pressed={current === PHOTO_BACKGROUND}
               disabled={busy}
             >
-              {!photo && <Icon name="camera" size={20} strokeWidth={1.5} />}
+              {!photo && (
+                <Icon name={gate === 'locked' ? 'vault' : 'camera'} size={20} strokeWidth={1.5} />
+              )}
               <span className="swatch__label">
-                {busy ? 'Reading…' : photo ? 'Photo' : 'Add photo'}
+                {busy ? 'Reading…' : photo ? 'Photo' : gate === 'locked' ? 'Photo · Plus' : 'Add photo'}
               </span>
             </button>
           </li>
@@ -92,10 +103,10 @@ export default function BackgroundPicker({
             <button
               className="btn btn--ghost btn--small"
               type="button"
-              onClick={() => fileRef.current?.click()}
+              onClick={() => (gate === 'open' ? fileRef.current?.click() : onWantPlus?.())}
               disabled={busy}
             >
-              Replace photo
+              {gate === 'open' ? 'Replace photo' : 'Replace photo · Plus'}
             </button>
             <button
               className="btn btn--ghost btn--small"
@@ -105,6 +116,15 @@ export default function BackgroundPicker({
               Remove photo
             </button>
           </div>
+        )}
+
+        {/* Removing a grandfathered photo cannot be undone without Plus, and
+            finding that out afterwards would be a nasty surprise. */}
+        {gate === 'grandfathered' && (
+          <p className="picker__note picker__note--warn">
+            This photo was set before Plus. Remove it and you'll need Plus to
+            set a new one.
+          </p>
         )}
 
         {note && <p className="picker__note">{note}</p>}
