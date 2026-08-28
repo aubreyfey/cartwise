@@ -8772,42 +8772,49 @@ button.card:hover {
   margin: 0;
 }
 
-/* ------------------------------------------------- the photo on the products
+/* --------------------------------------------- the background behind the products
 
-   The picture belongs to what is on the list. It goes behind the aisle
-   sections, and those sections go translucent so it shows through the rows
-   themselves rather than framing them.
+   Chosen with its own button — the gallery icon that sits with the list
+   controls — and stored separately from the header card's. Colour tints work
+   here too; before this, picking Mint changed the title card and left the
+   products exactly as they were, which is what made the feature look broken.
 
-   Both this and the header card use background-attachment: fixed, which
-   positions the image against the viewport rather than against each element.
-   Two separate boxes then show two parts of one photograph, lined up, instead
-   of two independent crops of it — which is what made them look mismatched.
-   iOS Safari ignores fixed attachment and falls back to two crops, which is
-   no worse than having no photo here at all. */
+   A photo additionally uses background-attachment: fixed, which positions the
+   image against the viewport rather than the element, so the header and the
+   products show two parts of one photograph lined up instead of two
+   independent crops. iOS Safari ignores fixed attachment and falls back to
+   two crops, which is no worse than not having it. */
 
-.app__list--photo {
+.app__list--themed {
   padding: 0.55rem;
   margin: 0 -0.55rem;
   border-radius: var(--radius);
-  background:
-    linear-gradient(rgb(12 10 18 / 0.3), rgb(12 10 18 / 0.3)),
-    var(--list-photo) center / cover no-repeat fixed;
+  background: var(--items-bg, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  .app__list--themed {
+    background: var(--items-bg-dark, transparent);
+  }
+}
+
+.app__list--photo {
+  background-attachment: fixed;
   background-color: #201d28;
 }
 
-/* The blur is what keeps prices readable over a busy photograph. Without it,
-   text on a photo is a gamble on which photo. */
-.app__list--photo .section {
-  background: color-mix(in srgb, var(--surface) 76%, transparent);
+/* Panels let the background through. The blur is what keeps prices readable
+   over a busy photograph — without it, text on a photo is a gamble on which
+   photo. */
+.app__list--themed .section {
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(1.15);
   backdrop-filter: blur(14px) saturate(1.15);
   border-color: color-mix(in srgb, var(--hairline) 55%, transparent);
 }
 
-/* Secondary text needs a little more weight on glass than on paper, where
-   nothing is competing with it. */
-.app__list--photo .section__count,
-.app__list--photo .item__meta {
+.app__list--themed .section__count,
+.app__list--themed .item__meta {
   color: color-mix(in srgb, var(--text) 74%, transparent);
 }
 
@@ -8819,13 +8826,13 @@ button.card:hover {
 /* Two ways out, because translucency fails quietly. Losing the glass is a far
    smaller loss than losing the text. */
 @supports not (background: color-mix(in srgb, white 50%, transparent)) {
-  .app__list--photo .section {
+  .app__list--themed .section {
     background: var(--surface);
   }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .app__list--photo .section {
+  .app__list--themed .section {
     background: var(--surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;

@@ -5,8 +5,10 @@ import { describe, it } from 'node:test'
 import {
   BACKGROUNDS,
   DEFAULT_BACKGROUND,
+  PHOTO_BACKGROUND,
   backgroundOf,
   backgroundStyle,
+  itemsBackgroundOf,
 } from './backgrounds.js'
 
 describe('list backgrounds', () => {
@@ -71,5 +73,54 @@ describe('backgroundStyle', () => {
   it('never returns undefined for an unknown id', () => {
     const style = backgroundStyle('nonsense')
     assert.ok(style['--card-bg'])
+  })
+})
+
+describe('itemsBackgroundOf', () => {
+  it('reads its own field, not the header card’s', () => {
+    // Two buttons, two backgrounds. Reading the same field would put us back
+    // where we started: one background pretending to be two.
+    const cart = { background: 'mint', itemsBackground: 'sky' }
+    assert.equal(itemsBackgroundOf(cart), 'sky')
+    assert.equal(backgroundOf(cart), 'mint')
+  })
+
+  it('is plain when nothing has been chosen for the items', () => {
+    assert.equal(itemsBackgroundOf({ background: 'mint' }), DEFAULT_BACKGROUND)
+    assert.equal(itemsBackgroundOf({}), DEFAULT_BACKGROUND)
+    assert.equal(itemsBackgroundOf(), DEFAULT_BACKGROUND)
+  })
+
+  it('falls back to plain when the photo has gone', () => {
+    // Same rule as the header: never leave a grey hole where a picture was.
+    const cart = { itemsBackground: PHOTO_BACKGROUND }
+    assert.equal(itemsBackgroundOf(cart, null), DEFAULT_BACKGROUND)
+    assert.equal(itemsBackgroundOf(cart, 'data:image/webp;base64,xx'), PHOTO_BACKGROUND)
+  })
+
+  it('ignores a background id that is not one of ours', () => {
+    assert.equal(itemsBackgroundOf({ itemsBackground: 'chartreuse' }), DEFAULT_BACKGROUND)
+  })
+})
+
+describe('backgroundStyle targeting a named variable', () => {
+  it('defaults to the card variable', () => {
+    const style = backgroundStyle('mint')
+    assert.ok('--card-bg' in style)
+    assert.ok('--card-bg-dark' in style)
+  })
+
+  it('writes to whichever variable it is given', () => {
+    // The products read --items-bg; sharing --card-bg would have the header
+    // and the product area overwrite each other.
+    const style = backgroundStyle('sky', null, '--items-bg')
+    assert.ok('--items-bg' in style)
+    assert.ok('--items-bg-dark' in style)
+    assert.equal('--card-bg' in style, false)
+  })
+
+  it('carries a photo into the named variable too', () => {
+    const style = backgroundStyle(PHOTO_BACKGROUND, 'data:image/webp;base64,xx', '--items-bg')
+    assert.match(style['--items-bg'], /^url\("data:image\/webp/)
   })
 })

@@ -12,6 +12,7 @@ export default function BackgroundPicker({
   onPickPhoto,
   onRemovePhoto,
   onClose,
+  target = 'header',
   plus = false,
   onWantPlus,
 }) {
@@ -53,7 +54,11 @@ export default function BackgroundPicker({
         aria-label={`Background for ${listName}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h2 className="picker__title">Background</h2>
+        {/* Two buttons now open this, for two different backgrounds. Saying
+            which one avoids the obvious confusion. */}
+        <h2 className="picker__title">
+          {target === 'items' ? 'Behind your items' : 'List header'}
+        </h2>
         <p className="picker__sub">{listName}</p>
 
         <ul className="picker__grid">

@@ -73,7 +73,12 @@ import {
   updatePantryItem,
 } from './pantry.js'
 import { askForNotifications, notificationPermission, showReminder } from './notify.js'
-import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from './backgrounds.js'
+import {
+  PHOTO_BACKGROUND,
+  backgroundOf,
+  backgroundStyle,
+  itemsBackgroundOf,
+} from './backgrounds.js'
 import { AISLE_ORDER_KEY, defaultAisleOrder, orderedCategories } from './aisleOrder.js'
 import ProductSearch from './components/ProductSearch.jsx'
 import BuyingSheet from './components/BuyingSheet.jsx'
@@ -243,6 +248,9 @@ export default function App() {
   // Photos used as list backgrounds. Outside useLocalStorage for the same
   // reason product cut-outs are: a write can fail, and that has to be sayable.
   const [listPhotos, setListPhotos] = useState(loadListPhotos)
+
+  /** Storage key for a cart's photo, per target. */
+  const photoSlot = (cartId, target) => (target === 'items' ? `${cartId}:items` : cartId)
   const [photoNote, setPhotoNote] = useState(null)
   const [mode, setMode] = useState('planning')
   // 'home' | 'list' | 'expiry' | 'trips' | 'settings'
@@ -277,7 +285,12 @@ export default function App() {
   const [photoTarget, setPhotoTarget] = useState(null)
   // The full item editor: a draft for a new item, or an existing row.
   const [sheetItem, setSheetItem] = useState(null)
-  const [pickingBackground, setPickingBackground] = useState(false)
+  // Which background is being changed: the header card, or the products.
+  // Two buttons that opened the same picker and set the same background were
+  // two buttons doing one job — the sparkle sits on the header and the
+  // gallery button sits with the list controls, so they should reach the
+  // thing they are next to.
+  const [pickingFor, setPickingFor] = useState(null)
   // The tour opens itself once, for someone who has never used the app.
   const [tourSeen, setTourSeen] = useLocalStorage(TOUR_SEEN_KEY, false)
   const [showTour, setShowTour] = useState(false)
@@ -362,11 +375,11 @@ export default function App() {
    * the write succeeds — pointing a list at a photo that failed to save would
    * leave it showing nothing.
    */
-  async function saveListPhoto(cartId, file) {
+  async function saveListPhoto(cartId, file, target = 'header') {
     setPhotoNote(null)
     try {
       const image = await readImage(file)
-      const next = { ...listPhotos, [cartId]: downscale(image) }
+      const next = { ...listPhotos, [photoSlot(cartId, target)]: downscale(image) }
       const result = writeListPhotos(next)
       if (!result.ok) {
         setPhotoNote(
@@ -377,18 +390,29 @@ export default function App() {
         return
       }
       setListPhotos(next)
-      patchCart({ background: PHOTO_BACKGROUND }, cartId)
+      patchCart(
+        target === 'items'
+          ? { itemsBackground: PHOTO_BACKGROUND }
+          : { background: PHOTO_BACKGROUND },
+        cartId,
+      )
     } catch (e) {
       setPhotoNote(e.message)
     }
   }
 
-  function removeListPhoto(cartId) {
-    const { [cartId]: _gone, ...rest } = listPhotos
+  function removeListPhoto(cartId, target = 'header') {
+    const { [photoSlot(cartId, target)]: _gone, ...rest } = listPhotos
     writeListPhotos(rest)
     setListPhotos(rest)
     setPhotoNote(null)
-    if (activeCart?.background === PHOTO_BACKGROUND) patchCart({ background: 'plain' }, cartId)
+    if (target === 'items') {
+      if (activeCart?.itemsBackground === PHOTO_BACKGROUND) {
+        patchCart({ itemsBackground: 'plain' }, cartId)
+      }
+    } else if (activeCart?.background === PHOTO_BACKGROUND) {
+      patchCart({ background: 'plain' }, cartId)
+    }
   }
 
   function changeCurrency(code) {
@@ -1439,10 +1463,18 @@ export default function App() {
       ? listPhotos[activeCart.id]
       : null
 
+  // The products get their own background, set by their own button.
+  const itemsPhoto = listPhotos[`${activeCart.id}:items`]
+  const itemsBg = itemsBackgroundOf(activeCart, itemsPhoto)
+  const itemsIsPhoto = itemsBg === PHOTO_BACKGROUND
+
   return (
     <div
       className="app"
-      style={listPhoto ? { '--list-photo': `url("${listPhoto}")` } : undefined}
+      style={{
+        ...(listPhoto ? { '--list-photo': `url("${listPhoto}")` } : {}),
+        ...backgroundStyle(itemsBg, itemsPhoto, '--items-bg'),
+      }}
     >
       <header className="app__header">
         <button className="backbtn" type="button" onClick={() => setView('home')}>
@@ -1480,7 +1512,7 @@ export default function App() {
           listPhotos[activeCart.id],
         )}
         onPhoto={backgroundOf(activeCart, listPhotos[activeCart.id]) === PHOTO_BACKGROUND}
-        onPickBackground={() => setPickingBackground(true)}
+        onPickBackground={() => setPickingFor('header')}
       />
 
       <div className="toolbar">
@@ -1517,9 +1549,9 @@ export default function App() {
             <button
               type="button"
               className="segmented__btn segmented__btn--action"
-              onClick={() => setPickingBackground(true)}
-              aria-label="Change this list's background"
-              title="Background"
+              onClick={() => setPickingFor('items')}
+              aria-label="Change the background behind your items"
+              title="Background behind your items"
             >
               <Icon name="image" size={16} />
             </button>
@@ -1629,7 +1661,11 @@ export default function App() {
         </>
       )}
 
-      <main className={`app__list ${listPhoto ? 'app__list--photo' : ''}`}>
+      <main
+        className={`app__list ${itemsBg !== 'plain' ? 'app__list--themed' : ''} ${
+          itemsIsPhoto ? 'app__list--photo' : ''
+        }`}
+      >
         {grouped.length === 0 ? (
           <p className="empty">
             Nothing on this list yet. Add your first item above — CartWise sorts
@@ -1721,20 +1757,27 @@ export default function App() {
         onCancel={() => setPendingTrip(null)}
       />
 
-      {pickingBackground && (
+      {pickingFor && (
         <BackgroundPicker
           listName={activeCart.name}
-          current={backgroundOf(activeCart, listPhotos[activeCart.id])}
-          photo={listPhotos[activeCart.id]}
+          target={pickingFor}
+          current={
+            pickingFor === 'items'
+              ? itemsBackgroundOf(activeCart, itemsPhoto)
+              : backgroundOf(activeCart, listPhotos[activeCart.id])
+          }
+          photo={pickingFor === 'items' ? itemsPhoto : listPhotos[activeCart.id]}
           note={photoNote}
-          onPick={(background) => patchCart({ background })}
+          onPick={(background) =>
+            patchCart(pickingFor === 'items' ? { itemsBackground: background } : { background })
+          }
           plus={plus}
           onWantPlus={() => setWantPlus(true)}
-          onPickPhoto={(file) => saveListPhoto(activeCart.id, file)}
-          onRemovePhoto={() => removeListPhoto(activeCart.id)}
+          onPickPhoto={(file) => saveListPhoto(activeCart.id, file, pickingFor)}
+          onRemovePhoto={() => removeListPhoto(activeCart.id, pickingFor)}
           onClose={() => {
             setPhotoNote(null)
-            setPickingBackground(false)
+            setPickingFor(null)
           }}
         />
       )}

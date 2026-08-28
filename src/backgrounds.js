@@ -54,12 +54,28 @@ export function backgroundOf(cart, photo) {
  * A photo is the same picture in both, since a photograph has no dark variant;
  * the scrim over it is what changes.
  */
-export function backgroundStyle(id, photo) {
+export function backgroundStyle(id, photo, name = '--card-bg') {
   if (isPhotoBackground(id) && photo) {
     // Quotes matter: an unquoted data URL with a comma in it ends the value.
     const image = `url("${photo}") center / cover no-repeat`
-    return { '--card-bg': image, '--card-bg-dark': image }
+    return { [name]: image, [`${name}-dark`]: image }
   }
   const bg = BACKGROUND_BY_ID[id] ?? BACKGROUND_BY_ID[DEFAULT_BACKGROUND]
-  return { '--card-bg': bg.light, '--card-bg-dark': bg.dark }
+  return { [name]: bg.light, [`${name}-dark`]: bg.dark }
+}
+
+/**
+ * The background behind the products, chosen separately from the header's.
+ *
+ * Its own field and its own button: the sparkle sits on the header card, the
+ * gallery button sits with the list controls, and each changes the thing it is
+ * next to. One background driven by two buttons was two buttons doing one job.
+ *
+ * Same fallback rule as the header — a list set to `photo` whose picture has
+ * gone falls back to plain rather than leaving a grey hole.
+ */
+export function itemsBackgroundOf(cart, photo) {
+  const id = cart?.itemsBackground
+  if (isPhotoBackground(id)) return photo ? PHOTO_BACKGROUND : DEFAULT_BACKGROUND
+  return BACKGROUND_BY_ID[id] ? id : DEFAULT_BACKGROUND
 }
