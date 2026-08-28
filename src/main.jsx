@@ -1,9 +1,12 @@
+import { trackViewport } from './viewport.js'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { StickerDefs } from './stickers.jsx'
 import './index.css'
+
+trackViewport()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

@@ -2317,7 +2317,10 @@ textarea {
 .trackx {
   width: 100%;
   max-width: 28rem;
-  max-height: 92vh;
+  /* The visible height, keyboard excluded. See viewport.js — 92vh here put
+     the results and the Scan / Manual / Vault row underneath the keyboard
+     the moment anyone typed. */
+  max-height: calc(var(--vvh, 92vh) - var(--vvb, 0px) - 1.5rem);
   overflow-y: auto;
   padding: 0.7rem 1rem 1.2rem;
   background: var(--surface);
@@ -2578,7 +2581,10 @@ textarea {
   width: 100%;
   max-width: 34rem;
   margin: auto auto 0;
-  max-height: 92vh;
+  /* The visible height, keyboard excluded. See viewport.js — 92vh here put
+     the results and the Scan / Manual / Vault row underneath the keyboard
+     the moment anyone typed. */
+  max-height: calc(var(--vvh, 92vh) - var(--vvb, 0px) - 1.5rem);
   padding: 0.5rem 0.9rem env(safe-area-inset-bottom);
   background: var(--surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -2871,7 +2877,10 @@ textarea {
 .pdetail {
   width: 100%;
   max-width: 30rem;
-  max-height: 92vh;
+  /* The visible height, keyboard excluded. See viewport.js — 92vh here put
+     the results and the Scan / Manual / Vault row underneath the keyboard
+     the moment anyone typed. */
+  max-height: calc(var(--vvh, 92vh) - var(--vvb, 0px) - 1.5rem);
   overflow-y: auto;
   padding: 0.6rem 0.9rem 1rem;
   background: var(--bg);
@@ -5837,7 +5846,7 @@ button.card:hover {
 .receipt {
   position: relative;
   width: min(26rem, 100%);
-  max-height: calc(100vh - 2rem);
+  max-height: calc(var(--vvh, 100vh) - var(--vvb, 0px) - 2rem);
   overflow-y: auto;
   background: var(--surface);
   filter: drop-shadow(0 12px 32px rgb(20 10 40 / 0.35));
@@ -7512,4 +7521,80 @@ button.card:hover {
   font-size: 1.15rem;
   line-height: 1;
   color: var(--text-faint);
+}
+
+/* ---------- expiry slider ---------- */
+
+/* Steps rather than raw days: the range is 3 days to 3 months, and a linear
+   day slider would spend most of its travel on distinctions nobody makes. */
+.xslider {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.6rem 0.7rem 0.5rem;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+}
+
+.xslider__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.xslider__input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 0.4rem;
+  margin: 0.3rem 0 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary-soft), var(--primary-soft));
+  border: 1px solid var(--hairline);
+}
+
+.xslider__input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 4px rgb(20 20 25 / 0.3);
+  cursor: grab;
+}
+
+.xslider__input::-moz-range-thumb {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 4px rgb(20 20 25 / 0.3);
+}
+
+.xslider__ticks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.15rem;
+}
+
+.xslider__tick {
+  padding: 0.3rem 0.25rem;
+  border: 0;
+  background: none;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.xslider__tick--on {
+  color: var(--primary);
+  font-weight: 800;
 }

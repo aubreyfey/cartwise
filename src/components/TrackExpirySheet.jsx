@@ -7,6 +7,7 @@ import {
   dateInDays,
   suggestedExpiry,
 } from '../pantry.js'
+import ExpirySlider from './ExpirySlider.jsx'
 import Sticker from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -116,24 +117,7 @@ export default function TrackExpirySheet({
           />
         </div>
 
-        <ul className="trackx__quick">
-          <li className="trackx__quicklabel">Quick set</li>
-          {QUICK_SETS.map((q) => {
-            const value = dateInDays(q.days)
-            return (
-              <li key={q.id}>
-                <button
-                  type="button"
-                  className={`trackx__chip ${date === value ? 'trackx__chip--on' : ''}`}
-                  onClick={() => setDate(value)}
-                  aria-pressed={date === value}
-                >
-                  +{q.label}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+        <ExpirySlider value={date} onChange={setDate} id="trackx-quick" />
 
         <div className="trackx__notify">
           <span className="trackx__bell" aria-hidden="true">
