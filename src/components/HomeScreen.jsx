@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { formatMoney, sumLines } from '../money.js'
 import { insights } from '../trips.js'
 import { needsAttention } from '../pantry.js'
 import { vaultSummary } from '../vaultStats.js'
 import { backupUrgency } from '../persistence.js'
-import { PURPOSES, byPurpose } from '../carts.js'
+import { byPurpose } from '../carts.js'
 import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from '../backgrounds.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
 import Icon from '../icons.jsx'
@@ -22,7 +22,6 @@ export default function HomeScreen({
   name,
   onNameChange,
   onOpenCart,
-  onNewCart,
   onOpenExpiry,
   vault = [],
   purchases = [],
@@ -33,8 +32,6 @@ export default function HomeScreen({
   backupSnoozedUntil = 0,
   onSnoozeBackup,
 }) {
-  const [adding, setAdding] = useState(null) // purpose id being added to
-  const [draft, setDraft] = useState('')
   const stats = useMemo(() => insights(trips), [trips])
   const attention = needsAttention(pantry)
   const vaultStats = useMemo(() => vaultSummary(vault, purchases), [vault, purchases])
@@ -56,12 +53,6 @@ export default function HomeScreen({
   const since = trips.length
     ? dateFormat.format(new Date(Math.min(...trips.map((t) => t.completedAt))))
     : null
-
-  function submitNew(purposeId) {
-    onNewCart(draft, purposeId)
-    setDraft('')
-    setAdding(null)
-  }
 
   return (
     <div className="home">
@@ -253,51 +244,6 @@ export default function HomeScreen({
         </section>
       ))}
 
-      {/* One "new list" control per purpose, so choosing what a list is for is
-          part of making it rather than a setting to find afterwards. */}
-      <section className="newlist">
-        <h2 className="purpose__head">New list</h2>
-        {adding ? (
-          <div className="newlist__form">
-            <input
-              className="field__input"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') submitNew(adding)
-                if (e.key === 'Escape') setAdding(null)
-              }}
-              placeholder={`Name this ${adding} list`}
-              aria-label="List name"
-              autoFocus
-            />
-            <button className="btn btn--primary" type="button" onClick={() => submitNew(adding)}>
-              Create
-            </button>
-            <button className="btn btn--ghost" type="button" onClick={() => setAdding(null)}>
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <ul className="newlist__choices">
-            {PURPOSES.map((p) => (
-              <li key={p.id}>
-                <button
-                  className="newlist__choice"
-                  type="button"
-                  onClick={() => {
-                    setDraft('')
-                    setAdding(p.id)
-                  }}
-                >
-                  <Icon name={p.icon} size={18} />
-                  {p.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </div>
   )
 }

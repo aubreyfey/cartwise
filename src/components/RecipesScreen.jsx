@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import CookbookSheet from './CookbookSheet.jsx'
+import { libraryCount } from '../recipeLibrary.js'
 import {
   addIngredient,
   byName,
@@ -19,12 +21,14 @@ export default function RecipesScreen({
   onUpdate,
   onRemove,
   onAddToList,
+  onAddFromLibrary,
 }) {
   const [openId, setOpenId] = useState(null)
   const [newName, setNewName] = useState('')
   const [ingredient, setIngredient] = useState({ name: '', qty: '1', unit: DEFAULT_UNIT })
   const [serves, setServes] = useState(null) // per-open-recipe override
   const [status, setStatus] = useState(null)
+  const [cookbook, setCookbook] = useState(false)
 
   const sorted = useMemo(() => byName(recipes), [recipes])
   const open = sorted.find((r) => r.id === openId) ?? null
@@ -63,6 +67,21 @@ export default function RecipesScreen({
         Scale it to the number of people you are actually feeding.
       </p>
 
+      {onAddFromLibrary && (
+        <button className="trackcta" type="button" onClick={() => setCookbook(true)}>
+          <span className="trackcta__icon" aria-hidden="true">
+            <Icon name="book" size={20} />
+          </span>
+          <span className="trackcta__text">
+            <strong>Open the cookbook</strong>
+            <span>{libraryCount()} dishes ready to go — adobo, sinigang, pancit and more</span>
+          </span>
+          <span className="trackcta__chevron" aria-hidden="true">
+            ›
+          </span>
+        </button>
+      )}
+
       <form className="account__row" onSubmit={create}>
         <input
           className="field__input"
@@ -78,8 +97,9 @@ export default function RecipesScreen({
 
       {sorted.length === 0 ? (
         <p className="empty">
-          No recipes yet. Add one and its ingredients become a shopping list
-          whenever you cook it.
+          No recipes yet. Open the cookbook above for {libraryCount()} dishes to
+          start from, or type your own — either way, their ingredients become a
+          shopping list whenever you cook them.
         </p>
       ) : (
         <ul className="cards">
@@ -258,6 +278,13 @@ export default function RecipesScreen({
             )
           })}
         </ul>
+      )}
+      {cookbook && (
+        <CookbookSheet
+          recipes={recipes}
+          onAdd={(entry) => onAddFromLibrary(entry)}
+          onClose={() => setCookbook(false)}
+        />
       )}
     </div>
   )

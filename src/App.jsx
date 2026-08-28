@@ -20,7 +20,8 @@ import RestockPanel from './components/RestockPanel.jsx'
 import SplitShop from './components/SplitShop.jsx'
 import { prunePast } from './mealplan.js'
 import { splitShop } from './stores.js'
-import { addRecipe, removeRecipe, updateRecipe } from './recipes.js'
+import { addRecipe, newId as newRecipeId, removeRecipe, updateRecipe } from './recipes.js'
+import { toUserRecipe } from './recipeLibrary.js'
 import {
   applyTheme,
   loadLook,
@@ -45,6 +46,7 @@ import StoreMap from './components/StoreMap.jsx'
 import VaultScreen from './components/VaultScreen.jsx'
 import AboutScreen from './components/AboutScreen.jsx'
 import PlusSheet from './components/PlusSheet.jsx'
+import NewListSheet from './components/NewListSheet.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import BasketCompare from './components/BasketCompare.jsx'
 import BeforeYouGo from './components/BeforeYouGo.jsx'
@@ -253,6 +255,7 @@ export default function App() {
   // be checked server-side against a real receipt.
   const [plus, setPlusState] = useState(() => isPlus())
   const [wantPlus, setWantPlus] = useState(false)
+  const [newList, setNewList] = useState(false)
   const [backupSnoozedUntil, setBackupSnoozedUntil] = useLocalStorage(
     'cartwise.backupSnooze',
     0,
@@ -1058,6 +1061,15 @@ export default function App() {
    */
   const overlays = () => (
     <>
+    {newList && (
+      <NewListSheet
+        onCreate={(name, purpose) => {
+          createCart(name, purpose)
+          setNewList(false)
+        }}
+        onClose={() => setNewList(false)}
+      />
+    )}
     {wantPlus && (
       <PlusSheet
         onClose={() => setWantPlus(false)}
@@ -1142,9 +1154,20 @@ export default function App() {
         <div className={`app ${atHome ? 'app--tabbed' : 'app--inner'}`} key={view}>
           <header className="app__header">
             {atHome ? (
-              <span className="app__brand">
-                <Icon name="cart" size={22} strokeWidth={1.9} /> CartWise
-              </span>
+              <>
+                <span className="app__brand">
+                  <Icon name="cart" size={22} strokeWidth={1.9} /> CartWise
+                </span>
+                <button
+                  className="newlist-btn"
+                  type="button"
+                  onClick={() => setNewList(true)}
+                  aria-label="New list"
+                  title="New list"
+                >
+                  +
+                </button>
+              </>
             ) : (
               <button className="backbtn" type="button" onClick={() => setView('home')}>
                 <span className="backbtn__chevron" aria-hidden="true">
@@ -1205,6 +1228,9 @@ export default function App() {
           onUpdate={(id, patch) => setRecipes((prev) => updateRecipe(prev, id, patch))}
           onRemove={(id) => setRecipes((prev) => removeRecipe(prev, id))}
           onAddToList={addIngredientsToCart}
+          onAddFromLibrary={(entry) =>
+            setRecipes((prev) => [...prev, toUserRecipe(entry, newRecipeId)])
+          }
         />
         <MealPlan
           plan={mealPlan}
@@ -1351,7 +1377,6 @@ export default function App() {
         listPhotos={listPhotos}
         name={displayName}
         onOpenCart={openCart}
-        onNewCart={createCart}
         onOpenExpiry={() => setView('expiry')}
         vault={vault}
         purchases={purchases}
