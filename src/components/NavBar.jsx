@@ -5,8 +5,8 @@ import Icon from '../icons.jsx'
 const TABS = [
   { id: 'home', label: 'Home', icon: 'house' },
   { id: 'recipes', label: 'Recipes', icon: 'book' },
+  { id: 'vault', label: 'Vault', icon: 'vault' },
   { id: 'expiry', label: 'Expiry', icon: 'calendar' },
-  { id: 'shops', label: 'Shops', icon: 'shelf' },
   { id: 'trips', label: 'Trips', icon: 'chart' },
   { id: 'settings', label: 'Settings', icon: 'gear' },
 ]

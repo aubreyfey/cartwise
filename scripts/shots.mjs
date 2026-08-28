@@ -27,6 +27,7 @@ const SHOTS = {
   compare: { click: 'Grocery Time', scroll: 648 },
   receipt: { click: 'Grocery Time|Finish trip' },
   insights: { click: 'Trips' },
+  vault: { click: 'Vault' },
   expiry: { click: 'Expiry' },
 }
 

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { formatMoney, sumLines } from '../money.js'
 import { insights } from '../trips.js'
 import { needsAttention } from '../pantry.js'
+import { vaultSummary } from '../vaultStats.js'
 import { PURPOSES, byPurpose } from '../carts.js'
 import { PHOTO_BACKGROUND, backgroundOf, backgroundStyle } from '../backgrounds.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
@@ -22,11 +23,15 @@ export default function HomeScreen({
   onOpenCart,
   onNewCart,
   onOpenExpiry,
+  vault = [],
+  purchases = [],
+  onOpenVault,
 }) {
   const [adding, setAdding] = useState(null) // purpose id being added to
   const [draft, setDraft] = useState('')
   const stats = useMemo(() => insights(trips), [trips])
   const attention = needsAttention(pantry)
+  const vaultStats = useMemo(() => vaultSummary(vault, purchases), [vault, purchases])
   const groups = useMemo(() => byPurpose(carts), [carts])
 
   const since = trips.length
@@ -108,6 +113,29 @@ export default function HomeScreen({
           ›
         </span>
       </button>
+
+      {onOpenVault && vaultStats.products > 0 && (
+        <button className="vault-card" type="button" onClick={onOpenVault}>
+          <span className="expiry-card__icon" aria-hidden="true">
+            <Icon name="vault" size={22} />
+          </span>
+          <span className="expiry-card__text">
+            <strong>
+              {vaultStats.products} {vaultStats.products === 1 ? 'product' : 'products'} remembered
+            </strong>
+            <span className="expiry-card__sub">
+              {vaultStats.pricesRecorded > 0
+                ? `${vaultStats.pricesRecorded} ${
+                    vaultStats.pricesRecorded === 1 ? 'price' : 'prices'
+                  } kept across ${vaultStats.shops} ${vaultStats.shops === 1 ? 'shop' : 'shops'}`
+                : 'Finish a trip and their prices land here'}
+            </span>
+          </span>
+          <span className="expiry-card__chevron" aria-hidden="true">
+            ›
+          </span>
+        </button>
+      )}
 
       {groups.map(({ purpose, carts: group }) => (
         <section className="purpose" key={purpose.id}>

@@ -42,6 +42,7 @@ import PhotoCapture from './components/PhotoCapture.jsx'
 import TourScreen from './components/TourScreen.jsx'
 import StoreBar from './components/StoreBar.jsx'
 import StoreMap from './components/StoreMap.jsx'
+import VaultScreen from './components/VaultScreen.jsx'
 import StoreCompare from './components/StoreCompare.jsx'
 import BasketCompare from './components/BasketCompare.jsx'
 import BeforeYouGo from './components/BeforeYouGo.jsx'
@@ -1150,11 +1151,52 @@ export default function App() {
   }
 
   if (view === 'trips') {
+    const shopRows = storesByDistance(stores, here)
     return chrome(
       <div className="tripsview">
         <header className="screen-head">
           <h1 className="screen-head__title">Trips</h1>
+          <button className="btn btn--ghost btn--small" type="button" onClick={locateMe}>
+            {here ? 'Update my location' : 'Where am I?'}
+          </button>
         </header>
+
+        {stores.length > 0 && (
+          <section className="shopsview">
+            <h2 className="screen-sub">Where you shop</h2>
+            {geoNote && <p className="mapbox__note mapbox__note--offline">{geoNote}</p>}
+            <StoreMap stores={stores} here={here} />
+            <ul className="shoplist">
+              {shopRows.map(({ store, km }) => (
+                <li className="shoprow" key={store.id}>
+                  <span className="shoprow__text">
+                    <span className="shoprow__name">{store.name}</span>
+                    <span className="shoprow__meta">
+                      {km !== null
+                        ? formatDistance(km)
+                        : isLocation(store.location)
+                          ? 'Location saved'
+                          : 'No location yet'}
+                    </span>
+                  </span>
+                  <button
+                    className="btn btn--ghost btn--small"
+                    type="button"
+                    onClick={() => saveStoreLocation(store.id)}
+                  >
+                    {isLocation(store.location) ? 'Update' : 'Save this location'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="mapbox__note">
+              Locations are saved per shop and never leave this device. Community
+              price reports carry the shop name and the day, never a coordinate.
+            </p>
+          </section>
+        )}
+
+        <h2 className="screen-sub">History</h2>
         {trips.length === 0 ? (
           <p className="empty">
             Your shopping history starts here. Finish a trip and CartWise keeps
@@ -1168,53 +1210,21 @@ export default function App() {
     )
   }
 
-  if (view === 'shops') {
-    const rows = storesByDistance(stores, here)
+  if (view === 'vault') {
     return chrome(
-      <div className="shopsview">
-        <header className="screen-head">
-          <h1 className="screen-head__title">Shops</h1>
-          <button className="btn btn--ghost btn--small" type="button" onClick={locateMe}>
-            {here ? 'Update my location' : 'Where am I?'}
-          </button>
-        </header>
-
-        {geoNote && <p className="mapbox__note mapbox__note--offline">{geoNote}</p>}
-
-        <StoreMap stores={stores} here={here} />
-
-        <ul className="shoplist">
-          {rows.map(({ store, km }) => (
-            <li className="shoprow" key={store.id}>
-              <span className="shoprow__text">
-                <span className="shoprow__name">{store.name}</span>
-                <span className="shoprow__meta">
-                  {km !== null ? formatDistance(km) : isLocation(store.location) ? 'Location saved' : 'No location yet'}
-                </span>
-              </span>
-              <button
-                className="btn btn--ghost btn--small"
-                type="button"
-                onClick={() => saveStoreLocation(store.id)}
-              >
-                {isLocation(store.location) ? 'Update' : 'Save this location'}
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        {stores.length === 0 && (
-          <p className="empty">
-            No shops yet. Add one on a list and it will appear here, ready to
-            remember where it is.
-          </p>
-        )}
-
-        <p className="mapbox__note">
-          Locations are saved per shop and never leave this device. Community
-          price reports carry the shop name and the day, never a coordinate.
-        </p>
-      </div>,
+      <VaultScreen
+        vault={vault}
+        purchases={purchases}
+        aisleOrder={aisleOrder}
+        categoryFor={categoryFor}
+        onList={items.map((i) => i.name)}
+        onOpenProduct={setDetailId}
+        onWhy={() => setWhyVault(true)}
+        onAddToList={(item) => {
+          quickAddFromVault(item)
+          setView('list')
+        }}
+      />,
     )
   }
 
@@ -1269,6 +1279,9 @@ export default function App() {
         onOpenCart={openCart}
         onNewCart={createCart}
         onOpenExpiry={() => setView('expiry')}
+        vault={vault}
+        purchases={purchases}
+        onOpenVault={() => setView('vault')}
       />
       </>,
     )
