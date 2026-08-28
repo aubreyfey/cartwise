@@ -1503,7 +1503,6 @@ textarea {
   border-radius: 999px;
   /* Translucent so the list scrolling underneath stays legible as context. */
   background: color-mix(in srgb, var(--surface) 84%, transparent);
-  backdrop-filter: blur(16px) saturate(1.5);
   box-shadow:
     0 1px 2px rgb(20 20 25 / 0.06),
     0 12px 32px -8px rgb(20 20 25 / 0.28);
@@ -5830,6 +5829,7 @@ button.card:hover {
   place-items: center;
   padding: 1rem;
   background: rgb(28 20 40 / 0.45);
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   overflow-y: auto;
 }
@@ -7067,3 +7067,81 @@ button.card:hover {
   margin-top: 0;
   border-color: var(--hairline);
 }
+
+/* ---------- glass ---------- */
+
+/* The floating bar was already translucent with a blur, and on iPhone it was
+   not glass at all: Safari needs -webkit-backdrop-filter, and there was not a
+   single prefixed declaration in this file. Unprefixed, iOS quietly skipped
+   the blur and rendered a flat panel.
+ *
+ * What makes the material read as glass rather than as a tinted rectangle is
+ * not the blur on its own. It is four things together: enough of the page
+ * showing through to see it move, saturation pushed up so colour survives the
+ * blur, a bright rim along the top edge where light catches it, and a soft
+ * wide shadow underneath so it sits above the page rather than in it. */
+.rail {
+  /* Low enough to see the list scroll behind it. */
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+
+  /* The rim is drawn as insets rather than a border so the top edge can be
+     brighter than the bottom, the way a real bevel catches light. */
+  border: 0;
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.55),
+    inset 0 0 0 1px rgb(255 255 255 / 0.18),
+    inset 0 -1px 0 0 rgb(20 20 25 / 0.04),
+    0 2px 6px -2px rgb(20 20 25 / 0.14),
+    0 14px 34px -10px rgb(20 20 25 / 0.3);
+}
+
+/* Dark mode: the same material over a dark ground. The rim drops to a hint,
+   because a bright white edge on a dark bar reads as a border, not as light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .rail {
+    background: color-mix(in srgb, var(--surface) 58%, transparent);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.14),
+      inset 0 0 0 1px rgb(255 255 255 / 0.07),
+      0 2px 6px -2px rgb(0 0 0 / 0.5),
+      0 14px 34px -10px rgb(0 0 0 / 0.55);
+  }
+}
+
+:root[data-theme='dark'] .rail {
+  background: color-mix(in srgb, var(--surface) 58%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.14),
+    inset 0 0 0 1px rgb(255 255 255 / 0.07),
+    0 2px 6px -2px rgb(0 0 0 / 0.5),
+    0 14px 34px -10px rgb(0 0 0 / 0.55);
+}
+
+/* Where the browser cannot blur, translucency alone would leave the labels
+   sitting on whatever scrolled underneath. Go opaque instead — losing the
+   effect is fine, losing the text is not. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .rail {
+    background: var(--surface);
+  }
+}
+
+/* The active tab is a second, brighter piece of the same material rather than
+   a flat fill, so it looks lit from behind instead of painted on. */
+.rail__tab--on {
+  background: color-mix(in srgb, var(--primary-soft) 82%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.45),
+    0 1px 2px -1px rgb(20 20 25 / 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .rail__tab--on {
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.1);
+  }
+}
+
+/* The sheet scrim gets the prefix too — same bug, same one-line cause. */
