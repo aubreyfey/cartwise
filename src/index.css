@@ -8020,3 +8020,16 @@ button.card:hover {
   border: none;
   border-left: 1px dashed var(--border);
 }
+
+/* Shown when localStorage refuses a write. Red, because unlike every other
+   warning in this app it means work is being lost right now. */
+.storagewarn {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+}

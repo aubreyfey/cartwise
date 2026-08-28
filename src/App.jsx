@@ -98,7 +98,7 @@ import {
 import { syncAvailable } from './sync/config.js'
 import { guessCategory } from './categories.js'
 import { DEFAULT_UNIT } from './units.js'
-import { readStored, removeStored, useLocalStorage } from './useLocalStorage.js'
+import { readStored, removeStored, useLocalStorage, STORAGE_FAILED } from './useLocalStorage.js'
 import { completeTrip } from './trips.js'
 import {
   forgetTripPurchases,
@@ -241,6 +241,10 @@ export default function App() {
   // When a copy was last saved, so the app can say so instead of guessing.
   const [lastBackupAt, setLastBackupAt] = useLocalStorage('cartwise.lastBackup', null)
   const [durable, setDurable] = useState(null)
+  // Set when a write to localStorage fails. Everything keeps working from
+  // memory, but nothing from this session will survive a reload, and staying
+  // quiet about that would be silent data loss.
+  const [storageFailure, setStorageFailure] = useState(null)
   const [backupSnoozedUntil, setBackupSnoozedUntil] = useLocalStorage(
     'cartwise.backupSnooze',
     0,
@@ -385,6 +389,10 @@ export default function App() {
     // to, which for an app whose whole value is a year of accumulated prices
     // is the most likely way someone loses everything.
     requestPersistence().then(setDurable)
+
+    const onStorageFailure = (event) => setStorageFailure(event.detail ?? { reason: 'blocked' })
+    window.addEventListener(STORAGE_FAILED, onStorageFailure)
+    return () => window.removeEventListener(STORAGE_FAILED, onStorageFailure)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -1111,6 +1119,14 @@ export default function App() {
 
             {lookControl()}
           </header>
+          {storageFailure && (
+            <p className="storagewarn" role="alert">
+              <strong>Changes aren't being saved.</strong>{' '}
+              {storageFailure.reason === 'full'
+                ? "This browser's storage is full. Remove some product photos in Settings, or save a copy of your data and clear space."
+                : 'This browser is blocking storage — private browsing usually does. CartWise works, but nothing will be here when you come back.'}
+            </p>
+          )}
           {children}
         </div>
         {atHome && (
