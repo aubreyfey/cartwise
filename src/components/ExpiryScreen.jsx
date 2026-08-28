@@ -105,20 +105,17 @@ export default function ExpiryScreen({
         </div>
       </header>
 
+      {/* The rail shows even with nothing tracked. Hiding it behind an empty
+          message made the whole feature invisible to exactly the people who
+          have not used it yet — and an empty week of days is still a week you
+          can swipe, which is how you learn what the screen does. */}
       {grouping === 'timeline' ? (
-        pantry.length === 0 ? (
-          <p className="empty">
-            Nothing tracked yet. Add what is in the fridge and CartWise will tell
-            you what needs eating first.
-          </p>
-        ) : (
-          <ExpiryTimeline
-            pantry={pantry}
-            photos={photos}
-            onResolve={onResolve}
-            onRemove={onRemove}
-          />
-        )
+        <ExpiryTimeline
+          pantry={pantry}
+          photos={photos}
+          onResolve={onResolve}
+          onRemove={onRemove}
+        />
       ) : null}
 
       {onTrackPurchased && (

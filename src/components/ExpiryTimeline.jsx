@@ -112,9 +112,14 @@ export default function ExpiryTimeline({ pantry = [], photos = {}, onResolve, on
 
       {current.count === 0 ? (
         <p className="etl__empty">
-          {current.offset < 0
-            ? 'Nothing went off that day.'
-            : 'Nothing to use up. Swipe to another day.'}
+          {/* Nothing tracked at all is a different message from nothing on
+              this particular day: one needs telling what to do, the other
+              just needs telling to swipe. */}
+          {pantry.length === 0
+            ? 'Nothing tracked yet. Add what is in the fridge below and it will appear on the day it goes off.'
+            : current.offset < 0
+              ? 'Nothing went off that day.'
+              : 'Nothing to use up. Swipe to another day.'}
         </p>
       ) : (
         <ul className="etl__items">
