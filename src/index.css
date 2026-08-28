@@ -1475,60 +1475,72 @@ textarea {
   }
 }
 
-/* ---------- side rail ---------- */
+/* ---------- floating nav bar ---------- */
 
-/* Notebook dividers: tabs down the left edge, each a tongue sticking out of
-   the page, with the active one sliding proud of the others. */
+/* This was a column of tabs down the left edge, printed like notebook
+   dividers. It looked good and it was a bad place for navigation: an audit
+   at 390px measured each tab 33px wide — the narrowest controls in the app,
+   doing its most important job, in the hardest corner of the screen to reach
+   with a thumb.
+ *
+ * A floating capsule at the bottom instead. Not edge-to-edge — that is the
+ * generic solution, and floating keeps it looking like CartWise rather than
+ * every other app. Bottom centre is the easiest place on a phone to hit. */
 .rail {
   position: fixed;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 50%;
+  bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
   z-index: 40;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
 
-.rail__tab {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.8rem 0.35rem 0.8rem 0.3rem;
+  flex-direction: row;
+  gap: 0.1rem;
+  max-width: calc(100vw - 1.4rem);
+  padding: 0.28rem;
+
   border: 1px solid var(--hairline);
-  border-left: none;
-  border-radius: 0 10px 10px 0;
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
-  backdrop-filter: blur(10px);
-  color: var(--text-faint);
-  box-shadow: var(--shadow);
-  transition: transform 220ms cubic-bezier(0.3, 0.8, 0.3, 1), color 180ms ease,
-    background 180ms ease;
-}
-
-.rail__tab--on {
-  background: var(--surface);
-  color: var(--primary);
-  transform: translateX(5px);
-  box-shadow: var(--shadow-lg);
-}
-
-/* The active tab is marked by a spine, not by an outline round the whole
-   tongue — the outline made every tab look like a button. */
-.rail__tab--on::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.55rem;
-  bottom: 0.55rem;
-  width: 2px;
-  border-radius: 0 2px 2px 0;
-  background: var(--primary);
+  border-radius: 999px;
+  /* Translucent so the list scrolling underneath stays legible as context. */
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  backdrop-filter: blur(16px) saturate(1.5);
+  box-shadow:
+    0 1px 2px rgb(20 20 25 / 0.06),
+    0 12px 32px -8px rgb(20 20 25 / 0.28);
 }
 
 .rail__tab {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.12rem;
+
+  /* 62 x 50. Five of these fit inside 390px with room to spare, and every one
+     clears the thumb-sized minimum the old 33px tabs did not. */
+  min-width: 3.9rem;
+  min-height: 3.1rem;
+  padding: 0.4rem 0.25rem;
+
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  box-shadow: none;
+  color: var(--text-faint);
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.rail__tab--on {
+  background: var(--primary-soft);
+  color: var(--primary);
+  transform: none;
+}
+
+/* The old spine marked the active tab down its left edge. In a horizontal bar
+   the filled pill does that job, so the spine would just be a stray mark. */
+.rail__tab--on::after {
+  content: none;
 }
 
 .rail__icon {
@@ -1537,19 +1549,21 @@ textarea {
   place-items: center;
 }
 
-/* Sideways, the way a divider tab is printed. */
+/* Horizontal again. Sideways text made sense on a vertical divider and makes
+   none here. */
 .rail__label {
-  writing-mode: vertical-rl;
+  writing-mode: horizontal-tb;
   text-orientation: mixed;
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
 }
 
 .rail__badge {
   position: absolute;
-  top: -0.35rem;
-  right: -0.45rem;
+  top: -0.3rem;
+  right: -0.5rem;
   min-width: 0.95rem;
   height: 0.95rem;
   padding: 0 0.18rem;
@@ -1562,21 +1576,28 @@ textarea {
   font-weight: 800;
 }
 
-/* Room for the rail, so nothing sits under it. */
+/* Room at the foot of the page instead of down the side, so the last card is
+   not stuck under the bar. */
+/* Only the bottom is touched. Setting padding-left here at all — even to 0 —
+   overrode the symmetric 0.85rem from .app and pinned the content to the left
+   edge while leaving a gutter on the right. */
 .app--tabbed {
-  padding-left: calc(3rem + env(safe-area-inset-left, 0));
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
 }
 
-.rail {
-  padding-left: env(safe-area-inset-left, 0);
-}
-
-@media (max-width: 26rem) {
-  .app--tabbed {
-    padding-left: 2.6rem;
-  }
+/* Small phones: the labels are what has to give, not the tap target. */
+@media (max-width: 22.5rem) {
   .rail__tab {
-    padding: 0.6rem 0.25rem;
+    min-width: 3.4rem;
+  }
+  .rail__label {
+    font-size: 0.55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail__tab {
+    transition: none;
   }
 }
 
@@ -6929,11 +6950,6 @@ button.card:hover {
   height: 2.4rem;
 }
 
-/* The nav rail was 26px wide — that is the app's primary navigation, and it
-   was the narrowest thing on the screen. */
-.rail__tab {
-  padding: 0.85rem 0.5rem 0.85rem 0.45rem;
-}
 
 /* Accent and place chips were 29px tall. */
 .accent,
