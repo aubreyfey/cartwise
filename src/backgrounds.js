@@ -25,9 +25,110 @@ export const BACKGROUNDS = [
   { id: 'grape', label: 'Grape', light: 'linear-gradient(150deg,#f0e9f6,#ded0ec)', dark: 'linear-gradient(150deg,#26203a,#1a162a)' },
 ]
 
+
+// Illustrated scenes. Same contract as the gradients above — soft enough for
+// dark text, and both themes declared — but composed rather than flat, for
+// anyone who wants a list that looks like somewhere rather than a colour.
+export const SCENE_BACKGROUNDS = [
+  {
+    id: 'sunrise',
+    label: 'Sunrise',
+    scene: true,
+    light:
+      'radial-gradient(ellipse 140% 42% at 18% 112%, #ecd9b6 0%, transparent 62%),' +
+      'radial-gradient(ellipse 120% 38% at 88% 114%, #e2c9a2 0%, transparent 62%),' +
+      'radial-gradient(circle at 52% 74%, #ffd9a0 0%, #ffe9c9 26%, transparent 52%),' +
+      'linear-gradient(180deg,#fff3e4 0%,#ffe6cd 58%,#f8dcc0 100%)',
+    dark:
+      'radial-gradient(ellipse 140% 42% at 18% 112%, #3a2f22 0%, transparent 62%),' +
+      'radial-gradient(ellipse 120% 38% at 88% 114%, #2f261c 0%, transparent 62%),' +
+      'radial-gradient(circle at 52% 74%, #6b4a28 0%, #4a3320 30%, transparent 55%),' +
+      'linear-gradient(180deg,#2a1f16 0%,#20180f 100%)',
+  },
+  {
+    id: 'dusk',
+    label: 'Dusk',
+    scene: true,
+    light:
+      'radial-gradient(ellipse 150% 40% at 40% 114%, #d8cbe4 0%, transparent 60%),' +
+      'radial-gradient(circle at 74% 30%, #ffe0d2 0%, transparent 42%),' +
+      'linear-gradient(180deg,#efe4f3 0%,#fbdfd8 62%,#fde8d8 100%)',
+    dark:
+      'radial-gradient(ellipse 150% 40% at 40% 114%, #2a2338 0%, transparent 60%),' +
+      'radial-gradient(circle at 74% 30%, #4a2e35 0%, transparent 44%),' +
+      'linear-gradient(180deg,#221c31 0%,#2c1e26 100%)',
+  },
+  {
+    id: 'meadow',
+    label: 'Meadow',
+    scene: true,
+    light:
+      'radial-gradient(ellipse 150% 46% at 30% 116%, #cfe6bb 0%, transparent 64%),' +
+      'radial-gradient(ellipse 60% 22% at 22% 26%, #ffffff 0%, transparent 70%),' +
+      'radial-gradient(ellipse 44% 16% at 72% 18%, #ffffff 0%, transparent 70%),' +
+      'linear-gradient(180deg,#e6f2fb 0%,#e9f4e6 66%,#dcecd2 100%)',
+    dark:
+      'radial-gradient(ellipse 150% 46% at 30% 116%, #1c2a1a 0%, transparent 64%),' +
+      'radial-gradient(ellipse 60% 22% at 22% 26%, #232b33 0%, transparent 70%),' +
+      'linear-gradient(180deg,#151e28 0%,#16241a 100%)',
+  },
+  {
+    id: 'sea',
+    label: 'Sea',
+    scene: true,
+    light:
+      'linear-gradient(180deg,transparent 0 54%, #cfe6ee 54%, #b9dbe8 100%),' +
+      'radial-gradient(circle at 68% 34%, #fff0cf 0%, transparent 26%),' +
+      'linear-gradient(180deg,#e3f1f8 0%,#eef7fa 54%)',
+    dark:
+      'linear-gradient(180deg,transparent 0 54%, #14252e 54%, #0f1d25 100%),' +
+      'radial-gradient(circle at 68% 34%, #3d3a2a 0%, transparent 28%),' +
+      'linear-gradient(180deg,#16222c 0%,#1a2732 54%)',
+  },
+  {
+    id: 'night',
+    label: 'Night',
+    scene: true,
+    light:
+      'radial-gradient(circle at 78% 22%, #fdf6dd 0%, #fdf6dd 3.2%, transparent 3.6%),' +
+      'radial-gradient(circle at 24% 18%, #ffffff 0%, #ffffff 0.7%, transparent 1%),' +
+      'radial-gradient(circle at 46% 32%, #ffffff 0%, #ffffff 0.6%, transparent 0.9%),' +
+      'radial-gradient(circle at 62% 12%, #ffffff 0%, #ffffff 0.5%, transparent 0.8%),' +
+      'radial-gradient(ellipse 150% 40% at 50% 116%, #cfd3e6 0%, transparent 62%),' +
+      'linear-gradient(180deg,#e8eaf6 0%,#dfe3f2 100%)',
+    dark:
+      'radial-gradient(circle at 78% 22%, #f2ecd0 0%, #f2ecd0 3.2%, transparent 3.6%),' +
+      'radial-gradient(circle at 24% 18%, #ffffff 0%, #ffffff 0.7%, transparent 1%),' +
+      'radial-gradient(circle at 46% 32%, #ffffff 0%, #ffffff 0.6%, transparent 0.9%),' +
+      'radial-gradient(circle at 62% 12%, #ffffff 0%, #ffffff 0.5%, transparent 0.8%),' +
+      'radial-gradient(ellipse 150% 40% at 50% 116%, #191d2e 0%, transparent 62%),' +
+      'linear-gradient(180deg,#131728 0%,#0e111f 100%)',
+  },
+  {
+    id: 'blossom',
+    label: 'Blossom',
+    scene: true,
+    light:
+      'radial-gradient(circle at 16% 22%, #fbd0dc 0%, transparent 12%),' +
+      'radial-gradient(circle at 34% 12%, #fcdde6 0%, transparent 9%),' +
+      'radial-gradient(circle at 82% 28%, #fbd0dc 0%, transparent 11%),' +
+      'radial-gradient(circle at 66% 8%, #fce1e9 0%, transparent 8%),' +
+      'linear-gradient(180deg,#fdeef3 0%,#fbe3ec 100%)',
+    dark:
+      'radial-gradient(circle at 16% 22%, #3a2029 0%, transparent 12%),' +
+      'radial-gradient(circle at 34% 12%, #331c24 0%, transparent 9%),' +
+      'radial-gradient(circle at 82% 28%, #3a2029 0%, transparent 11%),' +
+      'radial-gradient(circle at 66% 8%, #331c24 0%, transparent 8%),' +
+      'linear-gradient(180deg,#2a1720 0%,#1f111a 100%)',
+  },
+]
+
 export const DEFAULT_BACKGROUND = 'plain'
 
-export const BACKGROUND_BY_ID = Object.fromEntries(BACKGROUNDS.map((b) => [b.id, b]))
+/** Flat colours and scenes together: everything a list can be set to. */
+export const ALL_BACKGROUNDS = [...BACKGROUNDS, ...SCENE_BACKGROUNDS]
+
+export const BACKGROUND_BY_ID = Object.fromEntries(ALL_BACKGROUNDS.map((b) => [b.id, b]))
 
 /** Marks a background as "the photo stored for this list" rather than a preset. */
 export const PHOTO_BACKGROUND = 'photo'

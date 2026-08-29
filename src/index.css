@@ -9478,3 +9478,68 @@ button.card:hover {
 .plussheet__trial strong {
   font-variant-numeric: tabular-nums;
 }
+
+/* A dish picture assembled from what actually goes in it — no stock
+   photography, nothing licensed, and honest: three of the real ingredients
+   rather than a stand-in photo of a dish nobody here cooked. */
+.dishpic {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.dishpic > * {
+  grid-area: 1 / 1;
+}
+
+.dishpic > *:nth-child(2) {
+  transform: translate(-0.62rem, 0.42rem);
+}
+
+.dishpic > *:nth-child(3) {
+  transform: translate(0.62rem, 0.42rem);
+}
+
+/* The method. Numbered, because the order is the whole point of a method. */
+.cookrow__steps {
+  grid-column: 1 / -1;
+  margin: 0 0 0.6rem;
+  padding: 0.6rem 0.7rem 0.6rem 1.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm, 10px);
+}
+
+.cookrow__steps li::marker {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Scenes sit under the flat colours as their own group — a different kind of
+   choice, and mixing the two into one grid makes both look accidental. */
+.picker__group {
+  margin: 0.9rem 0 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* A scene is composed rather than flat, so its label needs its own backing to
+   stay readable over whatever part of the picture lands behind it. */
+.swatch--scene .swatch__label {
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CUISINES, savedNames, searchLibrary } from '../recipeLibrary.js'
 import { guessCategory } from '../categories.js'
+import { stepsFor } from '../recipeSteps.js'
 import Sticker, { stickerFor } from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -111,11 +112,15 @@ export default function CookbookSheet({ recipes = [], onAdd, onClose }) {
                     onClick={() => setExpanded(open ? null : entry.name)}
                     aria-expanded={open}
                   >
-                    <span className="cookrow__thumb" aria-hidden="true">
-                      <Sticker
-                        id={stickerFor(entry.ingredients[0].name, guessCategory(entry.ingredients[0].name))}
-                        size={22}
-                      />
+                    <span className="dishpic" aria-hidden="true">
+                      {entry.ingredients.slice(0, 3).map((ing, i) => (
+                        <Sticker
+                          key={ing.name}
+                          id={stickerFor(ing.name, guessCategory(ing.name))}
+                          size={i === 0 ? 26 : 19}
+                          tilt={i === 1 ? -12 : i === 2 ? 12 : 0}
+                        />
+                      ))}
                     </span>
                     <span className="cookrow__text">
                       <span className="cookrow__name">{entry.name}</span>
@@ -129,6 +134,7 @@ export default function CookbookSheet({ recipes = [], onAdd, onClose }) {
                   </button>
 
                   {open && (
+                    <>
                     <ul className="cookrow__ings">
                       {entry.ingredients.map((ing) => (
                         <li key={ing.name}>
@@ -140,6 +146,15 @@ export default function CookbookSheet({ recipes = [], onAdd, onClose }) {
                         </li>
                       ))}
                     </ul>
+
+                    {stepsFor(entry.name).length > 0 && (
+                      <ol className="cookrow__steps">
+                        {stepsFor(entry.name).map((step) => (
+                          <li key={step}>{step}</li>
+                        ))}
+                      </ol>
+                    )}
+                    </>
                   )}
 
                   <button

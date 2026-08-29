@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BACKGROUNDS, PHOTO_BACKGROUND, backgroundStyle } from '../backgrounds.js'
+import { BACKGROUNDS, PHOTO_BACKGROUND, SCENE_BACKGROUNDS, backgroundStyle } from '../backgrounds.js'
 import { photoGateState } from '../plus.js'
 import Icon from '../icons.jsx'
 
@@ -93,6 +93,25 @@ export default function BackgroundPicker({
               <button
                 type="button"
                 className={`swatch ${bg.id === current ? 'swatch--on' : ''}`}
+                style={backgroundStyle(bg.id)}
+                onClick={() => onPick(bg.id)}
+                aria-pressed={bg.id === current}
+              >
+                <span className="swatch__label">{bg.label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Scenes are their own group. A composed picture next to a flat
+            colour in one grid makes both look accidental. */}
+        <h3 className="picker__group">Scenes</h3>
+        <ul className="picker__grid">
+          {SCENE_BACKGROUNDS.map((bg) => (
+            <li key={bg.id}>
+              <button
+                type="button"
+                className={`swatch swatch--scene ${bg.id === current ? 'swatch--on' : ''}`}
                 style={backgroundStyle(bg.id)}
                 onClick={() => onPick(bg.id)}
                 aria-pressed={bg.id === current}
