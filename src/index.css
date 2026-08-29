@@ -9165,3 +9165,38 @@ button.card:hover {
 .fab--overnav {
   bottom: calc(5.4rem + env(safe-area-inset-bottom, 0px));
 }
+
+/* The gear, beside the appearance swatch. Both change how the app behaves, as
+   against the tabs, which are places you go. */
+.app__look {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.gearbtn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: 999px;
+}
+
+.gearbtn:hover {
+  color: var(--text);
+  background: var(--surface-2, rgba(0, 0, 0, 0.05));
+}
+
+.gearbtn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Five tabs rather than six: each one gets a little more room, which the
+   labels needed most on a narrow phone. */
+.rail__tab {
+  min-width: 3.9rem;
+}

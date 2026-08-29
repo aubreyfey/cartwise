@@ -145,7 +145,7 @@ const ALL = { id: 'all', label: 'All items', sticker: 'basket' }
 
 // The top-level screens. Anything else — a list, the category library, the
 // privacy page — is deeper than the tabs and gets a back button instead.
-const TAB_VIEWS = new Set(['home', 'recipes', 'vault', 'expiry', 'trips', 'settings'])
+const TAB_VIEWS = new Set(['home', 'recipes', 'vault', 'expiry', 'trips'])
 
 export default function App() {
   // Carts hold the lists; the Vault, stores and trip history are shared
@@ -1097,8 +1097,19 @@ export default function App() {
    * look should be one tap from wherever you are, and the screen you are most
    * likely to be looking at is the list.
    */
-  const lookControl = () => (
+  const lookControl = ({ settings = false } = {}) => (
     <div className="app__look">
+      {settings && (
+        <button
+          className="gearbtn"
+          type="button"
+          onClick={() => setView('settings')}
+          aria-label="Settings"
+          title="Settings"
+        >
+          <Icon name="gear" size={18} />
+        </button>
+      )}
       <button
         className={`lookbtn ${lookOpen ? 'lookbtn--on' : ''}`}
         type="button"
@@ -1251,7 +1262,7 @@ export default function App() {
               </button>
             )}
 
-            {lookControl()}
+            {lookControl({ settings: isTab })}
           </header>
           {storageFailure && (
             <p className="storagewarn" role="alert">

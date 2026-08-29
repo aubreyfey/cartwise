@@ -1,14 +1,18 @@
 import Icon from '../icons.jsx'
 
-// Notebook dividers down the left edge: each tab is a tongue sticking out of
-// the page, and the active one slides proud of the rest.
+// Five tabs, and every one of them is something you do: your lists, what you
+// cook, what you have bought, what is going off, where the money went.
+//
+// Settings is not one of those. It is where you go to change how the app
+// behaves, occasionally, and it was taking a sixth of a phone-width bar to
+// sit there being rarely pressed. It lives in the header now, next to the
+// other control that changes how things look.
 const TABS = [
   { id: 'home', label: 'Home', icon: 'house' },
   { id: 'recipes', label: 'Recipes', icon: 'book' },
   { id: 'vault', label: 'Vault', icon: 'vault' },
   { id: 'expiry', label: 'Expiry', icon: 'calendar' },
   { id: 'trips', label: 'Trips', icon: 'chart' },
-  { id: 'settings', label: 'Settings', icon: 'gear' },
 ]
 
 export default function NavBar({ view, onNavigate, alerts = 0 }) {
