@@ -94,10 +94,24 @@ async function fetchCountry(slug, code) {
 
   // Anything already on disk from a previous run.
   const partial = join(OUT, `${code}.json`)
+  // Where the last run got to. Kept beside the data rather than inferred from
+  // it: products are filtered on the way in, so the number kept is always
+  // fewer than the number fetched, and dividing kept by page size lands on a
+  // page already consumed. Every resumed run then re-read that page, found
+  // nothing new, and stopped — the catalogue could not grow past its first run.
+  const progressFile = join(OUT, `.${code}.progress`)
   try {
     for (const row of JSON.parse(readFileSync(partial, 'utf8'))) rows.set(row[0], row)
     if (rows.size > 0) {
-      page = Math.floor(rows.size / PAGE) + 1
+      let done = 0
+      try {
+        done = Number(JSON.parse(readFileSync(progressFile, 'utf8')).lastPage) || 0
+      } catch {
+        // No record: fall back to the old estimate, which is at worst one
+        // wasted page rather than a stall, now that it is not the only clue.
+        done = Math.floor(rows.size / PAGE)
+      }
+      page = done + 1
       console.log(`  resuming from ${rows.size} products, page ${page}`)
     }
   } catch {
@@ -127,6 +141,7 @@ async function fetchCountry(slug, code) {
     console.log(`  page ${page} — ${rows.size} kept`)
     // Written every page, so a failure costs one page rather than all of them.
     writeFileSync(partial, JSON.stringify([...rows.values()]))
+    writeFileSync(progressFile, JSON.stringify({ lastPage: page, kept: rows.size }))
     page += 1
     if ((page - 1) * PAGE >= total) break
     await wait(PAUSE_MS)

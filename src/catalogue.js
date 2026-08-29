@@ -9,6 +9,9 @@
 
 let cache = null
 let loading = null
+// Which country the cache holds. Without this, switching country kept serving
+// the first one loaded — the picker would appear to do nothing.
+let cachedCountry = null
 
 /** Strip a name to something matchable: lowercase, letters and digits only. */
 const normalise = (value) =>
@@ -25,8 +28,10 @@ const normalise = (value) =>
  * rather than a broken one.
  */
 export async function loadCatalogue(base = '/', country = 'ph') {
-  if (cache) return cache
-  if (loading) return loading
+  if (cache && cachedCountry === country) return cache
+  if (loading && cachedCountry === country) return loading
+  cachedCountry = country
+  cache = null
 
   const url = `${base}catalogue/${country}.json`.replace(/\/{2,}/g, '/')
 

@@ -17,3 +17,5 @@ dist-ssr
 
 # Fetch logs from the catalogue builder.
 catalogue.log*
+.*.progress
+public/catalogue/.*.progress

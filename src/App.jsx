@@ -99,6 +99,11 @@ import { expectedRange } from './priceRange.js'
 import { homeMascotState } from './mascotState.js'
 import { useEdgeSwipe } from './useEdgeSwipe.js'
 import { isPlus, setPlus, startTrial } from './plus.js'
+import {
+  CATALOGUE_COUNTRY_KEY,
+  DEFAULT_CATALOGUE_COUNTRY,
+  catalogueCountryOf,
+} from './catalogueCountries.js'
 import { contributionEnabled } from './sync/prices.js'
 import { excludeOnList, restockDue } from './restock.js'
 import { productKey, reportsFromPurchases } from './community.js'
@@ -201,6 +206,12 @@ export default function App() {
       saturation: saveSaturation(next.saturation),
     })
   }
+  // Which country's product catalogue to search. One file is loaded at a
+  // time — someone shopping in Cebu should not download Germany.
+  const [catalogueCountry, setCatalogueCountry] = useLocalStorage(
+    CATALOGUE_COUNTRY_KEY,
+    DEFAULT_CATALOGUE_COUNTRY,
+  )
   const [sortMode, setSortMode] = useLocalStorage('cartwise.sort', 'aisle')
   const [aisleOrder, setAisleOrder] = useLocalStorage(AISLE_ORDER_KEY, defaultAisleOrder)
   // The aisles as configured: renamed, reordered, archived ones dropped.
@@ -1173,6 +1184,7 @@ export default function App() {
         // subpath — which is where it is deployed.
         onAddCatalogue={addFromCatalogue}
         base={import.meta.env.BASE_URL}
+        country={catalogueCountryOf(catalogueCountry)}
         onScan={() => {
           setSearching(false)
           setScanRequested(true)
@@ -1446,6 +1458,8 @@ export default function App() {
         lastBackupAt={lastBackupAt}
         onBackedUp={setLastBackupAt}
         onOpenAbout={() => setView('about')}
+        catalogueCountry={catalogueCountryOf(catalogueCountry)}
+        onCatalogueCountryChange={setCatalogueCountry}
         onShowTour={() => setShowTour(true)}
         onOpenCategories={() => setView('categories')}
         contributing={contributing}

@@ -34,6 +34,7 @@ export default function ProductSearch({
   onOpenVault,
   onAddCatalogue,
   base = '/',
+  country = 'ph',
   purpose = 'list',
   onList = [],
   onClose,
@@ -96,13 +97,13 @@ export default function ProductSearch({
   const [catalogue, setCatalogue] = useState([])
   useEffect(() => {
     let alive = true
-    loadCatalogue(base).then((rows) => {
+    loadCatalogue(base, country).then((rows) => {
       if (alive) setCatalogue(rows)
     })
     return () => {
       alive = false
     }
-  }, [base])
+  }, [base, country])
 
   // Generic groceries — rice, eggs, onions — which the packaged-food
   // catalogue simply does not contain. Bundled, so they work offline and from

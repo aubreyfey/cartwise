@@ -2,6 +2,7 @@ import AccountPanel from './AccountPanel.jsx'
 import DataPanel from './DataPanel.jsx'
 import Icon from '../icons.jsx'
 import { CURRENCIES, currencySymbol } from '../currency.js'
+import { CATALOGUE_COUNTRIES } from '../catalogueCountries.js'
 import { ACCENTS, TEXTURES } from '../theme.js'
 import Sticker from '../stickers.jsx'
 
@@ -39,6 +40,8 @@ export default function SettingsScreen({
   contributing,
   onContributingChange,
   syncReady,
+  catalogueCountry,
+  onCatalogueCountryChange,
 }) {
   return (
     <div className="settings">
@@ -74,6 +77,29 @@ export default function SettingsScreen({
           ))}
         </select>
       </label>
+
+      {onCatalogueCountryChange && (
+        <label className="setting">
+          <span className="setting__label">Product catalogue</span>
+          <select
+            className="setting__control"
+            value={catalogueCountry}
+            onChange={(e) => onCatalogueCountryChange(e.target.value)}
+          >
+            {CATALOGUE_COUNTRIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.flag} {c.label}
+              </option>
+            ))}
+          </select>
+          <span className="setting__hint">
+            Which country's products search finds. One is downloaded at a time,
+            the first time you search — so changing this is not free on mobile
+            data. Your own Vault and the generic groceries are always there,
+            whichever you pick.
+          </span>
+        </label>
+      )}
 
       <section className="setting">
         <span className="setting__label">Accent</span>
