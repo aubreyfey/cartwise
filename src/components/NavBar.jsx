@@ -30,7 +30,7 @@ export default function NavBar({ view, onNavigate, alerts = 0 }) {
             onClick={() => onNavigate(tab.id)}
             aria-current={active ? 'page' : undefined}
           >
-            <span className="rail__icon">
+            <span className="rail__icon" key={active ? `${tab.id}-on` : tab.id}>
               <Icon name={tab.icon} size={17} />
               {tab.id === 'expiry' && alerts > 0 && (
                 <span className="rail__badge" aria-hidden="true">

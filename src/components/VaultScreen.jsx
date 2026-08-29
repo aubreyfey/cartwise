@@ -3,6 +3,7 @@ import { CATEGORY_BY_ID } from '../categories.js'
 import { formatMoney } from '../money.js'
 import { searchVault, vaultCategories } from '../vault.js'
 import { VAULT_SORTS, sortVaultRows, vaultRows, vaultSummary } from '../vaultStats.js'
+import { useCountUp } from '../useCountUp.js'
 import Sticker from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -43,6 +44,12 @@ export default function VaultScreen({
   const [sort, setSort] = useState('recent')
 
   const summary = useMemo(() => vaultSummary(vault, purchases), [vault, purchases])
+  // The three counts are the point of this screen's headline, and a number
+  // that lands rather than appears is the difference between a statistic and
+  // something growing.
+  const shownProducts = Math.round(useCountUp(summary.products, { duration: 650, from: 0 }))
+  const shownPrices = Math.round(useCountUp(summary.pricesRecorded, { duration: 750, from: 0 }))
+  const shownShops = Math.round(useCountUp(summary.shops, { duration: 550, from: 0 }))
   const aisles = useMemo(() => vaultCategories(vault, aisleOrder), [vault, aisleOrder])
 
   const rows = useMemo(() => {
@@ -90,17 +97,17 @@ export default function VaultScreen({
           ₱4,000" would not mean anything. */}
       <ul className="vstat">
         <li className="vstat__cell">
-          <strong className="vstat__num">{summary.products}</strong>
+          <strong className="vstat__num">{shownProducts}</strong>
           <span className="vstat__label">{summary.products === 1 ? 'product' : 'products'}</span>
         </li>
         <li className="vstat__cell">
-          <strong className="vstat__num">{summary.pricesRecorded}</strong>
+          <strong className="vstat__num">{shownPrices}</strong>
           <span className="vstat__label">
             {summary.pricesRecorded === 1 ? 'price kept' : 'prices kept'}
           </span>
         </li>
         <li className="vstat__cell">
-          <strong className="vstat__num">{summary.shops}</strong>
+          <strong className="vstat__num">{shownShops}</strong>
           <span className="vstat__label">{summary.shops === 1 ? 'shop' : 'shops'}</span>
         </li>
       </ul>

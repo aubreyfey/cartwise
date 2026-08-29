@@ -9310,3 +9310,152 @@ button.card:hover {
   border-radius: 999px;
   white-space: nowrap;
 }
+
+/* ================================================================== motion
+
+   Everything here is one of three things: something arriving, something
+   responding to a finger, or something that just changed. Nothing loops,
+   nothing runs on scroll, and every rule is switched off at the bottom of
+   this block for anyone who has asked for less movement. */
+
+/* --- arriving -------------------------------------------------------- */
+
+/* A row added to a list gets its own element, so this runs once when it is
+   created and never again on re-render. Existing rows keep their DOM node. */
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.item {
+  animation: row-in 260ms cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+/* Aisle sections stagger as the list builds, so a long list assembles rather
+   than appearing all at once. Capped: past the sixth the delay would be
+   longer than anyone waits. */
+.app__list .section {
+  animation: deal-in 340ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+.app__list .section:nth-of-type(2) { animation-delay: 45ms; }
+.app__list .section:nth-of-type(3) { animation-delay: 90ms; }
+.app__list .section:nth-of-type(4) { animation-delay: 130ms; }
+.app__list .section:nth-of-type(5) { animation-delay: 165ms; }
+.app__list .section:nth-of-type(n + 6) { animation-delay: 195ms; }
+
+/* Screens that are not Home also arrive, rather than cutting. */
+.vaultview,
+.tripsview,
+.expiry,
+.recipes,
+.about {
+  animation: deal-in 300ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+
+/* --- responding ------------------------------------------------------ */
+
+/* A press should be felt before the result arrives. Small enough that it
+   reads as the surface giving, not as the element moving. */
+.card,
+.expiry-card,
+.vault-card,
+.trackcta,
+.cookrow__main,
+.shoprow,
+.presult,
+.newlist__choice,
+.quickpick {
+  transition: transform 120ms ease-out;
+}
+
+.card:active,
+.expiry-card:active,
+.vault-card:active,
+.trackcta:active,
+.cookrow__main:active,
+.presult:active,
+.newlist__choice:active,
+.quickpick:active {
+  transform: scale(0.985);
+}
+
+/* Round controls take a firmer squeeze — there is less area to read the
+   change on. */
+.fab:active,
+.newlist-btn:active,
+.gearbtn:active,
+.etl__act:active,
+.vrow__add:active,
+.cookrow__add:active {
+  transform: scale(0.92);
+}
+
+/* --- just changed ---------------------------------------------------- */
+
+/* The tab you moved to. Keyed on activation in NavBar, so the icon is a new
+   element each time and this runs on arrival rather than on every render. */
+@keyframes tab-pop {
+  0% { transform: scale(0.82); }
+  55% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.rail__tab--on .rail__icon {
+  animation: tab-pop 340ms cubic-bezier(0.3, 1.4, 0.4, 1);
+}
+
+/* The count on a tab badge, when it changes. */
+.rail__badge {
+  animation: tab-pop 300ms cubic-bezier(0.3, 1.4, 0.4, 1);
+}
+
+/* Vault headline figures are rolled in JS; all the stylesheet owes them is a
+   width that does not jiggle as the digits change. */
+.vstat__num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- off, for anyone who asked ---------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .app__list .section,
+  .vaultview,
+  .tripsview,
+  .expiry,
+  .recipes,
+  .about,
+  .rail__tab--on .rail__icon,
+  .rail__badge {
+    animation: none;
+  }
+
+  .card,
+  .expiry-card,
+  .vault-card,
+  .trackcta,
+  .cookrow__main,
+  .shoprow,
+  .presult,
+  .newlist__choice,
+  .quickpick {
+    transition: none;
+  }
+
+  .card:active,
+  .expiry-card:active,
+  .vault-card:active,
+  .trackcta:active,
+  .cookrow__main:active,
+  .presult:active,
+  .newlist__choice:active,
+  .quickpick:active,
+  .fab:active,
+  .newlist-btn:active,
+  .gearbtn:active,
+  .etl__act:active,
+  .vrow__add:active,
+  .cookrow__add:active {
+    transform: none;
+  }
+}

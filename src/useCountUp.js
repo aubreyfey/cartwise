@@ -10,9 +10,16 @@ import { useEffect, useRef, useState } from 'react'
  * Eased out rather than linear: fast at first, settling at the end. A linear
  * count reads as a slot machine.
  */
-export function useCountUp(value, { duration = 500 } = {}) {
-  const [shown, setShown] = useState(value)
-  const from = useRef(value)
+/**
+ * @param {number} [from] where to start on the first render. Without it the
+ *   hook begins at the value, so nothing rolls the first time it is seen —
+ *   which is right for a running total already on screen, and wrong for a
+ *   headline figure whose whole job is to arrive.
+ */
+export function useCountUp(value, { duration = 500, from: startAt } = {}) {
+  const initial = typeof startAt === 'number' ? startAt : value
+  const [shown, setShown] = useState(initial)
+  const from = useRef(initial)
   const frame = useRef(0)
 
   useEffect(() => {
