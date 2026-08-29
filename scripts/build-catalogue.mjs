@@ -38,9 +38,60 @@ const HEADERS = {
 const COUNTRIES = {
   ph: 'ph', us: 'us', gb: 'uk', au: 'au', sg: 'sg',
   my: 'my', id: 'id', th: 'th', jp: 'jp', in: 'in',
+  uk: 'uk', mx: 'mx', de: 'de',
 }
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
+
+// Open Food Facts full country names, for the newer search service, which
+// filters on a tag rather than a subdomain.
+const COUNTRY_TAGS = {
+  ph: 'philippines', us: 'united-states', uk: 'united-kingdom', au: 'australia',
+  sg: 'singapore', my: 'malaysia', id: 'indonesia', th: 'thailand',
+  jp: 'japan', in: 'india', mx: 'mexico', de: 'germany',
+}
+
+/** The legacy country-subdomain search. Richer, and frequently unavailable. */
+const legacyUrl = (slug, page) =>
+  `https://${slug}.openfoodfacts.org/cgi/search.pl?action=process&json=1` +
+  `&fields=code,product_name,brands,quantity&page_size=${PAGE}&page=${page}`
+
+/** The newer search service. Fewer products, but it stays up. */
+const searchUrl = (code, page) =>
+  'https://search.openfoodfacts.org/search?q=' +
+  encodeURIComponent(`countries_tags:"en:${COUNTRY_TAGS[code] ?? code}"`) +
+  `&page_size=${PAGE}&page=${page}&fields=code,product_name,brands,quantity`
+
+/**
+ * One page from whichever source will answer, normalised to the same shape.
+ *
+ * Tries the legacy route first because it indexes more, and falls through
+ * rather than failing the run — a partial catalogue from the working service
+ * is worth more than an error from the better one.
+ *
+ * Once it has fallen through it stays fallen through. Re-trying a service that
+ * is down costs five retries with exponential backoff — about ninety seconds —
+ * on every single page, which is slower than the whole rest of the fetch and
+ * looked exactly like the fetch being stuck.
+ */
+let preferred = null
+
+async function fetchPage(slug, code, page) {
+  if (preferred !== 'search') {
+    try {
+      // One attempt, not five: the point here is to find out whether this
+      // route is alive, and the retries belong to whichever route wins.
+      const body = await getJson(legacyUrl(slug, page), RETRIES)
+      preferred = 'legacy'
+      return { products: body.products ?? [], total: body.count ?? 0, via: 'legacy' }
+    } catch {
+      if (preferred === null) console.log('  legacy route is down; using the search service')
+      preferred = 'search'
+    }
+  }
+  const body = await getJson(searchUrl(code, page))
+  return { products: body.hits ?? [], total: body.count ?? 0, via: 'search' }
+}
 
 async function getJson(url, attempt = 1) {
   try {
@@ -75,7 +126,11 @@ function clean(product) {
     name = name.replace(/\b\p{L}[\p{L}']*/gu, (w) => w[0].toUpperCase() + w.slice(1))
   }
 
-  const brand = String(product.brands ?? '').split(',')[0].trim().slice(0, 40) || ''
+  const brands = Array.isArray(product.brands) ? product.brands.join(',') : product.brands
+  let brand = String(brands ?? '').split(',')[0].trim().slice(0, 40) || ''
+  // Crowdsourced brands include stray numbers and punctuation where someone
+  // typed into the wrong field. A brand with no letters in it is not a brand.
+  if (!/\p{L}/u.test(brand)) brand = ''
 
   // "3" is not a quantity. Keep only sizes that carry a unit.
   const raw = String(product.quantity ?? '').trim()
@@ -118,18 +173,16 @@ async function fetchCountry(slug, code) {
     // Nothing to resume from; start at the beginning.
   }
 
+  let via = null
   while (true) {
-    const url =
-      `https://${slug}.openfoodfacts.org/cgi/search.pl?action=process&json=1` +
-      `&fields=code,product_name,brands,quantity&page_size=${PAGE}&page=${page}`
-
-    const body = await getJson(url)
-    if (total === null) {
-      total = body.count ?? 0
-      console.log(`  ${slug}: ${total} products, ${Math.ceil(total / PAGE)} pages`)
+    const body = await fetchPage(slug, code, page)
+    if (total === null || via !== body.via) {
+      total = body.total
+      via = body.via
+      console.log(`  ${slug} via ${body.via}: ${total} products, ${Math.ceil(total / PAGE)} pages`)
     }
 
-    const products = body.products ?? []
+    const products = body.products
     if (products.length === 0) break
 
     for (const product of products) {
