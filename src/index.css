@@ -7725,6 +7725,19 @@ button.card:hover {
   white-space: nowrap;
 }
 
+/* With a price as well, the two stack under one another beside the pin. Left
+   as two independently positioned elements they landed on top of each other,
+   and the price — the reason this map exists — was the one underneath. */
+.mapmark:has(.mapmark__price) .mapmark__label {
+  top: -0.95rem;
+}
+
+.mapmark__price {
+  position: absolute;
+  left: 0.7rem;
+  top: 0.15rem;
+}
+
 .mapmark__you {
   display: block;
   width: 0.8rem;
@@ -9199,4 +9212,101 @@ button.card:hover {
    labels needed most on a narrow phone. */
 .rail__tab {
   min-width: 3.9rem;
+}
+
+/* --------------------------------------------- where you have bought it
+
+   The shops map answers "where do I shop". This answers the narrower and more
+   useful question — where can I get *this*, and for how much — which is what
+   decides whether the other shop is worth the journey. */
+
+.pmap {
+  margin: 0 0 1rem;
+  padding: 0.85rem 0.9rem;
+  background: var(--paper-sunk, rgba(0, 0, 0, 0.03));
+  border-radius: var(--radius-sm, 10px);
+}
+
+.pmap__gap {
+  margin: 0 0 0.7rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.pmap__gap strong {
+  color: var(--money);
+  font-variant-numeric: tabular-nums;
+}
+
+.pmap .mapbox {
+  margin-bottom: 0.7rem;
+}
+
+.pmap__list {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.pmap__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  background: var(--surface);
+  border-radius: var(--radius-sm, 10px);
+  border-left: 3px solid transparent;
+}
+
+/* Cheapest gets the marker, and only when there is another shop to beat it. */
+.pmap__row--best {
+  border-left-color: var(--money);
+}
+
+.pmap__where {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.pmap__name {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.pmap__when {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.pmap__price {
+  font-size: 0.9rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.pmap__note {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* The price under a pin, on the product map. */
+.mapmark__price {
+  display: block;
+  margin-top: 1px;
+  padding: 1px 5px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 999px;
+  white-space: nowrap;
 }

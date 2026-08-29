@@ -3,6 +3,8 @@ import { formatMoney, parsePrice } from '../money.js'
 import { UNITS } from '../units.js'
 import { historyFor, priceStats, storeComparison } from '../purchases.js'
 import { expectedRange, paidRange, suggestExpected } from '../priceRange.js'
+import { priceGap, productShops, seenAgo } from '../productMap.js'
+import StoreMap from './StoreMap.jsx'
 import Sticker from '../stickers.jsx'
 import Icon from '../icons.jsx'
 
@@ -60,6 +62,11 @@ export default function ProductDetail({
   const byStore = useMemo(() => storeComparison(purchases, item.id), [purchases, item.id])
   const paid = useMemo(() => paidRange(purchases, item.id), [purchases, item.id])
   const expected = expectedRange(item)
+  const shops = useMemo(
+    () => productShops(purchases, stores, item.id),
+    [purchases, stores, item.id],
+  )
+  const gap = useMemo(() => priceGap(shops), [shops])
 
   const set = (patch) => setFields((f) => ({ ...f, ...patch }))
   const sticker =
@@ -220,6 +227,55 @@ export default function ProductDetail({
                 </button>
               )}
             </section>
+
+            {shops.all.length > 0 && (
+              <section className="pmap">
+                <h3 className="prange__head">Where you have bought it</h3>
+
+                {gap && (
+                  <p className="pmap__gap">
+                    <strong>{formatMoney(gap.difference)}</strong> between{' '}
+                    {gap.cheapest.name} and {gap.dearest.name}
+                  </p>
+                )}
+
+                {/* Only shops whose location you have saved can be drawn. The
+                    rest are listed below — they still sell the thing. */}
+                {shops.located.length > 0 && (
+                  <StoreMap
+                    stores={shops.located.map((s) => ({
+                      id: s.storeId ?? s.name,
+                      name: s.name,
+                      location: s.location,
+                    }))}
+                    labelFor={(store) => {
+                      const row = shops.located.find((s) => s.name === store.name)
+                      return row ? formatMoney(row.price) : null
+                    }}
+                  />
+                )}
+
+                <ul className="pmap__list">
+                  {shops.all.map((s) => (
+                    <li className={`pmap__row ${s.cheapest ? 'pmap__row--best' : ''}`} key={s.name}>
+                      <span className="pmap__where">
+                        <span className="pmap__name">{s.name}</span>
+                        <span className="pmap__when">
+                          {seenAgo(s.lastSeen) ?? 'date unknown'}
+                          {!s.location && ' · no location saved'}
+                        </span>
+                      </span>
+                      <span className="pmap__price">{formatMoney(s.price)}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="pmap__note">
+                  Prices you recorded, not live shelf prices. A shop appears on
+                  the map once you have saved its location while standing in it.
+                </p>
+              </section>
+            )}
 
             <dl className="pdetail__rows">
               <div className="pdetail__row">

@@ -16,6 +16,10 @@ const TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 const ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 
+// Marker HTML is built as a string, so anything interpolated into it has to be
+// stripped first. A shop is named by the user and could contain anything.
+const clean = (value) => String(value ?? '').replace(/[<>&"']/g, '')
+
 /**
  * Where your shops are.
  *
@@ -25,7 +29,12 @@ const ATTRIBUTION =
  * tiles come from a server — so it says so plainly when it cannot reach one
  * rather than showing grey squares.
  */
-export default function StoreMap({ stores = [], here = null, onPick }) {
+/**
+ * @param {(store) => string|null} [labelFor] extra text under a pin's name —
+ *   the price paid there, on the product map. Escaped before it reaches the
+ *   marker's HTML, same as the name.
+ */
+export default function StoreMap({ stores = [], here = null, onPick, labelFor = null }) {
   const holder = useRef(null)
   const map = useRef(null)
   const [state, setState] = useState('loading')
@@ -79,9 +88,12 @@ export default function StoreMap({ stores = [], here = null, onPick }) {
         const marker = L.marker([store.location.lat, store.location.lon], {
           icon: L.divIcon({
             className: 'mapmark',
-            html: `<span class="mapmark__pin"></span><span class="mapmark__label">${
-              store.name.replace(/[<>&]/g, '')
-            }</span>`,
+            html:
+              '<span class="mapmark__pin"></span>' +
+              `<span class="mapmark__label">${clean(store.name)}</span>` +
+              (labelFor?.(store)
+                ? `<span class="mapmark__price">${clean(labelFor(store))}</span>`
+                : ''),
             iconSize: [0, 0],
           }),
           keyboard: true,
@@ -117,7 +129,7 @@ export default function StoreMap({ stores = [], here = null, onPick }) {
       cancelled = true
     }
     // Re-drawn when the shops or your position change.
-  }, [stores.length, here?.lat, here?.lon])
+  }, [stores.length, here?.lat, here?.lon, labelFor])
 
   useEffect(
     () => () => {

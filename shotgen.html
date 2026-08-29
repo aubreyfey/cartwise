@@ -78,6 +78,14 @@
           ] },
         { id: 'c3', name: 'School Supplies', budget: 5000, storeId: null, createdAt: Date.now(), items: [] },
       ]))
+      // ?shoploc=1 gives the seeded shops real Cebu coordinates, so the
+      // product map has something to draw.
+      if (!COLD && S.has('shoploc')) {
+        const withLoc = JSON.parse(localStorage.getItem('cartwise.stores'))
+        const pins = [{ lat: 10.3157, lon: 123.8854 }, { lat: 10.3200, lon: 123.8930 }]
+        withLoc.forEach((st, i) => { st.location = pins[i % pins.length] })
+        localStorage.setItem('cartwise.stores', JSON.stringify(withLoc))
+      }
       if (!COLD) localStorage.setItem('cartwise.activeCart', JSON.stringify('c1'))
       // ?expect=1 puts a price range on Bananas, so the over-budget flag on a
       // list row can be photographed.
