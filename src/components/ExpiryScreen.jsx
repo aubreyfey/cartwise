@@ -50,6 +50,7 @@ export default function ExpiryScreen({
   const [expiresAt, setExpiresAt] = useState('')
   const [place, setPlace] = useState(DEFAULT_PLACE)
   const [grouping, setGrouping] = useState('timeline')
+  const [adding, setAdding] = useState(false)
 
   const groups = useMemo(
     () =>
@@ -80,6 +81,7 @@ export default function ExpiryScreen({
     setName('')
     setQty('1')
     setExpiresAt('')
+    setAdding(false)
   }
 
   return (
@@ -166,120 +168,6 @@ export default function ExpiryScreen({
         </p>
       )}
 
-      <form className="add-form" onSubmit={submit}>
-        <div className="add-form__combo">
-          <input
-            className="add-form__name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="What did you put away?"
-            aria-label="Item name"
-            autoComplete="off"
-          />
-        </div>
-
-        {suggestions.length > 0 && (
-          <ul className="quickpicks">
-            {suggestions.map((s) => (
-              <li key={s.id}>
-                <button
-                  type="button"
-                  className="quickpick"
-                  onClick={() => {
-                    setName(s.name)
-                    setUnit(s.unit ?? DEFAULT_UNIT)
-                  }}
-                >
-                  <Sticker id={stickerFor(s.name, s.category)} size={18} />
-                  {s.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div className="add-form__row">
-          <label className="field">
-            <span className="field__label">Qty</span>
-            <input
-              className="field__input field__input--qty"
-              type="number"
-              min="0"
-              step="any"
-              inputMode="decimal"
-              value={qty}
-              onChange={(e) => setQty(e.target.value)}
-            />
-          </label>
-
-          <label className="field">
-            <span className="field__label">Per</span>
-            <select
-              className="field__input field__input--unit"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-            >
-              {UNITS.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="field field--grow">
-            <span className="field__label">Use by</span>
-            <input
-              className="field__input"
-              type="date"
-              value={expiresAt}
-              onChange={(e) => setExpiresAt(e.target.value)}
-            />
-          </label>
-        </div>
-
-        {/* One tap instead of wrestling a date picker for the common cases. */}
-        <div className="quickset">
-          {QUICK_SETS.map((q) => (
-            <button
-              key={q.id}
-              type="button"
-              className={`quickset__btn ${expiresAt === dateInDays(q.days) ? 'quickset__btn--on' : ''}`}
-              onClick={() => setExpiresAt(dateInDays(q.days))}
-            >
-              {q.label}
-            </button>
-          ))}
-          {expiresAt && (
-            <button
-              type="button"
-              className="quickset__btn quickset__btn--clear"
-              onClick={() => setExpiresAt('')}
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
-        <div className="places">
-          {PLACES.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className={`places__btn ${place === p.id ? 'places__btn--on' : ''}`}
-              onClick={() => setPlace(p.id)}
-              aria-pressed={place === p.id}
-            >
-              <Icon name={p.icon} size={15} />
-              {p.label}
-            </button>
-          ))}
-        </div>
-
-        <button className="btn btn--primary" type="submit" disabled={!name.trim()}>
-          Add
-        </button>
-      </form>
 
       {grouping !== 'timeline' && (groups.length === 0 ? (
         <p className="empty">
@@ -427,6 +315,154 @@ export default function ExpiryScreen({
           </section>
         ))
       ))}
+      {adding && (
+        <div className="sheet" role="presentation" onMouseDown={() => setAdding(false)}>
+          <div
+            className="addsheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Track something new"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="addsheet__head">
+              <h2 className="picker__title">Track something new</h2>
+              <button
+                className="psearch__close"
+                type="button"
+                onClick={() => setAdding(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+          <form className="add-form" onSubmit={submit}>
+            <div className="add-form__combo">
+              <input
+                className="add-form__name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="What did you put away?"
+                aria-label="Item name"
+                autoComplete="off"
+              />
+            </div>
+    
+            {suggestions.length > 0 && (
+              <ul className="quickpicks">
+                {suggestions.map((s) => (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      className="quickpick"
+                      onClick={() => {
+                        setName(s.name)
+                        setUnit(s.unit ?? DEFAULT_UNIT)
+                      }}
+                    >
+                      <Sticker id={stickerFor(s.name, s.category)} size={18} />
+                      {s.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+    
+            <div className="add-form__row">
+              <label className="field">
+                <span className="field__label">Qty</span>
+                <input
+                  className="field__input field__input--qty"
+                  type="number"
+                  min="0"
+                  step="any"
+                  inputMode="decimal"
+                  value={qty}
+                  onChange={(e) => setQty(e.target.value)}
+                />
+              </label>
+    
+              <label className="field">
+                <span className="field__label">Per</span>
+                <select
+                  className="field__input field__input--unit"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                >
+                  {UNITS.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+    
+              <label className="field field--grow">
+                <span className="field__label">Use by</span>
+                <input
+                  className="field__input"
+                  type="date"
+                  value={expiresAt}
+                  onChange={(e) => setExpiresAt(e.target.value)}
+                />
+              </label>
+            </div>
+    
+            {/* One tap instead of wrestling a date picker for the common cases. */}
+            <div className="quickset">
+              {QUICK_SETS.map((q) => (
+                <button
+                  key={q.id}
+                  type="button"
+                  className={`quickset__btn ${expiresAt === dateInDays(q.days) ? 'quickset__btn--on' : ''}`}
+                  onClick={() => setExpiresAt(dateInDays(q.days))}
+                >
+                  {q.label}
+                </button>
+              ))}
+              {expiresAt && (
+                <button
+                  type="button"
+                  className="quickset__btn quickset__btn--clear"
+                  onClick={() => setExpiresAt('')}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+    
+            <div className="places">
+              {PLACES.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`places__btn ${place === p.id ? 'places__btn--on' : ''}`}
+                  onClick={() => setPlace(p.id)}
+                  aria-pressed={place === p.id}
+                >
+                  <Icon name={p.icon} size={15} />
+                  {p.label}
+                </button>
+              ))}
+            </div>
+    
+            <button className="btn btn--primary" type="submit" disabled={!name.trim()}>
+              Add
+            </button>
+          </form>
+          </div>
+        </div>
+      )}
+
+      {/* One obvious way to add something, in the corner a thumb reaches —
+          the same gesture as the list screen. */}
+      <button
+        className="fab fab--overnav"
+        type="button"
+        onClick={() => setAdding(true)}
+        aria-label="Track something new"
+      >
+        <span aria-hidden="true">+</span>
+      </button>
     </div>
   )
 }
