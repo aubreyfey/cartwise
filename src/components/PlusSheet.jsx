@@ -1,4 +1,4 @@
-import { PLUS_FEATURES, PLUS_PRICE } from '../plus.js'
+import { PLUS_FEATURES, PLUS_PRICE, TRIAL_DAYS, trialState } from '../plus.js'
 import { formatMoney } from '../money.js'
 import Mascot from './Mascot.jsx'
 import Icon from '../icons.jsx'
@@ -14,7 +14,8 @@ import Icon from '../icons.jsx'
  * Features that do not exist yet are listed as not-yet rather than promised.
  * A paywall must not sell something it cannot deliver.
  */
-export default function PlusSheet({ onClose, onDevGrant = null }) {
+export default function PlusSheet({ onClose, onDevGrant = null, onStartTrial = null }) {
+  const trial = trialState()
   return (
     <div className="sheet" onMouseDown={onClose} role="presentation">
       <section
@@ -54,17 +55,43 @@ export default function PlusSheet({ onClose, onDevGrant = null }) {
           for the parts that need a server, plus a bit of colour.
         </p>
 
+        {trial.state === 'active' && (
+          <p className="plussheet__trial plussheet__trial--on">
+            Your free week is running — <strong>{trial.daysLeft}</strong>{' '}
+            {trial.daysLeft === 1 ? 'day' : 'days'} left.
+          </p>
+        )}
+
+        {trial.state === 'over' && (
+          <p className="plussheet__trial">
+            Your free week has finished. Photo backgrounds you already set are
+            still there.
+          </p>
+        )}
+
         <div className="plussheet__honest">
           <strong>Plus isn't on sale yet.</strong> Payments aren't set up, so
-          there is nothing to buy today — this is here so you can see what it
-          will be and what it will cost. Nothing you are using now will start
-          costing money.
+          there is nothing to buy today. The free week below is real and costs
+          nothing — a photo behind your own list never leaves your phone, so
+          there is nothing to charge for yet. Nothing you are using now will
+          start costing money.
         </div>
 
         <div className="plussheet__actions">
-          <button className="btn btn--primary" type="button" onClick={onClose}>
-            Got it
-          </button>
+          {trial.state === 'unused' && onStartTrial ? (
+            <>
+              <button className="btn btn--primary" type="button" onClick={onStartTrial}>
+                Start my free {TRIAL_DAYS} days
+              </button>
+              <button className="btn btn--ghost" type="button" onClick={onClose}>
+                Not now
+              </button>
+            </>
+          ) : (
+            <button className="btn btn--primary" type="button" onClick={onClose}>
+              Got it
+            </button>
+          )}
         </div>
 
         {/* A way to switch the entitlement on locally, for testing the gated

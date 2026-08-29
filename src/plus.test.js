@@ -10,6 +10,9 @@ import {
   isPlus,
   photoGateState,
   setPlus,
+  startTrial,
+  trialState,
+  TRIAL_KEY,
 } from './plus.js'
 
 const realWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
@@ -143,5 +146,68 @@ describe('the offer itself', () => {
     for (const f of PLUS_FEATURES) {
       assert.ok(f.label && f.label.length > 8, f.id)
     }
+  })
+})
+
+describe('the free week', () => {
+  const DAY = 86_400_000
+  const NOW = 1_760_000_000_000
+
+  it('is unused before anyone starts it', () => {
+    fakeWindow()
+    assert.equal(trialState(NOW).state, 'unused')
+    assert.equal(isPlus(NOW), false)
+  })
+
+  it('grants Plus while it runs', () => {
+    fakeWindow()
+    assert.equal(startTrial(NOW), true)
+    assert.equal(trialState(NOW).state, 'active')
+    assert.equal(isPlus(NOW), true)
+  })
+
+  it('counts down the days left', () => {
+    fakeWindow()
+    startTrial(NOW)
+    assert.equal(trialState(NOW).daysLeft, 7)
+    assert.equal(trialState(NOW + 2 * DAY).daysLeft, 5)
+    // Never says "0 days left" while it is still running.
+    assert.equal(trialState(NOW + 6.5 * DAY).daysLeft, 1)
+  })
+
+  it('expires after seven days and takes Plus with it', () => {
+    fakeWindow()
+    startTrial(NOW)
+    assert.equal(trialState(NOW + 7 * DAY).state, 'over')
+    assert.equal(isPlus(NOW + 7 * DAY), false)
+  })
+
+  it('cannot be started twice', () => {
+    // The start date stays in storage after it expires, which is what stops
+    // a second tap handing out another week.
+    fakeWindow()
+    assert.equal(startTrial(NOW), true)
+    assert.equal(startTrial(NOW + 30 * DAY), false)
+    assert.equal(trialState(NOW + 30 * DAY).state, 'over')
+  })
+
+  it('keeps a subscriber past the trial ending', () => {
+    fakeWindow()
+    startTrial(NOW)
+    setPlus(true)
+    assert.equal(isPlus(NOW + 90 * DAY), true)
+  })
+
+  it('ignores a start date that is not a real number', () => {
+    const store = fakeWindow()
+    store.set(TRIAL_KEY, 'yesterday')
+    assert.equal(trialState(NOW).state, 'unused')
+  })
+
+  it('does not crash when storage is blocked', () => {
+    fakeWindow({ throws: true })
+    assert.doesNotThrow(() => startTrial(NOW))
+    assert.equal(trialState(NOW).state, 'unused')
+    assert.equal(isPlus(NOW), false)
   })
 })

@@ -98,7 +98,7 @@ import { backupUrgency, requestPersistence } from './persistence.js'
 import { expectedRange } from './priceRange.js'
 import { homeMascotState } from './mascotState.js'
 import { useEdgeSwipe } from './useEdgeSwipe.js'
-import { isPlus, setPlus } from './plus.js'
+import { isPlus, setPlus, startTrial } from './plus.js'
 import { contributionEnabled } from './sync/prices.js'
 import { excludeOnList, restockDue } from './restock.js'
 import { productKey, reportsFromPurchases } from './community.js'
@@ -1143,6 +1143,11 @@ export default function App() {
     )}
     {wantPlus && (
       <PlusSheet
+        onStartTrial={() => {
+          startTrial()
+          setPlusState(isPlus())
+          setWantPlus(false)
+        }}
         onClose={() => setWantPlus(false)}
         onDevGrant={() => {
           setPlus(true)

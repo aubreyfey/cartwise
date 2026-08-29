@@ -17,6 +17,11 @@
 // sale.
 
 export const PLUS_KEY = 'cartwise.plus'
+export const TRIAL_KEY = 'cartwise.plusTrialStarted'
+
+/** A week, which is one shop for most people and two for some. */
+export const TRIAL_DAYS = 7
+const DAY = 86_400_000
 
 // ₱9 for the first month, then ₱99 a year. Kept here so the sheet and any
 // future checkout read the same numbers from one place.
@@ -34,12 +39,69 @@ export const PLUS_FEATURES = [
   { id: 'community', label: 'Community price comparison', live: false },
 ]
 
-export function isPlus() {
+/** Whether the entitlement has been granted outright, trial aside. */
+export function isSubscribed() {
   try {
     return window.localStorage.getItem(PLUS_KEY) === 'true'
   } catch {
     return false
   }
+}
+
+/** When the free week was started, or null. */
+export function trialStartedAt() {
+  try {
+    const raw = window.localStorage.getItem(TRIAL_KEY)
+    const at = raw ? Number(raw) : NaN
+    return Number.isFinite(at) && at > 0 ? at : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Where the free week stands.
+ *
+ * 'unused' — never started, and can be
+ * 'active' — running, with days left
+ * 'over'   — started and finished
+ *
+ * A trial that has run cannot be run again: the start date stays in storage
+ * after it expires, which is what stops it being restarted by tapping the
+ * button a second time.
+ */
+export function trialState(now = Date.now()) {
+  const started = trialStartedAt()
+  if (started === null) return { state: 'unused', daysLeft: TRIAL_DAYS }
+  const elapsed = now - started
+  if (elapsed >= TRIAL_DAYS * DAY) return { state: 'over', daysLeft: 0 }
+  return { state: 'active', daysLeft: Math.max(1, Math.ceil((TRIAL_DAYS * DAY - elapsed) / DAY)) }
+}
+
+/**
+ * Start the free week. Returns false if one has already been used, so the
+ * caller can say so rather than silently doing nothing.
+ */
+export function startTrial(now = Date.now()) {
+  if (trialStartedAt() !== null) return false
+  try {
+    window.localStorage.setItem(TRIAL_KEY, String(now))
+  } catch {
+    // Applies for this session regardless.
+  }
+  return true
+}
+
+/**
+ * Should the app offer the Plus features?
+ *
+ * Subscribed, or inside the free week. Same caveat as ever: this answers
+ * "show the feature", never "allow this person to consume server resources".
+ * Nothing here costs anything to provide, which is the only reason a trial
+ * can be honoured entirely on the client.
+ */
+export function isPlus(now = Date.now()) {
+  return isSubscribed() || trialState(now).state === 'active'
 }
 
 export function setPlus(on) {
