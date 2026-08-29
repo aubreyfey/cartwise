@@ -2,6 +2,7 @@ import AccountPanel from './AccountPanel.jsx'
 import DataPanel from './DataPanel.jsx'
 import Icon from '../icons.jsx'
 import { CURRENCIES, currencySymbol } from '../currency.js'
+import { MODES } from '../theme.js'
 import { CATALOGUE_COUNTRIES } from '../catalogueCountries.js'
 import { ACCENTS, TEXTURES } from '../theme.js'
 import Sticker from '../stickers.jsx'
@@ -25,6 +26,8 @@ export default function SettingsScreen({
   onNameChange,
   currency,
   onCurrencyChange,
+  mode,
+  onModeChange,
   accent,
   onAccentChange,
   texture,
@@ -101,6 +104,28 @@ export default function SettingsScreen({
         </label>
       )}
 
+      {onModeChange && (
+        <section className="setting">
+          <span className="setting__label">Appearance</span>
+          <div className="segmented modes" role="group" aria-label="Appearance">
+            {MODES.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                className={`segmented__btn ${mode === m.id ? 'segmented__btn--on' : ''}`}
+                onClick={() => onModeChange(m.id)}
+                aria-pressed={mode === m.id}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+          <span className="setting__hint">
+            Automatic follows your phone. Pick Light or Dark to keep CartWise
+            one way whatever your phone is set to.
+          </span>
+        </section>
+      )}
       <section className="setting">
         <span className="setting__label">Accent</span>
         <ul className="accents">

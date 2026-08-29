@@ -28,6 +28,7 @@ import {
   savePaper,
   saveAccent,
   saveSaturation,
+  saveMode,
   saveTexture,
   saveTextureStrength,
   watchColorScheme,
@@ -199,6 +200,7 @@ export default function App() {
   /** Apply and persist in one move, so no setting can be applied but not saved. */
   function changeLook(next) {
     setLook({
+      mode: saveMode(next.mode),
       accent: saveAccent(next.accent),
       texture: saveTexture(next.texture),
       paper: savePaper(next.paper),
@@ -1448,6 +1450,8 @@ export default function App() {
         onNameChange={setDisplayName}
         currency={currency}
         onCurrencyChange={changeCurrency}
+        mode={look.mode}
+        onModeChange={(id) => changeLook({ ...look, mode: id })}
         accent={look.accent}
         onAccentChange={(id) => changeLook({ ...look, accent: id })}
         texture={look.texture}

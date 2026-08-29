@@ -18,6 +18,10 @@ import {
   paperOf,
   textureInk,
   textureOf,
+  DEFAULT_MODE,
+  MODES,
+  isDark,
+  modeOf,
 } from './theme.js'
 
 describe('look choices', () => {
@@ -48,11 +52,43 @@ describe('look choices', () => {
   it('defaults to the look the app shipped with', () => {
     assert.deepEqual(defaultLook(), {
       accent: DEFAULT_ACCENT,
+      mode: DEFAULT_MODE,
       texture: DEFAULT_TEXTURE,
       paper: DEFAULT_PAPER,
       textureStrength: DEFAULT_TEXTURE_STRENGTH,
       saturation: DEFAULT_SATURATION,
     })
+  })
+})
+
+describe('appearance mode', () => {
+  it('offers automatic, light and dark, and nothing else', () => {
+    assert.deepEqual(MODES.map((m) => m.id), ['system', 'light', 'dark'])
+  })
+
+  it('defaults to following the phone', () => {
+    assert.equal(DEFAULT_MODE, 'system')
+  })
+
+  it('falls back to automatic for anything it does not recognise', () => {
+    // A stored value from an older build, or a hand-edited one, must not leave
+    // the app in a state with no appearance at all.
+    for (const junk of ['midnight', '', null, undefined, 'DARK']) {
+      assert.equal(modeOf(junk), 'system')
+    }
+  })
+
+  it('keeps a real choice', () => {
+    assert.equal(modeOf('light'), 'light')
+    assert.equal(modeOf('dark'), 'dark')
+  })
+
+  it('answers "is it dark" without asking the system, once told', () => {
+    // The stylesheet decides this for itself through data-theme, but the
+    // accent's soft variant and the paper colour are resolved in JavaScript.
+    // The two have to agree exactly or half the theme is the wrong one.
+    assert.equal(isDark('dark'), true)
+    assert.equal(isDark('light'), false)
   })
 })
 

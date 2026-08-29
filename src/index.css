@@ -37,7 +37,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #0b0b0d;
     --surface: #161619;
     --surface-2: #1e1e22;
@@ -61,6 +61,35 @@
     --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.55);
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark'] {
+    --bg: #0b0b0d;
+    --surface: #161619;
+    --surface-2: #1e1e22;
+    --border: #2a2a2f;
+    --hairline: rgb(255 255 255 / 0.08);
+    --text: #f4f4f6;
+    --text-muted: #9d9da6;
+    --text-faint: #6a6a73;
+
+    --primary: #9c8bff;
+    --primary-soft: #211d3a;
+    --primary-ink: #12101c;
+
+    --money: #47c07d;
+    --money-soft: #12291d;
+    --danger: #f2695f;
+    --danger-soft: #2c1614;
+    --amber: #e0a02c;
+
+    --shadow: 0 1px 1px rgb(0 0 0 / 0.4), 0 2px 8px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.55);
+  }
+
+
 
 * {
   box-sizing: border-box;
@@ -3550,11 +3579,21 @@ textarea {
 }
 
 @media (prefers-color-scheme: dark) {
-  .card.card--tinted,
-  .budget--tinted {
+  :root:not([data-theme='light']) .card.card--tinted,
+  :root:not([data-theme='light']) .budget--tinted {
     background: var(--card-bg-dark, var(--surface));
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark'] .card.card--tinted,
+  :root[data-theme='dark'] .budget--tinted {
+    background: var(--card-bg-dark, var(--surface));
+  }
+
+
 
 .budget__titlerow {
   display: flex;
@@ -3624,10 +3663,19 @@ textarea {
 }
 
 @media (prefers-color-scheme: dark) {
-  .swatch {
+  :root:not([data-theme='light']) .swatch {
     background: var(--card-bg-dark, var(--surface));
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark'] .swatch {
+    background: var(--card-bg-dark, var(--surface));
+  }
+
+
 
 .swatch--on {
   border-color: var(--primary);
@@ -3785,7 +3833,28 @@ body::before {
 }
 
 :root[data-texture='paper'] body::before {
-  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 5px);
+  /* currentColor drives the other textures and cannot reach inside an SVG
+     data URI, so the grain carries its own neutral ink and the strength
+     slider moves its opacity instead. */
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 12%, rgb(0 0 0 / 0.014), transparent 70%),
+    radial-gradient(ellipse 70% 45% at 82% 78%, rgb(0 0 0 / 0.012), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23f)' opacity='0.42'/%3E%3C/svg%3E");
+  background-size: auto, auto, 140px 140px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  /* The slider runs 0–16%; paper wants roughly three times that to register
+     at all, because noise reads far fainter than a line does. */
+  opacity: calc(var(--texture-ink, 7%) * 3);
+  mix-blend-mode: multiply;
+}
+
+/* On a dark page multiply would erase the grain; lighten puts it back as
+   faint highlights, which is what grain looks like on dark paper anyway. */
+@media (prefers-color-scheme: dark) {
+  :root[data-texture='paper'] body::before {
+    mix-blend-mode: lighten;
+    opacity: calc(var(--texture-ink, 7%) * 1.4);
+  }
 }
 
 :root[data-texture='weave'] body::before {
@@ -7157,7 +7226,7 @@ button.card:hover {
 /* Dark mode: the same material over a dark ground. The rim drops to a hint,
    because a bright white edge on a dark bar reads as a border, not as light. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .rail {
+  :root:not([data-theme='light']):not([data-theme='light']) .rail {
     background: color-mix(in srgb, var(--surface) 58%, transparent);
     box-shadow:
       inset 0 1px 0 0 rgb(255 255 255 / 0.14),
@@ -7166,6 +7235,20 @@ button.card:hover {
       0 14px 34px -10px rgb(0 0 0 / 0.55);
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark']:not([data-theme='light']) .rail {
+    background: color-mix(in srgb, var(--surface) 58%, transparent);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.14),
+      inset 0 0 0 1px rgb(255 255 255 / 0.07),
+      0 2px 6px -2px rgb(0 0 0 / 0.5),
+      0 14px 34px -10px rgb(0 0 0 / 0.55);
+  }
+
+
 
 :root[data-theme='dark'] .rail {
   background: color-mix(in srgb, var(--surface) 58%, transparent);
@@ -7195,10 +7278,19 @@ button.card:hover {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .rail__tab--on {
+  :root:not([data-theme='light']):not([data-theme='light']) .rail__tab--on {
     box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.1);
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark']:not([data-theme='light']) .rail__tab--on {
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.1);
+  }
+
+
 
 /* The sheet scrim gets the prefix too — same bug, same one-line cause. */
 
@@ -7671,10 +7763,19 @@ button.card:hover {
 /* Dark mode inverts and re-inverts the hues so roads stay light-on-dark
    rather than the whole map turning into a negative. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .mapbox__canvas .leaflet-tile-pane {
+  :root:not([data-theme='light']):not([data-theme='light']) .mapbox__canvas .leaflet-tile-pane {
     filter: invert(0.92) hue-rotate(180deg) saturate(0.3) brightness(0.95);
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark']:not([data-theme='light']) .mapbox__canvas .leaflet-tile-pane {
+    filter: invert(0.92) hue-rotate(180deg) saturate(0.3) brightness(0.95);
+  }
+
+
 
 /* Leaflet paints its own white; keep it from fighting a dark theme. */
 .mapbox__canvas .leaflet-container {
@@ -8806,10 +8907,19 @@ button.card:hover {
 }
 
 @media (prefers-color-scheme: dark) {
-  .app__list--themed {
+  :root:not([data-theme='light']) .app__list--themed {
     background: var(--items-bg-dark, transparent);
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark'] .app__list--themed {
+    background: var(--items-bg-dark, transparent);
+  }
+
+
 
 .app__list--photo {
   background-attachment: fixed;
@@ -8836,7 +8946,7 @@ button.card:hover {
 }
 
 @media (prefers-color-scheme: dark) {
-  .app__list--themed .section {
+  :root:not([data-theme='light']) .app__list--themed .section {
     background: color-mix(in srgb, var(--surface) 52%, transparent);
     border-color: color-mix(in srgb, #fff 14%, transparent);
     box-shadow:
@@ -8844,6 +8954,19 @@ button.card:hover {
       0 4px 20px rgb(0 0 0 / 0.35);
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark'] .app__list--themed .section {
+    background: color-mix(in srgb, var(--surface) 52%, transparent);
+    border-color: color-mix(in srgb, #fff 14%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, #fff 12%, transparent),
+      0 4px 20px rgb(0 0 0 / 0.35);
+  }
+
+
 
 /* The rules between rows are hairlines on paper. On glass they read as dirt,
    so they lighten to match the pane. */
@@ -8893,10 +9016,19 @@ button.card:hover {
 }
 
 @media (prefers-color-scheme: dark) {
-  .app__list--photo .section {
+  :root:not([data-theme='light']) .app__list--photo .section {
     background: color-mix(in srgb, var(--surface) 62%, transparent);
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark'] .app__list--photo .section {
+    background: color-mix(in srgb, var(--surface) 62%, transparent);
+  }
+
+
 
 /* Faint greys are calibrated against paper. On glass they are the first thing
    to go, and an item already in the cart still has to be readable. */
@@ -9102,7 +9234,7 @@ button.card:hover {
 }
 
 @media (prefers-color-scheme: dark) {
-  .etl__rail {
+  :root:not([data-theme='light']) .etl__rail {
     background: color-mix(in srgb, var(--surface) 55%, transparent);
     border-color: color-mix(in srgb, #fff 12%, transparent);
     box-shadow:
@@ -9110,6 +9242,19 @@ button.card:hover {
       0 2px 12px rgb(0 0 0 / 0.3);
   }
 }
+
+/* The same, when dark has been chosen in Settings rather than inherited
+   from the phone. */
+
+  :root[data-theme='dark'] .etl__rail {
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    border-color: color-mix(in srgb, #fff 12%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent),
+      0 2px 12px rgb(0 0 0 / 0.3);
+  }
+
+
 
 /* Glass fails quietly, and a rail nobody can read is worse than a plain one. */
 @supports not (background: color-mix(in srgb, white 50%, transparent)) {
@@ -9542,4 +9687,15 @@ button.card:hover {
   background: color-mix(in srgb, var(--surface) 78%, transparent);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
+}
+
+/* The three appearance choices, as one control rather than a dropdown — with
+   only three options a segmented control shows all of them at once. */
+.modes {
+  width: 100%;
+  margin-top: 0.3rem;
+}
+
+.modes .segmented__btn {
+  flex: 1;
 }

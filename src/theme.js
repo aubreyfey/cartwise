@@ -15,6 +15,7 @@ const TEXTURE_KEY = 'cartwise.texture'
 const PAPER_KEY = 'cartwise.paper'
 const TEXTURE_STRENGTH_KEY = 'cartwise.textureStrength'
 const SATURATION_KEY = 'cartwise.saturation'
+const MODE_KEY = 'cartwise.mode'
 
 export const ACCENTS = [
   { id: 'violet', label: 'Violet', color: '#7b5ea7', soft: '#f0eaf8', softDark: '#2c2440' },
@@ -40,6 +41,25 @@ export const TEXTURES = [
 ]
 
 export const DEFAULT_TEXTURE = 'none'
+
+/**
+ * Light, dark, or whatever the phone says.
+ *
+ * "System" is the default and the right one for most people, but it is not the
+ * right one for everyone: plenty of people keep their phone dark all day and
+ * still want a shopping list that reads like paper under supermarket
+ * strip-lighting. Following the system with no way out is a decision made on
+ * their behalf.
+ */
+export const MODES = [
+  { id: 'system', label: 'Automatic' },
+  { id: 'light', label: 'Light' },
+  { id: 'dark', label: 'Dark' },
+]
+
+export const DEFAULT_MODE = 'system'
+const MODE_IDS = new Set(MODES.map((m) => m.id))
+export const modeOf = (id) => (MODE_IDS.has(id) ? id : DEFAULT_MODE)
 
 // The paper the app is printed on. Kept within a hair of white so body text
 // keeps its contrast — a tint you can name is already too strong to read on.
@@ -139,6 +159,11 @@ function read(key, fallback) {
 }
 
 export const loadAccent = () => accentOf(read(ACCENT_KEY, DEFAULT_ACCENT))
+export const loadMode = () => modeOf(read(MODE_KEY, DEFAULT_MODE))
+export const saveMode = (id) => {
+  write(MODE_KEY, modeOf(id))
+  return modeOf(id)
+}
 export const loadTexture = () => textureOf(read(TEXTURE_KEY, DEFAULT_TEXTURE))
 export const loadPaper = () => paperOf(read(PAPER_KEY, DEFAULT_PAPER))
 export const loadTextureStrength = () =>
@@ -149,6 +174,7 @@ export const loadSaturation = () =>
 /** Everything the look is made of, read from storage in one go. */
 export const loadLook = () => ({
   accent: loadAccent(),
+  mode: loadMode(),
   texture: loadTexture(),
   paper: loadPaper(),
   textureStrength: loadTextureStrength(),
@@ -163,6 +189,15 @@ const prefersDark = () =>
   typeof window !== 'undefined' &&
   window.matchMedia?.('(prefers-color-scheme: dark)').matches
 
+/**
+ * Whether the app is dark right now.
+ *
+ * The stylesheet answers this for itself through data-theme, but the accent's
+ * soft variant and the paper colour are resolved in JavaScript, so this has to
+ * agree with the CSS exactly or the two halves of the theme disagree.
+ */
+export const isDark = (mode) => (modeOf(mode) === 'system' ? prefersDark() : modeOf(mode) === 'dark')
+
 export function applyTheme(look = {}) {
   if (typeof document === 'undefined') return
   const {
@@ -171,12 +206,19 @@ export function applyTheme(look = {}) {
     paper: paperId,
     textureStrength,
     saturation,
+    mode,
   } = look
 
   const accent = ACCENT_BY_ID[accentOf(accentId)]
   const paper = PAPER_BY_ID[paperOf(paperId)]
-  const dark = prefersDark()
+  const dark = isDark(mode)
   const root = document.documentElement
+
+  // Stamped so the stylesheet can override the system preference. Absent for
+  // "system", which is what leaves prefers-color-scheme in charge.
+  const chosen = modeOf(mode)
+  if (chosen === 'system') delete root.dataset.theme
+  else root.dataset.theme = chosen
 
   // An inline custom property beats the stylesheet's dark-mode block, so the
   // right variant has to be chosen here. Setting the light one unconditionally
@@ -250,6 +292,7 @@ export function saveSaturation(value) {
 export function defaultLook() {
   return {
     accent: DEFAULT_ACCENT,
+    mode: DEFAULT_MODE,
     texture: DEFAULT_TEXTURE,
     paper: DEFAULT_PAPER,
     textureStrength: DEFAULT_TEXTURE_STRENGTH,

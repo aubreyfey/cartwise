@@ -212,6 +212,8 @@
         if (b) { b.expectedLow = 8; b.expectedHigh = 10 }
         localStorage.setItem('cartwise.vault', JSON.stringify(applyExpect))
       }
+      // ?mode=dark|light|system exercises the appearance override.
+      if (S.get('mode')) localStorage.setItem('cartwise.mode', JSON.stringify(S.get('mode')))
       if (!COLD) localStorage.setItem('cartwise.sort', JSON.stringify('aisle'))
 
       const clicks = (S.get('click') || '').split('|').filter(Boolean)
