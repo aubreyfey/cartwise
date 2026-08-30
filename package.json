@@ -16,7 +16,8 @@
     "fonts": "node scripts/fonts.mjs",
     "check:console": "node scripts/console-check.mjs",
     "check:keyboard": "node scripts/keyboard-check.mjs",
-    "check:hooks": "node scripts/hooks-check.mjs"
+    "check:hooks": "node scripts/hooks-check.mjs",
+    "launch-images": "node scripts/launch-images.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
