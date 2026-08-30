@@ -9699,3 +9699,178 @@ button.card:hover {
 .modes .segmented__btn {
   flex: 1;
 }
+
+/* ================================================================== launch
+
+   Over the app, not in front of it: the app is mounted and interactive
+   underneath before this has finished leaving. */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  transition: opacity 380ms ease-out, transform 380ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.splash--leaving {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+.splash__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* The mascot arrives first and overshoots, because a character that eases
+   politely into place does not read as a character. */
+@keyframes splash-mascot {
+  0% { opacity: 0; transform: scale(0.55) translateY(26px); }
+  60% { opacity: 1; transform: scale(1.06) translateY(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.splash__mascot {
+  display: block;
+  animation: splash-mascot 620ms cubic-bezier(0.3, 1.3, 0.4, 1) both;
+  /* A cast shadow is what stops it looking pasted on. */
+  filter: drop-shadow(0 10px 16px rgb(20 20 25 / 0.18));
+}
+
+@keyframes splash-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.splash__word {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text);
+  animation: splash-rise 460ms 240ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+
+.splash__line {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  animation: splash-rise 460ms 380ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+
+/* ================================================================== depth
+
+   Flat surfaces on flat surfaces read as a diagram. What makes an interface
+   look built rather than drawn is light behaving consistently: one source
+   above, a tight contact shadow where a thing meets the page, a wider ambient
+   one further out, and a highlight along the top edge where the light lands.
+
+   Three layers, not one blur — a single soft shadow is the thing that makes
+   an app look like a wireframe of itself. */
+
+:root {
+  --lift-1:
+    0 1px 1px rgb(20 20 25 / 0.04),
+    0 2px 6px rgb(20 20 25 / 0.05),
+    0 8px 20px -8px rgb(20 20 25 / 0.10);
+  --lift-2:
+    0 1px 2px rgb(20 20 25 / 0.05),
+    0 4px 12px rgb(20 20 25 / 0.07),
+    0 16px 32px -12px rgb(20 20 25 / 0.14);
+  --lift-3:
+    0 2px 4px rgb(20 20 25 / 0.08),
+    0 8px 20px rgb(20 20 25 / 0.10),
+    0 28px 48px -16px rgb(20 20 25 / 0.20);
+  /* The light comes from above, so the top edge catches it. */
+  --sheen: inset 0 1px 0 rgb(255 255 255 / 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --lift-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.3);
+    --lift-2: 0 2px 4px rgb(0 0 0 / 0.45), 0 10px 24px rgb(0 0 0 / 0.4);
+    --lift-3: 0 4px 8px rgb(0 0 0 / 0.5), 0 20px 40px rgb(0 0 0 / 0.5);
+    --sheen: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  }
+}
+
+:root[data-theme='dark'] {
+  --lift-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.3);
+  --lift-2: 0 2px 4px rgb(0 0 0 / 0.45), 0 10px 24px rgb(0 0 0 / 0.4);
+  --lift-3: 0 4px 8px rgb(0 0 0 / 0.5), 0 20px 40px rgb(0 0 0 / 0.5);
+  --sheen: inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+/* Cards sit on the page. */
+.card,
+.section,
+.budget,
+.expiry-card,
+.vault-card,
+.vstat__cell,
+.trackcta,
+.add-form,
+.insights,
+.compare,
+.byg,
+.restock {
+  box-shadow: var(--lift-1), var(--sheen);
+}
+
+/* Sheets sit well above it. */
+.picker,
+.psearch,
+.trackx,
+.cookbook,
+.plussheet,
+.addsheet,
+.newlistsheet {
+  box-shadow: var(--lift-3);
+}
+
+/* The floating controls are the highest things on the page and should look
+   it — a shadow that reads as distance rather than as a border. */
+.fab {
+  box-shadow:
+    0 2px 6px rgb(20 20 25 / 0.18),
+    0 10px 24px -6px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+.rail {
+  box-shadow: var(--lift-2), var(--sheen);
+}
+
+/* The mascot casts a shadow wherever it appears, which is the difference
+   between a character standing on the page and a sticker lying on it. */
+.mascot {
+  filter: drop-shadow(0 3px 5px rgb(20 20 25 / 0.14));
+}
+
+/* Pressing something moves it towards the page, so its shadow tightens as it
+   goes — light does not stay still while an object moves. */
+.card:active,
+.expiry-card:active,
+.vault-card:active,
+.trackcta:active {
+  box-shadow: 0 1px 2px rgb(20 20 25 / 0.10), var(--sheen);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash,
+  .splash__mascot,
+  .splash__word,
+  .splash__line {
+    animation: none;
+    transition: none;
+  }
+}

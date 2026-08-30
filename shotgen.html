@@ -265,7 +265,8 @@
           setTimeout(() => { f.contentWindow.scrollTo(0, scroll) }, delay + 400)
         }
       })
-      f.src = '/'
+      // Pass the splash hold through to the app inside the frame.
+      f.src = S.get('splashms') ? '/?splashms=' + encodeURIComponent(S.get('splashms')) : '/'
     </script>
   </body>
 </html>

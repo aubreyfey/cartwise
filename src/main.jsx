@@ -5,6 +5,7 @@ import App from './App.jsx'
 // Development-only contact sheet for the mascot: ?mascots=1
 import MascotSheet from './dev/MascotSheet.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import Launch from './components/Launch.jsx'
 import { StickerDefs } from './stickers.jsx'
 import './index.css'
 
@@ -21,7 +22,9 @@ createRoot(document.getElementById('root')).render(
       {import.meta.env.DEV && new URLSearchParams(location.search).has('mascots') ? (
         <MascotSheet />
       ) : (
-        <App />
+        <Launch>
+          <App />
+        </Launch>
       )}
     </ErrorBoundary>
   </StrictMode>,
