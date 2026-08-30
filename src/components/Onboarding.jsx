@@ -22,7 +22,14 @@ export default function Onboarding({ base = '/', onFinish }) {
   const [stickerName, setStickerName] = useState('')
   const [note, setNote] = useState(null)
   const [busy, setBusy] = useState(false)
-  const fileRef = useRef(null)
+  // Two inputs, because they open two different things. With
+  // capture="environment" the phone goes straight to the camera and offers no
+  // way out to the library; without it, iOS and Android show their own sheet —
+  // Take Photo, Photo Library, Choose File. Someone photographing the tin in
+  // front of them wants the first. Someone who already shot it, or is setting
+  // the app up on the sofa, wants the second.
+  const cameraRef = useRef(null)
+  const libraryRef = useRef(null)
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -212,7 +219,18 @@ export default function Onboarding({ base = '/', onFinish }) {
           sticker, so you recognise it on the list at a glance.
         </p>
 
-        <div className="onb__stage">
+        {/* The photo itself is the control. A placeholder that looks like a
+            slot for a picture gets tapped whether or not anything is listening,
+            so something had better be. It opens the picker without a capture
+            hint, which is what makes the phone offer both the camera and the
+            library rather than choosing for you. */}
+        <button
+          className="onb__stage onb__stage--pick"
+          type="button"
+          onClick={() => libraryRef.current?.click()}
+          disabled={busy}
+          aria-label={sticker ? 'Change the photo' : 'Add a photo'}
+        >
           {sticker ? (
             <img className="sticker-photo onb__preview" src={sticker} alt="" />
           ) : (
@@ -220,7 +238,15 @@ export default function Onboarding({ base = '/', onFinish }) {
               <Icon name="camera" size={44} strokeWidth={1.4} />
             </span>
           )}
-        </div>
+        </button>
+
+        <p className="onb__hint">
+          {busy
+            ? 'Reading…'
+            : sticker
+              ? 'Tap the photo to change it'
+              : 'Tap to take one now or pick one you already have'}
+        </p>
 
         {sticker && (
           <input
@@ -237,13 +263,14 @@ export default function Onboarding({ base = '/', onFinish }) {
         {note && <p className="onb__note">{note}</p>}
 
         <input
-          ref={fileRef}
+          ref={cameraRef}
           type="file"
           accept="image/*"
           capture="environment"
           onChange={pickFile}
           hidden
         />
+        <input ref={libraryRef} type="file" accept="image/*" onChange={pickFile} hidden />
       </div>
 
       <div className="onb__actions">
@@ -253,8 +280,8 @@ export default function Onboarding({ base = '/', onFinish }) {
         <button
           className="btn btn--primary btn--wide"
           type="button"
-          onClick={() => (sticker && stickerName.trim() ? done() : fileRef.current?.click())}
-          disabled={busy}
+          onClick={() => (sticker ? done() : cameraRef.current?.click())}
+          disabled={busy || (!!sticker && !stickerName.trim())}
         >
           {busy ? 'Reading…' : sticker ? 'Save sticker' : 'Take a photo'}
         </button>

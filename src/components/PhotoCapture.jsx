@@ -15,7 +15,10 @@ const WORK = 320 // photo is downscaled to this before processing
 const PAD = 0.06 // breathing room around the cut-out, as a fraction
 
 export default function PhotoCapture({ name, existing, onSave, onRemove, onCancel }) {
-  const fileRef = useRef(null)
+  // See the note in Onboarding: capture="environment" is a one-way trip to
+  // the camera, so the library needs an input of its own.
+  const cameraRef = useRef(null)
+  const libraryRef = useRef(null)
   const sourceRef = useRef(null) // the loaded HTMLImageElement
   const canvasRef = useRef(null)
   const [preview, setPreview] = useState(null)
@@ -136,7 +139,13 @@ export default function PhotoCapture({ name, existing, onSave, onRemove, onCance
         <h2 className="capture__title">Make a sticker</h2>
         <p className="capture__sub">{name}</p>
 
-        <div className="capture__stage">
+        <button
+          className="capture__stage capture__stage--pick"
+          type="button"
+          onClick={() => libraryRef.current?.click()}
+          disabled={busy}
+          aria-label={preview || existing ? 'Change the photo' : 'Add a photo'}
+        >
           {preview ? (
             <img className="capture__preview sticker-photo" src={preview} alt="" />
           ) : existing ? (
@@ -144,10 +153,10 @@ export default function PhotoCapture({ name, existing, onSave, onRemove, onCance
           ) : (
             <div className="capture__placeholder">
               <Icon name="camera" size={40} strokeWidth={1.4} />
-              <span>Photograph the product on a plain surface</span>
+              <span>Photograph the product on a plain surface, or tap to pick a photo</span>
             </div>
           )}
-        </div>
+        </button>
 
         {sourceRef.current && (
           <label className="capture__slider">
@@ -168,19 +177,20 @@ export default function PhotoCapture({ name, existing, onSave, onRemove, onCance
         {note && <p className={`capture__note capture__note--${note.tone}`}>{note.text}</p>}
 
         <input
-          ref={fileRef}
+          ref={cameraRef}
           type="file"
           accept="image/*"
           capture="environment"
           onChange={pickFile}
           hidden
         />
+        <input ref={libraryRef} type="file" accept="image/*" onChange={pickFile} hidden />
 
         <div className="capture__actions">
           <button
             className="btn btn--ghost"
             type="button"
-            onClick={() => fileRef.current?.click()}
+            onClick={() => cameraRef.current?.click()}
             disabled={busy}
           >
             {busy ? 'Reading…' : sourceRef.current ? 'Retake' : 'Take a photo'}
