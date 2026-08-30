@@ -15,7 +15,62 @@
 // the basket and an enlarged face. That is the size it appears at on the
 // getting-started card, where it has to read as a character in 22 pixels.
 
+import { useId } from 'react'
+
 const INK = '#2b2b30'
+
+/**
+ * The light: above and a little to the left.
+ *
+ * Modelled as white and black laid over the accent rather than as fixed
+ * colours, so the shading holds up whatever accent someone picks. A set of
+ * gradients hard-coded for violet would look wrong the moment the basket
+ * turned rose.
+ *
+ * Ids are suffixed per instance because two mascots on one page — the launch
+ * screen behind a card, say — would otherwise share one set of gradients, and
+ * the second would silently reference the first's.
+ */
+function Shading({ id }) {
+  return (
+    <defs>
+      {/* The lit face, strongest at the top-left curve. */}
+      <linearGradient id={`ml-${id}`} x1="0.15" y1="0" x2="0.75" y2="1">
+        <stop offset="0" stopColor="#fff" stopOpacity="0.34" />
+        <stop offset="0.42" stopColor="#fff" stopOpacity="0.08" />
+        <stop offset="1" stopColor="#fff" stopOpacity="0" />
+      </linearGradient>
+
+      {/* The turn away from the light, down the right and into the base. */}
+      <linearGradient id={`ms-${id}`} x1="1" y1="0.15" x2="0.25" y2="1">
+        <stop offset="0" stopColor="#000" stopOpacity="0.18" />
+        <stop offset="0.55" stopColor="#000" stopOpacity="0.05" />
+        <stop offset="1" stopColor="#000" stopOpacity="0.22" />
+      </linearGradient>
+
+      {/* Occlusion: the rim overhangs the body, so the body is darkest just
+          under it. This is the single layer that does the most to make a
+          shape look solid rather than printed. */}
+      <linearGradient id={`mo-${id}`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#000" stopOpacity="0.3" />
+        <stop offset="0.22" stopColor="#000" stopOpacity="0" />
+      </linearGradient>
+
+      {/* The rim is a cylinder: lit along the top, dark underneath. */}
+      <linearGradient id={`mr-${id}`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#fff" stopOpacity="0.42" />
+        <stop offset="0.45" stopColor="#fff" stopOpacity="0.05" />
+        <stop offset="1" stopColor="#000" stopOpacity="0.16" />
+      </linearGradient>
+
+      {/* Everything painted over the body has to stop at its edge. */}
+      <clipPath id={`mc-${id}`}>
+        <path d="M29 56h62l-4.5 36a7.5 7.5 0 0 1-7.5 6.5H41A7.5 7.5 0 0 1 33.5 92z" />
+      </clipPath>
+    </defs>
+  )
+}
+
 
 /**
  * Eyes and mouth per state, in body coordinates.
@@ -209,6 +264,9 @@ export default function Mascot({
   className = '',
   title = null,
 }) {
+  // Gradient ids have to be unique per instance: two mascots on one page
+  // would otherwise share a set, and the second would reference the first's.
+  const uid = useId().replace(/:/g, '')
   const empty = state === 'sad'
   const walking = state === 'walking'
   const cheerful = state === 'happy' || state === 'success' || state === 'wink'
@@ -299,6 +357,7 @@ export default function Mascot({
       )}
 
       {/* ------------------------------------------------------------ body */}
+      {!simple && <Shading id={uid} />}
       <path
         d="M29 56h62l-4.5 36a7.5 7.5 0 0 1-7.5 6.5H41A7.5 7.5 0 0 1 33.5 92z"
         fill="var(--primary)"
@@ -306,6 +365,17 @@ export default function Mascot({
         strokeWidth="2.8"
         strokeLinejoin="round"
       />
+
+      {/* The modelling, clipped to the body. Order is the order light works
+          in: the lit face, then the turn into shadow, then the occlusion
+          under the overhanging rim. */}
+      {!simple && (
+        <g clipPath={`url(#mc-${uid})`}>
+          <path d="M29 56h62l-4.5 36a7.5 7.5 0 0 1-7.5 6.5H41A7.5 7.5 0 0 1 33.5 92z" fill={`url(#ml-${uid})`} />
+          <path d="M29 56h62l-4.5 36a7.5 7.5 0 0 1-7.5 6.5H41A7.5 7.5 0 0 1 33.5 92z" fill={`url(#ms-${uid})`} />
+          <path d="M29 56h62l-4.5 36a7.5 7.5 0 0 1-7.5 6.5H41A7.5 7.5 0 0 1 33.5 92z" fill={`url(#mo-${uid})`} />
+        </g>
+      )}
       {/* Moulded grooves — what makes it read as a plastic basket. Dropped at
           small sizes, where they are noise competing with the face. */}
       {!simple && (
@@ -322,7 +392,15 @@ export default function Mascot({
 
       {/* Rim, proud of the body so the basket has a lip. */}
       <rect x="25" y="47" width="70" height="13" rx="6.5" fill="var(--primary)" stroke={INK} strokeWidth="2.8" />
-      {!simple && <rect x="28.5" y="50" width="63" height="3.5" rx="1.8" fill="#fff" opacity=".24" />}
+      {!simple && (
+        <>
+          <rect x="26.4" y="48.4" width="67.2" height="10.2" rx="5.1" fill={`url(#mr-${uid})`} />
+          {/* A specular streak where the light actually lands, short and
+              off-centre — a highlight running the full width reads as a
+              printed stripe rather than as light. */}
+          <rect x="31" y="49.6" width="26" height="2.6" rx="1.3" fill="#fff" opacity=".5" />
+        </>
+      )}
 
       {/* ------------------------------------------------------------ face */}
       {/* Blush in black at low opacity, so it deepens whatever accent is set

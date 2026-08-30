@@ -9874,3 +9874,40 @@ button.card:hover {
     transition: none;
   }
 }
+
+/* The stickers already had form — a gradient body, a specular highlight and a
+   die-cut white edge. What they had no cue for was sitting on anything: a
+   shape with volume and no cast shadow reads as printed onto the surface
+   rather than resting on it.
+
+   Kept tight and low-opacity. A drop shadow on something 20px across is one
+   or two pixels of dark under the bottom edge; anything more and forty of
+   them in a list turn the page grey. */
+.sticker {
+  filter: drop-shadow(0 1px 1px rgb(20 20 25 / 0.22));
+}
+
+/* On a list row the stickers sit in a well, so they get a touch more — the
+   thumb behind them gives the shadow somewhere to land. */
+.item__thumb .sticker,
+.vrow__thumb .sticker,
+.etl__thumb .sticker,
+.presult__thumb .sticker {
+  filter: drop-shadow(0 1.5px 1.5px rgb(20 20 25 / 0.26));
+}
+
+/* Overlapping stickers on a home card each need their own edge, or the pile
+   flattens into one silhouette. */
+.card__stickers > .sticker {
+  filter: drop-shadow(0 1px 2px rgb(20 20 25 / 0.28));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .sticker {
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5));
+  }
+}
+
+:root[data-theme='dark'] .sticker {
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5));
+}
